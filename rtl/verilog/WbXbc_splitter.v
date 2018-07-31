@@ -26,7 +26,7 @@
 //#                            +-------------------+                            #
 //#                            |                   |--->                        #
 //#                            |                   |                            #
-//#                 one        |       WbXbc       |--->  multiple              #
+//#               single       |      WbXbc        |--->  multiple              #
 //#              initiator --->|     splitter      |       target               #
 //#                 bus        |                   | ...   busses               #
 //#                            |                   |                            #
@@ -65,8 +65,8 @@ module WbXbc_splitter
     input  wire [SEL_WIDTH-1:0]            itr_sel_i,        //write data selects        | initiator
     input  wire [ADDR_WIDTH-1:0]           itr_adr_i,        //address bus               | to
     input  wire [DATA_WIDTH-1:0]           itr_dat_i,        //write data bus            | target
-    input  wire [TGT_CNT-1:0]              itr_tga_tgtsel_i, //tags from address decoder |
     input  wire [TGA_WIDTH-1:0]            itr_tga_i,        //generic address tags      |
+    input  wire [TGT_CNT-1:0]              itr_tga_tgtsel_i, //tags from address decoder |
     input  wire [TGC_WIDTH-1:0]            itr_tgc_i,        //bus cycle tags            |
     input  wire [TGWD_WIDTH-1:0]           itr_tgd_i,        //write data tags           +-
     output wire                            itr_ack_o,        //bus cycle acknowledge     +-

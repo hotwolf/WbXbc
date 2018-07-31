@@ -74,8 +74,8 @@ module WbXbc_address_decoder
     output wire [DATA_WIDTH-1:0]           itr_dat_o,        //read data bus             |
     output wire [TGRD_WIDTH-1:0]           itr_tgd_o,        //read data tags            +-
 
-    //Target interfaces
-    //-----------------
+    //Target interface
+    //----------------
     output wire                            tgt_cyc_o,        //bus cycle indicator       +-
     output wire                            tgt_stb_o,        //access request            |
     output wire                            tgt_we_o,         //write enable              |
