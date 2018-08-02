@@ -228,8 +228,8 @@ module WbXbc_xbar
             .tgt_stb_o          (distributor_stb_o[(TGT_CNT*(i+1))-1:TGT_CNT*i]),                             //access request            |
             .tgt_we_o           (distributor_we_o[(TGT_CNT*(i+1))-1:TGT_CNT*i]),                              //write enable              |
             .tgt_lock_o         (distributor_lock_o[(TGT_CNT*(i+1))-1:TGT_CNT*i]),                            //uninterruptable bus cycle |
-            .tgt_sel_o          (distributor_sel_o[(TGT_CNT*SEL_WIDTH*(i+1))-1:TGT_CNT*SEL_WIDTH*i]),         //target selector           | initiator
-            .tgt_adr_o          (distributor_adr_o[(TGT_CNT*ADDR_WIDTH*(i+1))-1:TGT_CNT*ADDR_WIDTH*i]),       //write data selects        | to
+            .tgt_sel_o          (distributor_sel_o[(TGT_CNT*SEL_WIDTH*(i+1))-1:TGT_CNT*SEL_WIDTH*i]),         //write data selects        | initiator
+            .tgt_adr_o          (distributor_adr_o[(TGT_CNT*ADDR_WIDTH*(i+1))-1:TGT_CNT*ADDR_WIDTH*i]),       //address bus               | to
             .tgt_dat_o          (distributor_dat_o[(TGT_CNT*DATA_WIDTH*(i+1))-1:TGT_CNT*DATA_WIDTH*i]),       //write data bus            | target
             .tgt_tga_o          (distributor_tga_o[(TGT_CNT*(TGA_WIDTH+1)*(i+1))-1:TGT_CNT*(TGA_WIDTH+1)*i]), //address tags              |
             .tgt_tgc_o          (distributor_tgc_o[(TGT_CNT*TGC_WIDTH*(i+1))-1:TGT_CNT*TGC_WIDTH*i]),         //bus cycle tags            |

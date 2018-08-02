@@ -189,7 +189,7 @@ module WbXbc_distributor
             .itr_sel_i          (itr_sel_i),                    //write data selects        | initiator
             .itr_adr_i          (itr_adr_i),                    //address bus               | to
             .itr_dat_i          (itr_dat_i),                    //write data bus            | target
-            .itr_tga_i          (itr_tga_i),                    //address tags                          |
+            .itr_tga_i          (itr_tga_i),                    //address tags              |
             .itr_tgc_i          (itr_tgc_i),                    //bus cycle tags            |
             .itr_tgd_i          (itr_tgd_i),                    //write data tags           +-
             .itr_ack_o          (itr_ack_o),                    //bus cycle acknowledge     +-
@@ -205,7 +205,7 @@ module WbXbc_distributor
             .tgt_stb_o          (adec_stb),                     //access request            |
             .tgt_we_o           (adec_we),                      //write enable              |
             .tgt_lock_o         (adec_lock),                    //uninterruptable bus cycle |
-            .tgt_sel_o          (adec_sel),                     //target selector           | initiator
+            .tgt_sel_o          (adec_sel),                     //write data selects         | initiator
             .tgt_adr_o          (adec_adr),                     //write data selects        | to
             .tgt_dat_o          (adec_wdat),                    //write data bus            | target
             .tgt_tga_o          (adec_tga),                     //address tags              |
@@ -263,7 +263,7 @@ module WbXbc_distributor
             .tgt_stb_o           (errgen_stb),                  //access request            |
             .tgt_we_o            (errgen_we),                   //write enable              |
             .tgt_lock_o          (errgen_lock),                 //uninterruptable bus cycle |
-            .tgt_sel_o           (errgen_sel),                  //target selector           | initiator
+            .tgt_sel_o           (errgen_sel),                  //write data selects        | initiator
             .tgt_adr_o           (errgen_adr),                  //write data selects        | to
             .tgt_dat_o           (errgen_wdat),                 //write data bus            | target
             .tgt_tga_o           (errgen_tga),                  //address tags              |

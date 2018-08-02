@@ -80,7 +80,7 @@ module WbXbc_address_decoder
     output wire                            tgt_stb_o,        //access request            |
     output wire                            tgt_we_o,         //write enable              |
     output wire                            tgt_lock_o,       //uninterruptable bus cycle |
-    output wire [SEL_WIDTH-1:0]            tgt_sel_o,        //target selector           | initiator
+    output wire [SEL_WIDTH-1:0]            tgt_sel_o,        //write data selects        | initiator
     output wire [ADDR_WIDTH-1:0]           tgt_adr_o,        //write data selects        | to
     output wire [DATA_WIDTH-1:0]           tgt_dat_o,        //write data bus            | target
     output wire [TGA_WIDTH-1:0]            tgt_tga_o,        //address tags              |

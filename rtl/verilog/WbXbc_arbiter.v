@@ -133,8 +133,8 @@ module WbXbc_arbiter
    always @(posedge async_rst_i or posedge clk_i)
      if(async_rst_i)                                      //asynchronous reset
        cur_itr_reg <= {ITR_CNT{1'b0}};                    //reset initiator selector
-//     else if(sync_rst_i)                                  //synchronous reset
-//       cur_itr_reg <= {ITR_CNT{1'b0}};                    //reset initiator selector
+     else if(sync_rst_i)                                  //synchronous reset
+       cur_itr_reg <= {ITR_CNT{1'b0}};                    //reset initiator selector
      else if (capture_req)
        cur_itr_reg <= arb_req;                            //capture next iterator selector
 
@@ -274,17 +274,19 @@ module WbXbc_arbiter
             end // case: STATE_ACK_PENDING
           //default:
           //  begin
-          //     state_next = STATE_READY;      //catch runawy state machine
+          //     state_next = STATE_READY;                            //catch runawy state machine
           //  end
         endcase // case (state_reg)
      end // always @ (state            or...
 
    //State variable
    always @(posedge async_rst_i or posedge clk_i)
-     if (async_rst_i)
+     if (async_rst_i)                                                 //asynchronous reset
+       state_reg <= STATE_READY;
+     else if (sync_rst_i)                                             //synchronous reset
        state_reg <= STATE_READY;
      else if(1)
-       state_reg <= sync_rst_i ? STATE_READY :  //synchronous reset
-                                 state_next;    //state transition
+       state_reg <= sync_rst_i ? STATE_READY :                        //synchronous reset
+                                 state_next;                          //state transition
 
 endmodule // WbXbc_arbiter

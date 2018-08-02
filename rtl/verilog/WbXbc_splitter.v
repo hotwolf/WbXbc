@@ -106,8 +106,10 @@ module WbXbc_splitter
 
    //Target bus tracker
    always @(posedge async_rst_i or posedge clk_i)
-     if (async_rst_i | sync_rst_i)
-       cur_tgt_reg <= {TGT_CNT{1'b0}};                       //reset bus tracker
+     if (async_rst_i)                                        //asynchronous reset
+       cur_tgt_reg <= {TGT_CNT{1'b0}};
+     else if (sync_rst_i)                                    //synchronous reset
+       cur_tgt_reg <= {TGT_CNT{1'b0}};
      else if (itr_cyc_i & itr_stb_i)
        cur_tgt_reg <= new_tgt;                               //update bus tracker
 

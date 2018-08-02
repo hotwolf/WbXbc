@@ -83,7 +83,7 @@ module WbXbc_error_generator
     output wire                  tgt_stb_o,        //access request            |
     output wire                  tgt_we_o,         //write enable              |
     output wire                  tgt_lock_o,       //uninterruptable bus cycle |
-    output wire [SEL_WIDTH-1:0]  tgt_sel_o,        //target selector           | initiator
+    output wire [SEL_WIDTH-1:0]  tgt_sel_o,        //write data selects        | initiator
     output wire [ADDR_WIDTH-1:0] tgt_adr_o,        //write data selects        | to
     output wire [DATA_WIDTH-1:0] tgt_dat_o,        //write data bus            | target
     output wire [TGA_WIDTH-1:0]  tgt_tga_o,        //address tags              |
@@ -101,38 +101,40 @@ module WbXbc_error_generator
    wire                          any_tgtsel = |itr_tga_tgtsel_i; //any target select asserted
 
    //Internal registers
-   reg                           dummy_access;         //indicates a dummy access
+   reg                           dummy_access_reg;         //indicates a dummy access
 
    //Response to dummy access
    always @(posedge async_rst_i or posedge clk_i)
-     if (async_rst_i | sync_rst_i)
-       dummy_access <= 1'b0;                           //reset indicator
-     else if (~any_tgtsel | itr_cyc_i | itr_stb_i)     //access w/out target
-       dummy_access <= 1'b1;                           //set indicator
+     if (async_rst_i)                                      //asynchronous reset
+       dummy_access_reg <= 1'b0;
+     else if (sync_rst_i)                                  //synchronous reset
+       dummy_access_reg <= 1'b0;                           //reset indicator
+     else if (~any_tgtsel | itr_cyc_i | itr_stb_i)         //access w/out target
+       dummy_access_reg <= 1'b1;                           //set indicator
 
    //Plain signal propagation to the target bus
-   assign tgt_lock_o       = itr_lock_i;               //uninterruptible bus cycle indicators
-   assign tgt_we_o         = itr_we_i;                 //write enable
-   assign tgt_sel_o        = itr_sel_i;                //write data selects
-   assign tgt_adr_o        = itr_adr_i;                //address busses
-   assign tgt_dat_o        = itr_adr_i;                //write data busses
-   assign tgt_tga_o        = itr_tga_i;                //address tags
-   assign tgt_tga_tgtsel_o = itr_tga_tgtsel_i;         //address tags
-   assign tgt_tgc_o        = itr_tgc_i;                //bus cycle tags
-   assign tgt_tgd_o        = itr_tgd_i;                //write data tags
+   assign tgt_lock_o       = itr_lock_i;                   //uninterruptible bus cycle indicators
+   assign tgt_we_o         = itr_we_i;                     //write enable
+   assign tgt_sel_o        = itr_sel_i;                    //write data selects
+   assign tgt_adr_o        = itr_adr_i;                    //address busses
+   assign tgt_dat_o        = itr_adr_i;                    //write data busses
+   assign tgt_tga_o        = itr_tga_i;                    //address tags
+   assign tgt_tga_tgtsel_o = itr_tga_tgtsel_i;             //address tags
+   assign tgt_tgc_o        = itr_tgc_i;                    //bus cycle tags
+   assign tgt_tgd_o        = itr_tgd_i;                    //write data tags
 
    //Interceptable signal propagation to the target bus
-   assign tgt_cyc_o        = itr_cyc_i & any_tgtsel;   //bus cycle indicator
-   assign tgt_stb_o        = itr_stb_i & any_tgtsel;   //access request
+   assign tgt_cyc_o        = itr_cyc_i & any_tgtsel;       //bus cycle indicator
+   assign tgt_stb_o        = itr_stb_i & any_tgtsel;       //access request
 
    //Plain signal propagation to the initiator bus
-   assign itr_ack_o        = tgt_ack_i;                //bus cycle acknowledge
-   assign itr_rty_o        = tgt_rty_i;                //retry request
-   assign itr_stall_o      = tgt_stall_i;              //access delay
-   assign itr_dat_o        = tgt_dat_i;                //read data bus
-   assign itr_tgd_o        = tgt_tgd_i;                //read data tags
+   assign itr_ack_o        = tgt_ack_i;                    //bus cycle acknowledge
+   assign itr_rty_o        = tgt_rty_i;                    //retry request
+   assign itr_stall_o      = tgt_stall_i;                  //access delay
+   assign itr_dat_o        = tgt_dat_i;                    //read data bus
+   assign itr_tgd_o        = tgt_tgd_i;                    //read data tags
 
    //Interceptable signal propagation to the initiator bus
-   assign itr_err_o        = tgt_err_i | dummy_access; //error indicator
+   assign itr_err_o        = tgt_err_i | dummy_access_reg; //error indicator
 
 endmodule // WbXbc_error_generator
