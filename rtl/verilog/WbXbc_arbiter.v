@@ -286,7 +286,6 @@ module WbXbc_arbiter
      else if (sync_rst_i)                                             //synchronous reset
        state_reg <= STATE_READY;
      else if(1)
-       state_reg <= sync_rst_i ? STATE_READY :                        //synchronous reset
-                                 state_next;                          //state transition
+       state_reg <= state_next;                                       //state transition
 
 endmodule // WbXbc_arbiter
