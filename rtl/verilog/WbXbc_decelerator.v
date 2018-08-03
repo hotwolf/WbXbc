@@ -123,7 +123,7 @@ module WbXbc_decelerator
    assign itr_err_o        = ~itr2tgt_sync_i & tgt_err_i;                     //error indicator           | target
    assign itr_rty_o        = ~itr2tgt_sync_i & tgt_rty_i;                     //retry request             | to
    assign itr_stall_o      = ~itr2tgt_sync_i | tgt_stall_i;                   //access delay              | initiator
-   assign itr_dat_o        = tgt_dat_i;                                       //                          |
+   assign itr_dat_o        = tgt_dat_i;                                       //read data bus             |
    assign itr_tgd_o        = tgt_tgd_i;                                       //read data tags            +-
 
 endmodule // WbXbc_decelerator
