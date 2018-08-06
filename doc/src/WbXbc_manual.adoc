@@ -1,0 +1,86 @@
+//###############################################################################
+//# WbXbc - Manual - Main                                                       #
+//###############################################################################
+//#    Copyright 2018 Dirk Heisswolf                                            #
+//#    This file is part of the WbXbc project.                                  #
+//#                                                                             #
+//#    WbXbc is free software: you can redistribute it and/or modify            #
+//#    it under the terms of the GNU General Public License as published by     #
+//#    the Free Software Foundation, either version 3 of the License, or        #
+//#    (at your option) any later version.                                      #
+//#                                                                             #
+//#    WbXbc is distributed in the hope that it will be useful,                 #
+//#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+//#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+//#    GNU General Public License for more details.                             #
+//#                                                                             #
+//#    You should have received a copy of the GNU General Public License        #
+//#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
+//###############################################################################
+//# Version History:                                                            #
+//#   August 6, 2018                                                            #
+//#      - Initial release                                                      #
+//###############################################################################
+
+= WbXbc Manual
+Dirk Heisswolf
+V0.0, 2018-08-01
+:revremark: Initial version
+:doctype: book
+
+//////////////////////////
+Overview
+//////////////////////////
+
+//:leveloffset: 1
+//include::WbXbc_overview.adoc[]
+
+//////////////////////////
+Wishbone pipelined
+bus interface
+//////////////////////////
+
+//:leveloffset: 1
+//include::WbXbc_wishbone.adoc[]
+
+//////////////////////////
+WbXbc integration
+parameters
+//////////////////////////
+
+:leveloffset: 1
+include::WbXbc_parameters.adoc[]
+
+//////////////////////////
+WbXbc interface signals
+//////////////////////////
+
+:leveloffset: 1
+include::WbXbc_signals.adoc[]
+
+//////////////////////////
+WbXbc components
+//////////////////////////
+
+//:leveloffset: 1
+//include::WbXbc_components.adoc[]
+//:leveloffset: 2
+//include::WbXbc_address_decoder.adoc[]
+//include::WbXbc_error_generator.adoc[]
+//include::WbXbc_splitter.adoc[]
+//include::WbXbc_arbiter.adoc[]
+//include::WbXbc_expander.adoc[]
+//include::WbXbc_reducer.adoc[]
+//include::WbXbc_accelerator.adoc[]
+//include::WbXbc_decelerator.adoc[]
+//include::WbXbc_pipeliner.adoc[]
+//include::WbXbc_standardizer.adoc[]
+//include::WbXbc_distributor.adoc[]
+//include::WbXbc_xbar.adoc[]
+
+//////////////////////////
+Verification status
+//////////////////////////
+
+//:leveloffset: 1
+//include::WbXbc_verification.adoc[]

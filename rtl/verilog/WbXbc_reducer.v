@@ -15,7 +15,7 @@
 //#    GNU General Public License for more details.                             #
 //#                                                                             #
 //#    You should have received a copy of the GNU General Public License        #
-//#    along with Ninq1.  If not, see <http://www.gnu.org/licenses/>.           #
+//#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 //###############################################################################
 //# Description:                                                                #
 //#    This module connects a pipelined Wishbone initiator to a target with     #

@@ -59,7 +59,9 @@ module WbXbc_decelerator
     parameter TGA_WIDTH   = 1,  //number of propagated address tags
     parameter TGC_WIDTH   = 1,  //number of propagated cycle tags
     parameter TGRD_WIDTH  = 1,  //number of propagated read data tags
-    parameter TGWD_WIDTH  = 1)  //number of propagated write data tags
+    parameter TGWD_WIDTH  = 1,  //number of propagated write data tags
+    parameter REG_ITR     = 0,  //register initiator bus inputs (request signals)
+    parameter REG_TGT     = 0)  //register target bus inputs (response signals)
 
    (//Clock and reset
     //---------------
