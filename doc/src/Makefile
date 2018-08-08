@@ -25,29 +25,30 @@
 #Source files
 SRC_MAIN = WbXbc_manual.adoc
 
-#ASCIIDoc attributes
-HTML_ATTR   = -b html5 --a toc2 
-PDF_ATTR    = -r asciidoctor-pdf -b pdf
-EPUB_ATTR   = -r asciidoctor-epub3 -b epub3
-COMMON_ATTR = -a toc -a imagesdir=../img -D ..
+#ASCIIDoc command line arguments
+HTML_ARGS   = -b html5 -a toc2
+PDF_ARGS    = -r asciidoctor-pdf -b pdf
+EPUB_ARGS   = -r asciidoctor-epub3 -b epub3
+COMMON_ARGS = -r asciidoctor-bibtex -a toc -a imagesdir=img -D ..
+#COMMON_ARGS = -r asciidoctor-diagram -a toc -a imagesdir=img -D ..
 
 #By default build everything 
-all: clean html pdf
+all: clean html pdf epub
 
 #Set keywords
 .PHONY: all html pdf epub clean
 
 #HTML documentation
 html:	*.adoc
-	asciidoctor $(HTML_ATTR) $(COMMON_ATTR) $(SRC_MAIN)
+	asciidoctor $(HTML_ARGS) $(COMMON_ARGS) $(SRC_MAIN)
 
 #PDF documentation
 pdf:    *.adoc
-	asciidoctor $(PDF_ATTR) $(COMMON_ATTR) $(SRC_MAIN)
+	asciidoctor $(PDF_ARGS) $(COMMON_ARGS) $(SRC_MAIN)
 
 #EPUB documentation
 epub:    *.adoc
-	asciidoctor $(EPUB_ATTR) $(COMMON_ATTR) $(SRC_MAIN)
+	asciidoctor $(EPUB_ARGS) $(COMMON_ARGS) $(SRC_MAIN)
 #Clean up
 clean:
 	rm -f ../*.html ../*.pdf ../*.epub

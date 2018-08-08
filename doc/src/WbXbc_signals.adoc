@@ -22,12 +22,12 @@
 //#      - Initial release                                                      #
 //###############################################################################
 
-= Interface Signals
+== Interface Signals
 
 All WbXbc components share common interface signals, which are described in this
-chapter. Most of these signals refer directly to the Wishbone specification.
+chapter. Most of these signals refer directly to the Wishbone specification cite:[Wishbone].
 
-== General Signals (SYSCON)
+=== General Signals (SYSCON)
 
 clk_i:: Common clock input for all Wishbone interfaces
 
@@ -49,11 +49,73 @@ asynchrounous reset is implemented, this input must be tied to zero.
 
 sync_rst_i:: A synchronous reset signal as required by the Wishbone specification (RST_I). For WbXBC components, this synchronous reset is not required, if an asynchronous reset is provided. If no synchrounous reset is implemented, this input must be tied to zero.
 
-== Signals Driven by the Initiator
+=== Initiator Bus Signals
+
+itr_cyc_i:: TBD 
+
+itr_stb_i:: TBD
+
+itr_we_i:: TBD
+
+itr_lock_i:: TBD
+
+itr_sel_i:: TBD
+
+itr_adr_i:: TBD
+
+itr_dat_i:: TBD
+
+itr_tga_i:: TBD
+
+itr_tgc_i:: TBD
+
+itr_tgd_i:: TBD
+
+itr_ack_o:: TBD
+
+itr_err_o:: TBD
+
+itr_rty_o:: TBD
+
+itr_stall_o:: TBD
+
+itr_dat_o:: TBD
+
+itr_tgd_o:: TBD
 
 
+=== Target Bus Signals
 
-== Signals Driven by the Target
+tgt_cyc_o:: TBD
 
+tgt_stb_o:: TBD    
+
+tgt_we_o:: TBD     
+
+tgt_lock_o:: TBD   
+
+tgt_sel_o:: TBD    
+
+tgt_adr_o:: TBD    
+
+tgt_dat_o:: TBD    
+
+tgt_tga_o:: TBD    
+
+tgt_tgc_o:: TBD    
+
+tgt_tgd_o:: TBD    
+
+tgt_ack_i:: TBD    
+
+tgt_err_i:: TBD    
+
+tgt_rty_i:: TBD    
+
+tgt_stall_i:: TBD  
+
+tgt_dat_i:: TBD    
+
+tgt_tgd_i:: TBD  
 
 

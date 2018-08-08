@@ -1,5 +1,5 @@
 //###############################################################################
-//# WbXbc - Manual - Integration Parameters                                     #
+//# WbXbc - Manual - Bibliography                                               #
 //###############################################################################
 //#    Copyright 2018 Dirk Heisswolf                                            #
 //#    This file is part of the WbXbc project.                                  #
@@ -18,44 +18,27 @@
 //#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 //###############################################################################
 //# Version History:                                                            #
-//#   August 6, 2018                                                            #
+//#   August 7, 2018                                                            #
 //#      - Initial release                                                      #
 //###############################################################################
 
-== Integration Parameters
+@MANUAL{Wishbone,
+	title =	{Wishbone B4},
+	subtitle = {WISHBONE System-on-Chip (SoC)Interconnection Architecture for Portable IP Cores},
+	organization = {Open Cores},
+	year =	 {2010},
+	howpublished = "\url{http://cdn.opencores.org/downloads/wbspec_b4.pdf}"
+}
 
-This section specifies the integration parameters to configure the WbXbc components.
-Each WbXbc component supports a subset of the parameters listed below.
+@MISC{IVerilog,
+	author = {Stephen Williams},
+	title = {Icarus Verilog},
+	howpublished = "\url{http://iverilog.icarus.com/}"
+}
 
-ITR_CNT:: The number of initiator bus interfaces to be offered by the WbXbc component
+@MISC{Yosys,
+	author = {Clifford Wolf},
+	title = {Yosys Open SYnthesis Suite},
+	howpublished = "\url{http://www.clifford.at/yosys/}"
+}
 
-TGT_CNT:: The number of target bus interfaces to be offered by the WbXbc component
-
-ADDR_WIDTH:: Width of all address busses (ADR_I and ADR_0)
-
-ITR_ADDR_WIDTH:: Width of the initiator address bus(ses) (ADR_I), in case it differs
-from the target address bus(es) (ADR_O) 
-
-SEL_WIDTH:: Number data select lines of all initiator and target busses
-(SEL_I and SEL_O)  
-
-ITR_SEL_WIDTH:: Number of data select lines of the initiator bus (SEL_I), in case it
-from the target bus (SEL_O) 
-
-DATA_WIDTH:: Width of all data busses (initiator and target, read and write direction) 
-
-ITR_DATA_WIDTH:: Width of the initiator's data busses (read and write direction
-
-TGA_WIDTH:: Number of tags associated with the address busses of the initiator and
-the target (TGA_I and TGA_O) 
-
-TGC_WIDTH:: Number of tags associated with the cycle indicators (CYC_I and CYC_O) of
-thw initiator and the target (TGC_I and TGC_O)
-
-TGRD_WIDTH:: Number of tags assoociated with the read data busses of the initiator and
-the target (TGD_O and TGD_I) 
-
-TGWD_WIDTH:: Number of tags associated with the write data busses of the initiator and
-the target (TGD_I and TGD_O) 
-
-BIG_ENDIAN:: Selects the endianess of the design (1=big endian, 0=little endian)

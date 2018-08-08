@@ -23,16 +23,17 @@
 //###############################################################################
 
 = WbXbc Manual
-Dirk Heisswolf
-V0.0, 2018-08-01
-:revremark: Initial version
-:doctype: book
+:Author:     Dirk Heisswolf
+:Date:       2018-08-01
+:revremark:  Initial version
+:doctype:    book
+
+:bibtexfile: WbXbc.bib
 
 //////////////////////////
 Overview
 //////////////////////////
 
-//:leveloffset: 1
 //include::WbXbc_overview.adoc[]
 
 //////////////////////////
@@ -40,7 +41,6 @@ Wishbone pipelined
 bus interface
 //////////////////////////
 
-//:leveloffset: 1
 //include::WbXbc_wishbone.adoc[]
 
 //////////////////////////
@@ -48,23 +48,20 @@ WbXbc integration
 parameters
 //////////////////////////
 
-:leveloffset: 1
 include::WbXbc_parameters.adoc[]
 
 //////////////////////////
 WbXbc interface signals
 //////////////////////////
 
-:leveloffset: 1
 include::WbXbc_signals.adoc[]
 
 //////////////////////////
 WbXbc components
 //////////////////////////
 
-//:leveloffset: 1
 //include::WbXbc_components.adoc[]
-//:leveloffset: 2
+//:leveloffset: 1
 //include::WbXbc_address_decoder.adoc[]
 //include::WbXbc_error_generator.adoc[]
 //include::WbXbc_splitter.adoc[]
@@ -82,5 +79,13 @@ WbXbc components
 Verification status
 //////////////////////////
 
-//:leveloffset: 1
 //include::WbXbc_verification.adoc[]
+
+//////////////////////////
+Bibliography
+//////////////////////////
+
+
+== Bibliography
+
+bibliography::WbXbc.bib[ieee]
