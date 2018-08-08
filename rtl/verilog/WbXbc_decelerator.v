@@ -45,6 +45,48 @@
 //#                     : _____     : _____     : _____     : _____     : ____  #
 //#    itr2tgt_sync_i ___/     \_____/     \_____/     \_____/     \_____/      #
 //#                                                                             #
+//#                                                                             #
+//#    Transaction timing:                                                      #
+//#                                                                             #
+//#                     :__   :__   :__   :__   :__   :__   :__   :__   :__     #
+//#    itr_clk_i      __|  |__|  |__|  |__|  |__|  |__|  |__|  |__|  |__|  |__  #
+//#                     :_____:     :_____:     :_____:     :_____:     :_____  #
+//#    tgt_clk_i      __|     |_____|     |_____|     |_____|     |_____|       #
+//#                     :     :     :     :     :     :     :     :     :       #
+//#                     :     :     :  Registered requests  :     :     :       #
+//#    request from     :_____:_____:_____:_____:     :_____:_____:_____:       #  
+//#    initiator      --|___________|___________|-----|_________________|-----  # 
+//#                     :stall:     :stall:     :     :stall:stall:     :       #  
+//#    request to       :     :_____:     :_____:     :     :     :_____:       #  
+//#    target         --:-----|_____|-----|_____|-----:-----:-----|_____|-----  #  
+//#                     :     : reg :     : reg :     :     :     : reg :       #  
+//#    response from    :     :     :_____:_____:_____:_____:     :     :_____  #  
+//#    target         --:-----:-----|___________|___________|-----:-----|_____  #  
+//#                     :     :     :     :     :     :     :     :     :       #  
+//#    response to      :     :     :_ _ _:_____:_ _ _:_____:     :     :_ _ _  #  
+//#    initiator      --:-----:-----|_ _ _|_____|_ _ _|_____|-----:-----|_ _ _  #  
+//#                     :     :     :unreg: reg :unreg: reg :     :     :unreg  #
+//#                     :     :     :     :     :     :     :     :     :       #
+//#                     :     :     :     :     :     :     :     :     :       #
+//#                     :     :     : Unegistered requests  :     :     :       #
+//#    request from     :_____:_____:_____:_____:     :_____:     :     :       #  
+//#    initiator      --|___________|___________|-----|_____|-----:-----:-----  # 
+//#                     :stall:     :stall:     :     :     :     :     :       #  
+//#    request to       :     :_____:     :_____:     :_____:     :     :       #  
+//#    target         --:-----|_____|-----|_____|-----|_____|-----:-----:-----  #  
+//#                     :     :unreg:     :unreg:     :unreg:     :     :       #  
+//#    response from    :     :     :_____:_____:_____:_____:_____:_____:       #  
+//#    target         --:-----:-----|___________|___________|___________|-----  #  
+//#                     :     :     :     :     :     :     :     :     :       #  
+//#    response to      :     :     :_ _ _:_____:_ _ _:_____:_ _ _:_____:       #  
+//#    initiator      --:-----:-----|_ _ _|_____|_ _ _|_____|_ _ _|_____|-----  #  
+//#                     :     :     :unreg: reg :unreg: reg :unreg: reg :       #
+//#                     :     :     :     :     :     :     :     :     :       #
+//#                                                                             #
+//#    Bus requests from the initiator to the target may be reistered           #
+//#    (parameter REG_ITR). Responses from the target to the initiator may be   #
+//#    registered as well (parameter REG_TGT).                                  #
+//#                                                                             #
 //###############################################################################
 //# Version History:                                                            #
 //#   August 3, 2018                                                            #
@@ -75,32 +117,32 @@ module WbXbc_decelerator
     input  wire                          itr_cyc_i,                           //bus cycle indicator       +-
     input  wire                          itr_stb_i,                           //access request            |
     input  wire                          itr_we_i,                            //write enable              |
-    input  wire                          itr_lock_i,                          //uninterruptable bus cycle | initiator
+    input  wire                          itr_lock_i,                          //uninterruptable bus cycle |
     input  wire [SEL_WIDTH-1:0]          itr_sel_i,                           //write data selects        | initiator
     input  wire [ADDR_WIDTH-1:0]         itr_adr_i,                           //address bus               | to
     input  wire [DATA_WIDTH-1:0]         itr_dat_i,                           //write data bus            | target
     input  wire [TGA_WIDTH-1:0]          itr_tga_i,                           //address tags              |
     input  wire [TGC_WIDTH-1:0]          itr_tgc_i,                           //bus cycle tags            |
     input  wire [TGWD_WIDTH-1:0]         itr_tgd_i,                           //write data tags           +-
-    output wire                          itr_ack_o,                           //bus cycle acknowledge     +-
-    output wire                          itr_err_o,                           //error indicator           | target
-    output wire                          itr_rty_o,                           //retry request             | to
-    output wire                          itr_stall_o,                         //access delay              | initiator
-    output wire [DATA_WIDTH-1:0]         itr_dat_o,                           //read data bus             |
-    output wire [TGRD_WIDTH-1:0]         itr_tgd_o,                           //read data tags            +-
+    output reg                           itr_ack_o,                           //bus cycle acknowledge     +-
+    output reg                           itr_err_o,                           //error indicator           | target
+    output reg                           itr_rty_o,                           //retry request             | to
+    output reg                           itr_stall_o,                         //access delay              | initiator
+    output reg  [DATA_WIDTH-1:0]         itr_dat_o,                           //read data bus             |
+    output reg  [TGRD_WIDTH-1:0]         itr_tgd_o,                           //read data tags            +-
 
     //Target interfaces
     //-----------------
-    output wire                          tgt_cyc_o,                           //bus cycle indicator       +-
-    output wire                          tgt_stb_o,                           //access request            |
-    output wire                          tgt_we_o,                            //write enable              |
-    output wire                          tgt_lock_o,                          //uninterruptable bus cycle |
-    output wire [SEL_WIDTH-1:0]          tgt_sel_o,                           //write data selects        | initiator
-    output wire [ADDR_WIDTH-1:0]         tgt_adr_o,                           //write data selects        | to
-    output wire [DATA_WIDTH-1:0]         tgt_dat_o,                           //write data bus            | target
-    output wire [TGA_WIDTH-1:0]          tgt_tga_o,                           //address tags              |
-    output wire [TGC_WIDTH-1:0]          tgt_tgc_o,                           //bus cycle tags            |
-    output wire [TGWD_WIDTH-1:0]         tgt_tgd_o,                           //write data tags           +-
+    output reg                           tgt_cyc_o,                           //bus cycle indicator       +-
+    output reg                           tgt_stb_o,                           //access request            |
+    output reg                           tgt_we_o,                            //write enable              |
+    output reg                           tgt_lock_o,                          //uninterruptable bus cycle |
+    output reg  [SEL_WIDTH-1:0]          tgt_sel_o,                           //write data selects        | initiator
+    output reg  [ADDR_WIDTH-1:0]         tgt_adr_o,                           //write data selects        | to
+    output reg  [DATA_WIDTH-1:0]         tgt_dat_o,                           //write data bus            | target
+    output reg  [TGA_WIDTH-1:0]          tgt_tga_o,                           //address tags              |
+    output reg  [TGC_WIDTH-1:0]          tgt_tgc_o,                           //bus cycle tags            |
+    output reg  [TGWD_WIDTH-1:0]         tgt_tgd_o,                           //write data tags           +-
     input  wire                          tgt_ack_i,                           //bus cycle acknowledge     +-
     input  wire                          tgt_err_i,                           //error indicator           | target
     input  wire                          tgt_rty_i,                           //retry request             | to
@@ -108,24 +150,270 @@ module WbXbc_decelerator
     input  wire [DATA_WIDTH-1:0]         tgt_dat_i,                           //read data bus             |
     input  wire [TGRD_WIDTH-1:0]         tgt_tgd_i);                          //read data tags            +-
 
-   //Signal propagation to the target bus
-   assign tgt_cyc_o        = itr_cyc_i;                                       //bus cycle indicator       +-
-   assign tgt_stb_o        = itr_stb_i;                                       //access request            |
-   assign tgt_we_o         = itr_we_i;                                        //write enable              |
-   assign tgt_lock_o       = itr_lock_i;                                      //uninterruptable bus cycle | initiator
-   assign tgt_sel_o        = itr_sel_i;                                       //write data selects        | to
-   assign tgt_adr_o        = itr_adr_i;                                       //write data selects        | target
-   assign tgt_dat_o        = itr_dat_i;                                       //write data bus            |
-   assign tgt_tga_o        = itr_tga_i;                                       //address tags              |
-   assign tgt_tgc_o        = itr_tgc_i;                                       //bus cycle tags            |
-   assign tgt_tgd_o        = itr_tgd_i;                                       //write data tags           +-
+   //Internal signals
+   reg [1:0] 				 state_next;                          //next state
+   reg 					 capture_request;                     //capture initiator request
+   reg 					 capture_response;                    //capture target response
 
-   //Signal propagation to the initiator bus
-   assign itr_ack_o        = ~itr2tgt_sync_i & tgt_ack_i;                     //bus cycle acknowledge     +-
-   assign itr_err_o        = ~itr2tgt_sync_i & tgt_err_i;                     //error indicator           | target
-   assign itr_rty_o        = ~itr2tgt_sync_i & tgt_rty_i;                     //retry request             | to
-   assign itr_stall_o      = ~itr2tgt_sync_i | tgt_stall_i;                   //access delay              | initiator
-   assign itr_dat_o        = tgt_dat_i;                                       //read data bus             |
-   assign itr_tgd_o        = tgt_tgd_i;                                       //read data tags            +-
+   //State variable
+   reg  [1:0]                            state_reg;                           //state variable
+
+   //Registered initiator request signals
+   reg                                   itr_we_reg;                          //write enable              +-
+   reg                                   itr_lock_reg;                        //uninterruptable bus cycle |
+   reg  [SEL_WIDTH-1:0]                  itr_sel_reg;                         //write data selects        | initiator
+   reg  [ADDR_WIDTH-1:0]                 itr_adr_reg;                         //address bus               | to
+   reg  [DATA_WIDTH-1:0]                 itr_dat_reg;                         //write data bus            | target
+   reg  [TGA_WIDTH-1:0]                  itr_tga_reg;                         //address tags              |
+   reg  [TGC_WIDTH-1:0]                  itr_tgc_reg;                         //bus cycle tags            |
+   reg  [TGWD_WIDTH-1:0]                 itr_tgd_reg;                         //write data tags           +-
+				         
+   //Registered target response signals        
+   reg                                   tgt_ack_reg;                         //bus cycle acknowledge     +-
+   reg                                   tgt_err_reg;                         //error indicator           | target
+   reg                                   tgt_rty_reg;                         //retry request             | to
+   reg  [DATA_WIDTH-1:0]                 tgt_dat_reg;                         //read data bus             | initiator
+   reg  [TGRD_WIDTH-1:0]                 tgt_tgd_reg;                         //read data tags            +-
+
+   //Capture initiator request
+   always @(posedge async_rst_i or posedge itr_clk_i)
+     if(async_rst_i)                                                          //asynchronous reset
+       begin
+          itr_we_reg	<= 1'b0;                                              //write enable              +-
+          itr_lock_reg	<= 1'b0;                                              //uninterruptable bus cycle |
+          itr_sel_reg	<= {SEL_WIDTH{1'b0}};                                 //write data selects        | initiator
+          itr_adr_reg	<= {ADDR_WIDTH{1'b0}};                                //address bus               | to
+          itr_dat_reg	<= {DATA_WIDTH{1'b0}};                                //write data bus            | target
+          itr_tga_reg	<= {TGA_WIDTH{1'b0}};                                 //address tags              |
+          itr_tgc_reg	<= {TGC_WIDTH{1'b0}};                                 //bus cycle tags            |
+          itr_tgd_reg	<= {TGWD_WIDTH{1'b0}};                                //write data tags           +-
+       end
+     else if(sync_rst_i)                                                      //synchronous reset
+       begin
+         itr_we_reg	<= 1'b0;                                              //write enable              +-
+          itr_lock_reg	<= 1'b0;                                              //uninterruptable bus cycle |
+          itr_sel_reg	<= {SEL_WIDTH{1'b0}};                                 //write data selects        | initiator
+          itr_adr_reg	<= {ADDR_WIDTH{1'b0}};                                //address bus               | to
+          itr_dat_reg	<= {DATA_WIDTH{1'b0}};                                //write data bus            | target
+          itr_tga_reg	<= {TGA_WIDTH{1'b0}};                                 //address tags              |
+          itr_tgc_reg	<= {TGC_WIDTH{1'b0}};                                 //bus cycle tags            |
+          itr_tgd_reg	<= {TGWD_WIDTH{1'b0}};                                //write data tags           +-
+       end
+     else if (capture_request & |REG_ITR)
+       begin
+          itr_we_reg	<= itr_we_i;                                          //write enable              +-
+          itr_lock_reg	<= itr_lock_i;                                        //uninterruptable bus cycle |
+          itr_sel_reg	<= itr_sel_i;                                         //write data selects        | initiator
+          itr_adr_reg	<= itr_adr_i;                                         //address bus               | to
+          itr_dat_reg	<= itr_dat_i;                                         //write data bus            | target
+          itr_tga_reg	<= itr_tga_i;                                         //address tags              |
+          itr_tgc_reg	<= itr_tgc_i;                                         //bus cycle tags            |
+          itr_tgd_reg	<= itr_tgd_i;                                         //write data tags           +-
+       end
+
+   //Capture target response
+   always @(posedge async_rst_i or posedge itr_clk_i)
+     if(async_rst_i)                                                          //asynchronous reset
+       begin
+	  tgt_ack_reg	<= 1'b0;                                              //bus cycle acknowledge     +-
+	  tgt_err_reg	<= 1'b0;                                              //error indicator           | target
+	  tgt_rty_reg	<= 1'b0;                                              //retry request             | to
+	  tgt_dat_reg	<= {DATA_WIDTH{1'b0}};                                //read data bus             | initiator
+	  tgt_tgd_reg	<= {TGRD_WIDTH{1'b0}};                                //read data tags            +-
+       end
+     else if(sync_rst_i)                                                      //synchronous reset
+       begin
+	  tgt_ack_reg	<= 1'b0;                                              //bus cycle acknowledge     +-
+	  tgt_err_reg	<= 1'b0;                                              //error indicator           | target
+	  tgt_rty_reg	<= 1'b0;                                              //retry request             | to
+	  tgt_dat_reg	<= {DATA_WIDTH{1'b0}};                                //read data bus             | initiator
+	  tgt_tgd_reg	<= {TGRD_WIDTH{1'b0}};                                //read data tags            +-
+       end
+     else if (capture_response & |REG_TGT)
+       begin
+	  tgt_ack_reg	<= tgt_ack_i;                                         //bus cycle acknowledge     +-
+	  tgt_err_reg	<= tgt_err_i;                                         //error indicator           | target
+	  tgt_rty_reg	<= tgt_rty_i;                                         //retry request             | to
+	  tgt_dat_reg	<= tgt_dat_i;                                         //read data bus             | initiator
+	  tgt_tgd_reg	<= tgt_tgd_i;                                         //read data tags            +-
+       end
+
+   //Connect target request signals
+   always @*
+     if(|REG_ITR)
+       begin	
+	  tgt_we_o   = itr_we_reg;                                            //write enable              +-
+	  tgt_lock_o = itr_lock_reg;                                          //uninterruptable bus cycle |
+	  tgt_sel_o  = itr_sel_reg;                                           //write data selects        | initiator
+	  tgt_adr_o  = itr_adr_reg;                                           //write data selects        | to
+	  tgt_dat_o  = itr_dat_reg;                                           //write data bus            | target
+	  tgt_tga_o  = itr_tga_reg;                                           //address tags              |
+	  tgt_tgc_o  = itr_tgc_reg;                                           //bus cycle tags            |
+	  tgt_tgd_o  = itr_tgd_reg;                                           //write data tags           +-
+       end // if (|REG_ITR)
+     else
+       begin	
+	  tgt_we_o   = itr_we_i;                                              //write enable              |
+	  tgt_lock_o = itr_lock_i;                                            //uninterruptable bus cycle |
+	  tgt_sel_o  = itr_sel_i;                                             //write data selects        | initiator
+	  tgt_adr_o  = itr_adr_i;                                             //write data selects        | to
+	  tgt_dat_o  = itr_dat_i;                                             //write data bus            | target
+	  tgt_tga_o  = itr_tga_i;                                             //address tags              |
+	  tgt_tgc_o  = itr_tgc_i;                                             //bus cycle tags            |
+	  tgt_tgd_o  = itr_tgd_i;                                             //write data tags           +-
+       end // else: !if(|REG_ITR)
+   
+   //Connect initiator response signals
+   always @*
+     if(|REG_TGT)
+       begin
+	  itr_ack_o   = tgt_ack_reg;                                          //bus cycle acknowledge     +-
+	  itr_err_o   = tgt_err_reg;                                          //error indicator           | target
+	  itr_rty_o   = tgt_rty_reg;                                          //retry request             | to
+	  itr_dat_o   = tgt_dat_reg;                                          //read data bus             | initiator
+	  itr_tgd_o   = tgt_tgd_reg;                                          //read data tags            +-
+       end
+     else
+       begin
+	  itr_ack_o   = tgt_ack_i;                                            //bus cycle acknowledge     +-
+	  itr_err_o   = tgt_err_i;                                            //error indicator           | target
+	  itr_rty_o   = tgt_rty_i;                                            //retry request             | to
+	  itr_dat_o   = tgt_dat_i;                                            //read data bus             | initiator
+	  itr_tgd_o   = tgt_tgd_i;                                            //read data tags            +-
+       end
+      
+   //Finite state machine
+   parameter STATE_READY         = 2'b00;  //waiting for bus request (reset state)
+   parameter STATE_REQ_CAPTURED  = 2'b10;  //initiator request captured(reset state)
+   parameter STATE_RESP_PENDING  = 2'b01;  //waiting for bus acknowledge
+   parameter STATE_RESP_CAPTURED = 2'b11;  //target response captured
+   always @*
+     begin
+        //Default outputs
+        state_next       = state_reg;                                         //remain in current state
+	tgt_cyc_o        = itr_cyc_i;                                         //propagate bus cycle indicator     
+	tgt_stb_o        = itr_stb_i;                                         //propagate access request          
+	itr_stall_o      = tgt_stall_i;                                       //propagate access delay            
+	capture_request  = 1'b0;                                              //don't capture initiator request
+	capture_response = 1'b0;                                              //don't capture target response
+	case (state_reg)
+	  STATE_READY:
+	    if (|REG_ITR)                                                     //registered requests
+	      begin
+	         tgt_cyc_o   = 1'b0;                                          //don't propagate bus cycle indicator    
+	         tgt_stb_o   = 1'b0;                                          //don't propagate access request         
+		 itr_stall_o = 1'b1;                                          //stall initiator
+		 if (~itr2tgt_sync_i & itr_cyc_i & itr_stb_i & ~tgt_stall_i)  //bus request before initiator only clock event 
+		   begin
+		      state_next      = STATE_REQ_CAPTURED;                   //handle captured initiator request
+		      capture_request = 1'b1;                                 //capture initiator request
+		   end
+	      end // if (|REG_ITR)
+	    else                                                              //registered requests
+	      begin
+		 if (itr2tgt_sync_i)                                          //concurrent clock event next
+		   begin
+		      if (itr_cyc_i & itr_stb_i & ~tgt_stall_i)               //bus request before initiator only clock event 
+			state_next    = STATE_RESP_PENDING;                   //handle captured initiator request
+		   end
+		 else
+		   begin
+		      itr_stall_o     = 1'b1;                                 //stall initiator
+		   end
+	      end // else: !if(|REG_ITR)
+	  STATE_REQ_CAPTURED:
+	    if (|REG_ITR)                                                     //registered requests
+	      begin
+	       //tgt_cyc_o   = 1'b1;                                          //request target bus    
+	       //tgt_stb_o   = 1'b1;                                          //         
+		 if (itr2tgt_sync_i & ~tgt_stall_o)                           //bus request before concurrent clock event
+		   state_next      = STATE_RESP_PENDING;                      //target asccess initiated
+	      end
+	    else
+	      begin
+		 state_next = STATE_READY;                                    //unreachable
+	      end
+	  STATE_RESP_PENDING:
+	    if (|REG_TGT)                                                     //registered responses
+	      begin							      
+		 if (itr_ack_o | itr_err_o | itr_rty_o)			      
+		   begin						      
+		      state_next      = STATE_RESP_CAPTURED;                  //handle captured initiator request
+		      capture_response = 1'b1;                                //capture target response	
+		   end
+	      end							      
+	    else                                                              //unregistered responses
+	      if (|REG_ITR)                                                   //registered requests
+		begin							      
+	           tgt_cyc_o   = 1'b0;                                        //don't propagate bus cycle indicator    
+	           tgt_stb_o   = 1'b0;                                        //don't propagate access request         
+		   itr_stall_o = 1'b1;                                        //stall initiator
+		   if (~itr2tgt_sync_i &                                      //bus request before initiator only clock event
+		       itr_cyc_i & itr_stb_i & ~tgt_stall_o) 
+		     begin
+			state_next      = STATE_REQ_CAPTURED;                 //handle captured initiator request
+			capture_request = 1'b1;                               //capture initiator request
+		     end						      
+		   else							      
+		     begin						      
+			state_next      = STATE_READY;                        //bus is idle
+		     end						      
+		end // if (|REG_ITR)					      
+	      else                                                            //registered requests
+		begin							      
+		   if (itr2tgt_sync_i)                                        //concurrent clock event next
+		     begin						      
+			if (itr_cyc_i & itr_stb_i & ~tgt_stall_i)             //bus request before initiator only clock event 
+			  state_next    = STATE_RESP_PENDING;                 //wait for bus acknowledge
+		     end
+		   else
+		     begin
+			state_next      = STATE_READY;                        //bus is idle
+			itr_stall_o     = 1'b1;                               //stall initiator
+		     end
+		end // else: !if(|REG_ITR)
+	  STATE_RESP_CAPTURED:
+	    if (|REG_TGT)                                                     //registered requests
+	      if (|REG_ITR)                                                   //registered requests
+		begin							      
+	           tgt_cyc_o   = 1'b0;                                        //don't propagate bus cycle indicator    
+	           tgt_stb_o   = 1'b0;                                        //don't propagate access request         
+		   itr_stall_o = 1'b1;                                        //stall initiator
+		   capture_response = 1'b1;                                   //capture target response	
+		   if (~itr2tgt_sync_i &                                      //bus request before initiator only clock event
+		       itr_cyc_i & itr_stb_i & ~tgt_stall_o) 
+		     begin
+			state_next      = STATE_REQ_CAPTURED;                 //handle captured initiator request
+			capture_request = 1'b1;                               //capture initiator request
+		     end						      
+		   else							      
+		     begin						      
+			state_next      = STATE_READY;                        //bus is idle
+		     end						      
+		end // if (|REG_ITR)					      
+	      else                                                            //registered requests
+		begin							      
+		   if (itr2tgt_sync_i)                                        //concurrent clock event next
+		     begin						      
+			if (itr_cyc_i & itr_stb_i & ~tgt_stall_o)             //bus request before initiator only clock event 
+			  state_next    = STATE_RESP_PENDING;                 //wait for bus acknowledge
+		     end
+		   else
+		     begin
+			state_next      = STATE_READY;                        //bus is idle
+			itr_stall_o     = 1'b1;                               //stall initiator
+		     end
+		end // else: !if(|REG_ITR)
+	endcase // case (state_reg)
+     end // always @ *
+
+   //State variable
+   always @(posedge async_rst_i or posedge itr_clk_i)
+     if (async_rst_i)                                                         //asynchronous reset
+       state_reg <= STATE_READY;				              
+     else if (sync_rst_i)                                                     //synchronous reset
+       state_reg <= STATE_READY;				              
+     else if(1)							              
+       state_reg <= state_next;                                               //state transition
 
 endmodule // WbXbc_decelerator
