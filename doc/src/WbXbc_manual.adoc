@@ -63,14 +63,22 @@ include::WbXbc_error_generator.adoc[]
 
 include::WbXbc_splitter.adoc[]
 
-//include::WbXbc_arbiter.adoc[]
-//include::WbXbc_expander.adoc[]
-//include::WbXbc_reducer.adoc[]
-//include::WbXbc_accelerator.adoc[]
-//include::WbXbc_decelerator.adoc[]
-//include::WbXbc_pipeliner.adoc[]
-//include::WbXbc_standardizer.adoc[]
+include::WbXbc_arbiter.adoc[]
+
+include::WbXbc_expander.adoc[]
+
+include::WbXbc_reducer.adoc[]
+
+include::WbXbc_accelerator.adoc[]
+
+include::WbXbc_decelerator.adoc[]
+
+include::WbXbc_pipeliner.adoc[]
+
+include::WbXbc_standardizer.adoc[]
+
 //include::WbXbc_distributor.adoc[]
+
 //include::WbXbc_xbar.adoc[]
 
 :leveloffset: 0

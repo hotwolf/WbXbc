@@ -40,8 +40,8 @@
 
 module WbXbc_expander
   #(parameter ITR_ADDR_WIDTH  = 16, //width of the initiator address bus
-    parameter ITR_DATA_WIDTH  = 8,  //width of each initiator data bus
-    parameter ITR_SEL_WIDTH   = 2,  //number of initiator write data select lines
+    parameter ITR_DATA_WIDTH  = 16, //width of each initiator data bus
+    parameter ITR_SEL_WIDTH   = 2,  //number of initiator data select lines
     parameter TGA_WIDTH       = 1,  //number of propagated address tags
     parameter TGC_WIDTH       = 1,  //number of propagated cycle tags
     parameter TGRD_WIDTH      = 1,  //number of propagated read data tags

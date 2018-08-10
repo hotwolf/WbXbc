@@ -1,5 +1,5 @@
 //###############################################################################
-//# WbXbc - Manual - Address Bus Decoder                                        #
+//# WbXbc - Manual - Bus Arbiter                                                #
 //###############################################################################
 //#    Copyright 2018 Dirk Heisswolf                                            #
 //#    This file is part of the WbXbc project.                                  #
@@ -18,37 +18,40 @@
 //#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 //###############################################################################
 //# Version History:                                                            #
-//#   August 9, 2018                                                            #
+//#   August 10, 2018                                                           #
 //#      - Initial release                                                      #
 //###############################################################################
 
-== WbXbc Address Decoder
+== WbXbc Arbiter
 
-[ditaa, WbXbc_address_decoder, svg]
+[ditaa, WbXbc_arbiter, svg]
 ....
-                 +-------------------+               
-     Address     |                   |               
-     Regions --->|                   |               
-                 |       WbXbc       |     Target  
-    Initiator    |      Address      |--->  Bus    
-       Bus   --->|      Decoder      |      with   
-      w/out      |                   |     Selects 
-     Selects     |                   |               
-                 +-------------------+               
+               +-------------------+           
+           --->|                   |           
+               |                   |           
+  Multiple --->|       WbXbc       |      One 
+ Initiator     |      Arbiter      |---> Target
+    Busses  ...|                   |      Bus 
+               |                   |           
+           --->|                   |           
+               +-------------------+           
 ....
 
-This module implements an address decoder for the Wishbone protocol. It 
-propagates accesses from the initiator bus to the target bus and adds a 
-set of address tags which selecting the target block.                   
+This module implements a bus arbiter for the pipelined Wishbone        
+protocol. Accesses from multiple initiator busses are arbitrated and   
+propagated to the target bus. Each initiator bus can request bus       
+accesses at two priority levels. The priority levels are selected via a
+set of address tags. Access requests of equal priority are arbitrated  
+with a fixed priority (initiator 0 has the higheest priority).         
 
 === Integration Parameters
 [cols="4,2,8",options="header"]
 |=====================================================
 |Parameter   |Default Value |Description
-|TGT_CNT    >|4             |number of target addresses to decode
+|ITR_CNT    >|4             |number of initiator busses
 |ADDR_WIDTH >|16            |width of the address bus
 |DATA_WIDTH >|16            |width of each data bus
-|SEL_WIDTH  >|2             |number of data select lines
+|SEL_WIDTH  >|2             |number of write data select lines
 |TGA_WIDTH  >|1             |number of address tags
 |TGC_WIDTH  >|1             |number of cycle tags
 |TGRD_WIDTH >|1             |number of read data tags
@@ -61,27 +64,28 @@ Section <<parameters>> gives a detailed description of each parameter listed abo
 [cols="6,2,2,10v",options="header"]
 |=====================================================
 |Signal   |Range |Direction |Description
-4+h|Target Address Regions
-|region_addr       >|(TGT_CNT*ADDR_WIDTH)-1:0 |input  |target address
-|region_mask       >|(TGT_CNT*ADDR_WIDTH)-1:0 |input  |selects relevant address bits
-(1: relevant, 0: ignored)
+4+h|Clock and Reset
+|clk_i             >|                         |input  |module clock	
+|async_rst_i       >|                         |input  |asynchronous reset	
+|sync_rst_i        >|                         |input  |synchronous reset  
 4+h|Initiator Interface
-|itr_cyc_i         >|                         |input  |bus cycle indicator
-|itr_stb_i         >|                         |input  |access request
-|itr_we_i          >|                         |input  |write enable
-|itr_lock_i        >|                         |input  |uninterruptable bus cycle
-|itr_sel_i         >|SEL_WIDTH-1:0            |input  |write data selects
-|itr_adr_i         >|ADDR_WIDTH-1:0           |input  |address bus
-|itr_dat_i         >|DATA_WIDTH-1:0           |input  |write data bus
-|itr_tga_i         >|TGA_WIDTH-1:0            |input  |address tags
-|itr_tgc_i         >|TGC_WIDTH-1:0            |input  |bus cycle tags
-|itr_tgd_i         >|TGWD_WIDTH-1:0           |input  |write data tags
-|itr_ack_o         >|                         |output |bus cycle acknowledge
-|itr_err_o         >|                         |output |error indicator
-|itr_rty_o         >|                         |output |retry request
-|itr_stall_o       >|                         |output |access delay
-|itr_dat_o         >|DATA_WIDTH-1:0           |output |read data bus
-|itr_tgd_o         >|TGRD_WIDTH-1:0           |output |read data tags
+|itr_cyc_i         >|ITR_CNT-1:0              |input  |concatinated bus cycle indicators
+|itr_stb_i         >|ITR_CNT-1:0              |input  |concatinated access requests
+|itr_we_i          >|ITR_CNT-1:0              |input  |concatinated write enables
+|itr_lock_i        >|ITR_CNT-1:0              |input  |concatinated bus cycle locks
+|itr_sel_i         >|(ITR_CNT*SEL_WIDTH)-1:0  |input  |concatinated write data selects
+|itr_adr_i         >|(ITR_CNT*ADDR_WIDTH)-1:0 |input  |concatinated address busses
+|itr_dat_i         >|(ITR_CNT*DATA_WIDTH)-1:0 |input  |concatinated write data busses
+|itr_tga_i         >|(ITR_CNT*TGA_WIDTH)-1:0  |input  |concatinated address tags
+|itr_tga_prio_i    >|ITR_CNT-1:0              |input  |concatinated access priorities
+|itr_tgc_i         >|(ITR_CNT*TGC_WIDTH)-1:0  |input  |concatinated bus cycle tags
+|itr_tgd_i         >|(ITR_CNT*TGWD_WIDTH)-1:0 |input  |concatinated write data tags
+|itr_ack_o         >|ITR_CNT-1:0              |output |concatinated bus cycle acknowledges
+|itr_err_o         >|ITR_CNT-1:0              |output |concatinated error indicators
+|itr_rty_o         >|ITR_CNT-1:0              |output |concatinated retry requests
+|itr_stall_o       >|ITR_CNT-1:0              |output |concatinated access delays
+|itr_dat_o         >|(ITR_CNT*DATA_WIDTH)-1:0 |output |concatinated read data buses
+|itr_tgd_o         >|(ITR_CNT*TGRD_WIDTH)-1:0 |output |concatinated read data tags
 4+h|Target Interface
 |tgt_cyc_o         >|                         |output |bus cycle indicator
 |tgt_stb_o         >|                         |output |access request
@@ -91,7 +95,6 @@ Section <<parameters>> gives a detailed description of each parameter listed abo
 |tgt_adr_o         >|ADDR_WIDTH-1:0           |output |write data selects
 |tgt_dat_o         >|DATA_WIDTH-1:0           |output |write data bus
 |tgt_tga_o         >|TGA_WIDTH-1:0            |output |address tags
-|itr_tga_tgtsel_o  >|TGT_CNT-1:0              |output |target select tags
 |tgt_tgc_o         >|TGC_WIDTH-1:0            |output |bus cycle tags
 |tgt_tgd_o         >|TGWD_WIDTH-1:0           |output |write data tags
 |tgt_ack_i         >|                         |input  |bus cycle acknowledge
@@ -110,7 +113,7 @@ Section <<signals>> gives a detailed description of each slignal listed above.
 2+<|Configuration <|Linting <|Simulation <|Formal <|FPGA
 //Default configuration
 6+h|Default Configuration
-|TGT_CNT    >|4
+|ITR_CNT    >|4
 //Liniting
 .8+^.^| iVerilog,
 Yosys

@@ -19,12 +19,12 @@
 //###############################################################################
 //# Description:                                                                #
 //#    This module connects a standard protocol Wishbone initiator to a         #
-//#    pipelined target:                                                        #
+//#    pipelined target.                                                        #
 //#                                                                             #
 //#                          +-------------------+                              #
 //#                          |                   |                              #
 //#                          |                   |                              #
-//#            Standard      |       WbXbc       |     pipelined                #
+//#            standard      |       WbXbc       |     pipelined                #
 //#            initiator --->|     pipeliner     |--->   target                 #
 //#               bus        |                   |        bus                   #
 //#                          |                   |                              #
@@ -41,7 +41,7 @@
 //#    request to       :_____:     :     :_____:     :     :     :_____:       #  
 //#    target         --|_____|-----:-----|_____|-----:-----:-----|_____|-----  #  
 //#                     :     :     :     :     :     :     :     :     :       #  
-//#    response from    :     :_____:     :     :      _____:     :     :       #  
+//#    response from    :     :_____:     :     :     :_____:     :     :       #  
 //#    target         --:-----|_____|-----:-----:-----|_____|-----|-----|-----  #  
 //#                     :     :     :     :     :noack:     :     :noack:noack  #  
 //#    response to      :     :_____:     :     :     :_____:     :     :       #  

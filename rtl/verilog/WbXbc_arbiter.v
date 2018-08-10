@@ -46,7 +46,7 @@ module WbXbc_arbiter
   #(parameter ITR_CNT     = 4,   //number of initiator busses
     parameter ADDR_WIDTH  = 16,  //width of the address bus
     parameter DATA_WIDTH  = 16,  //width of each data bus
-    parameter SEL_WIDTH   = 2,   //number of write data select lines
+    parameter SEL_WIDTH   = 2,   //number of data select lines
     parameter TGA_WIDTH   = 1,   //number of propagated address tags
     parameter TGC_WIDTH   = 1,   //number of propagated cycle tags
     parameter TGRD_WIDTH  = 1,   //number of propagated read data tags
@@ -67,8 +67,8 @@ module WbXbc_arbiter
     input  wire [(ITR_CNT*SEL_WIDTH)-1:0]  itr_sel_i,        //write data selects        | initiator
     input  wire [(ITR_CNT*ADDR_WIDTH)-1:0] itr_adr_i,        //address bus               | to
     input  wire [(ITR_CNT*DATA_WIDTH)-1:0] itr_dat_i,        //write data bus            | target
-    input  wire [ITR_CNT-1:0]              itr_tga_prio_i,   //access priorities         |
     input  wire [(ITR_CNT*TGA_WIDTH)-1:0]  itr_tga_i,        //generic address tags      |
+    input  wire [ITR_CNT-1:0]              itr_tga_prio_i,   //access priorities         |
     input  wire [(ITR_CNT*TGC_WIDTH)-1:0]  itr_tgc_i,        //bus cycle tags            |
     input  wire [(ITR_CNT*TGWD_WIDTH)-1:0] itr_tgd_i,        //write data tags           +-
     output wire [ITR_CNT-1:0]              itr_ack_o,        //bus cycle acknowledge     +-

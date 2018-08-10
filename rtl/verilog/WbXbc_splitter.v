@@ -44,7 +44,7 @@ module WbXbc_splitter
   #(parameter TGT_CNT     = 4,   //number of target busses
     parameter ADDR_WIDTH  = 16,  //width of the address bus
     parameter DATA_WIDTH  = 16,  //width of each data bus
-    parameter SEL_WIDTH   = 2,   //number of write data select lines
+    parameter SEL_WIDTH   = 2,   //number of data select lines
     parameter TGA_WIDTH   = 1,   //number of propagated address tags
     parameter TGC_WIDTH   = 1,   //number of propagated cycle tags
     parameter TGRD_WIDTH  = 1,   //number of propagated read data tags

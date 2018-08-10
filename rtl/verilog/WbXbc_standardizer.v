@@ -19,7 +19,7 @@
 //###############################################################################
 //# Description:                                                                #
 //#    This module connects a pipelined Wishbone initiator to a standard        #
-//#    protocol target:                                                         #
+//#    protocol target.                                                         #
 //#                                                                             #
 //#                          +-------------------+                              #
 //#                          |                   |                              #

@@ -19,7 +19,7 @@
 //###############################################################################
 //# Description:                                                                #
 //#    This module connects a pipelined Wishbone initiator, running at a higher #
-//#    frequency to a target, running at a lower frequency:                     #
+//#    frequency to a target, running at a lower frequency.                     #
 //#                                                                             #
 //#                          +-------------------+                              #
 //#                          |                   |                              #
