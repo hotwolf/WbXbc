@@ -1,0 +1,395 @@
+//###############################################################################
+//# WbXbc - Manual - Wishbone Protocol Spec                                     #
+//###############################################################################
+//#    Copyright 2018 Dirk Heisswolf                                            #
+//#    This file is part of the WbXbc project.                                  #
+//#                                                                             #
+//#    WbXbc is free software: you can redistribute it and/or modify            #
+//#    it under the terms of the GNU General Public License as published by     #
+//#    the Free Software Foundation, either version 3 of the License, or        #
+//#    (at your option) any later version.                                      #
+//#                                                                             #
+//#    WbXbc is distributed in the hope that it will be useful,                 #
+//#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+//#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+//#    GNU General Public License for more details.                             #
+//#                                                                             #
+//#    You should have received a copy of the GNU General Public License        #
+//#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
+//###############################################################################
+//# Version History:                                                            #
+//#   August 6, 2018                                                            #
+//#      - Initial release                                                      #
+//###############################################################################
+
+== My Interpretation of the Pipelined Wishbone Bus Protocol
+
+=== Protocol Signals Driven by the Initiator
+
+
+==== Cycle Indicator: `CYC_O`, `CYC_I`
+
+===== Care Condition
+[graphviz, cyc_care, svg]
+....
+digraph cyc_care {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "CYC_care\n==\n1"];
+	reset -> always;
+}
+....
+
+===== Stable Condition
+[graphviz, cyc_stable, svg]
+....
+digraph cyc_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	mutable [shape = circle, width="2,0", label = "CYC_stable\n==\n0"];
+	stable  [shape = circle, width="2,0", label = "CYC_stable\n==\n1"];
+
+	edge [splines="curved"];
+	reset   -> mutable;
+	mutable -> stable:nw  [label = "CYC_O & STB_O & ~STALL_O"];
+	stable  -> mutable:se [label = "ACK_O | RTY_O | ERR_O"];
+}
+....
+
+==== Transfer Request: `STB_O`, `STB_I`
+
+===== Care Condition
+[graphviz, stb_care, svg]
+....
+digraph stb_care {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "STB_care\n==\nCYC_0"];
+	reset -> always;
+}
+....
+
+===== Stable Condition
+
+[graphviz, stb_stable, svg]
+....
+digraph stb_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	mutable [shape = circle, width="2,0", fixedsize=true, label = "STB_stable\n==\n0"];
+	stable  [shape = circle, width="2,0", fixedsize=true, label = "STB_stable\n==\n1"];
+
+	edge [splines="curved"];
+	reset   -> mutable;
+	mutable -> stable:nw  [label = "CYC_O & STB_O & STALL_O"];
+	stable  -> mutable:se [label = "~STALL_O"];
+}
+....
+
+==== Address Bus: `ADR_O`, `ADR_I`
+
+===== Care Condition
+[graphviz, adr_care, svg]
+....
+digraph adr_care {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "ADR_care\n==\nCYC_0 & STB_O"];
+	reset -> always;
+}
+....
+
+===== Stable Condition
+[graphviz, adr_stable, svg]
+....
+digraph adr_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	mutable [shape = circle, width="2,0", fixedsize=true, label = "ADR_stable\n==\n0"];
+	stable  [shape = circle, width="2,0", fixedsize=true, label = "ADR_stable\n==\n1"];
+
+	edge [splines="curved"];
+	reset   -> mutable;
+	mutable -> stable:nw  [label = "CYC_O & STB_O & STALL_O"];
+	stable  -> mutable:se [label = "~STALL_O"];
+}
+....
+
+==== Data Select: `SEL_O`, `SEL_I`
+
+===== Care Condition
+[graphviz, sel_care, svg]
+....
+digraph adr_care {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "SEL_care\n==\nCYC_0 & STB_O"];
+	reset -> always;
+}
+....
+
+===== Stable Condition
+[graphviz, sel_stable, svg]
+....
+digraph sel_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	mutable [shape = circle, width="2,0", fixedsize=true, label = "SEL_stable\n==\n0"];
+	stable  [shape = circle, width="2,0", fixedsize=true, label = "SEL_stable\n==\n1"];
+
+	edge [splines="curved"];
+	reset   -> mutable;
+	mutable -> stable:nw  [label = "CYC_O & STB_O & STALL_O"];
+	stable  -> mutable:se [label = "~STALL_O"];
+}
+....
+
+==== Data Direction: `WE_O`, `WE_I`
+
+===== Care Condition
+[graphviz, we_care, svg]
+....
+digraph we_care {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "WE_care\n==\nCYC_0 & STB_O"];
+	reset -> always;
+}
+....
+
+===== Stable Condition
+
+
+
+==== Target Lock: `LOCK_O`, `LOCK_I`
+
+===== Care Condition
+
+
+===== Stable Condition
+[graphviz, lock_stable, svg]
+....
+digraph lock_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	mutable [shape = circle, width="2,0", fixedsize=true, label = "LOCK_stable\n==\n0"];
+	stable  [shape = circle, width="2,0", fixedsize=true, label = "LOCK_stable\n==\n1"];
+
+	edge [splines="curved"];
+	reset   -> mutable;
+	mutable -> stable:nw  [label = "CYC_O & STB_O & STALL_O"];
+	stable  -> mutable:se [label = "~STALL_O"];
+}
+....
+
+
+
+==== Write Data: `DAT_O`, `DAT_I`
+
+===== Care Condition
+[graphviz, wdat_stable, svg]
+....
+digraph wdat_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	mutable [shape = circle, width="2,0", fixedsize=true, label = "WDAT_stable\n==\n0"];
+	stable  [shape = circle, width="2,0", fixedsize=true, label = "WDAT_stable\n==\n1"];
+
+	edge [splines="curved"];
+	reset   -> mutable;
+	mutable -> stable:nw  [label = "CYC_O & STB_O & STALL_O"];
+	stable  -> mutable:se [label = "~STALL_O"];
+}
+....
+
+===== Stable Condition
+
+
+
+==== Cycle Tags: `TGC_O`, `TGC_I`
+
+===== Care Condition
+
+[graphviz, tgc_care, svg]
+....
+digraph tgc_care {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "TGC_care\n==\nCYC_0"];
+	reset -> always;
+}
+....
+
+===== Stable Condition
+
+
+
+
+
+
+==== Address Tags: `TGA_O`, `TGA_I`
+
+===== Care Condition
+
+
+===== Stable Condition
+
+[graphviz, tga_stable, svg]
+....
+digraph tga_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	mutable [shape = circle, width="2,0", fixedsize=true, label = "TGA_stable\n==\n0"];
+	stable  [shape = circle, width="2,0", fixedsize=true, label = "TGA_stable\n==\n1"];
+
+	edge [splines="curved"];
+	reset   -> mutable;
+	mutable -> stable:nw  [label = "CYC_O & STB_O & STALL_O"];
+	stable  -> mutable:se [label = "~STALL_O"];
+}
+....
+
+==== Write Data Tags: `TGD_O`, `TGD_I`
+
+===== Care Condition
+
+===== Stable Condition
+
+[graphviz, tgwd_stable, svg]
+....
+digraph tgwd_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	mutable [shape = circle, width="2,0", fixedsize=true, label = "TGWD_stable\n==\n0"];
+	stable  [shape = circle, width="2,0", fixedsize=true, label = "TGWD_stable\n==\n1"];
+
+	edge [splines="curved"];
+	reset   -> mutable;
+	mutable -> stable:nw  [label = "CYC_O & STB_O & STALL_O"];
+	stable  -> mutable:se [label = "~STALL_O"];
+}
+....
+
+
+
+
+
+=== Protocol Signals Driven by the Target
+
+
+
+
+==== Transfer Completion Indicator: `ACK_O`, `ACK_I`
+
+===== Care Condition
+
+===== Stable Condition
+[graphviz, ack_stable, svg]
+....
+digraph ack_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "ACK_stable\n==\n0"];
+	reset -> always;
+}
+....
+
+
+==== Permanent Error Indicator: `ERR_O`, `ERR_I`
+
+===== Care Condition
+
+===== Stable Condition
+[graphviz, err_stable, svg]
+....
+digraph err_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "ERR_stable\n==\n0"];
+	reset -> always;
+}
+....
+
+
+
+==== Temporary Error Indicator: `RTY_O`, `RTY_I`
+
+===== Care Condition
+
+===== Stable Condition
+[graphviz, rty_stable, svg]
+....
+digraph rty_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "RTY_stable\n==\n0"];
+	reset -> always;
+}
+....
+
+
+==== Transfer Delay: `STALL_O`, `STALL_I`
+
+===== Care Condition
+[graphviz, stall_care, svg]
+....
+digraph stall_care {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "STALL_care\n==\nCYC_O & STB_O"];
+	reset -> always;
+}
+....
+
+===== Stable Condition
+[graphviz, stall_stable, svg]
+....
+digraph stall_stable {
+	rankdir=LR;
+	size="8,5"
+	reset   [shape = point, label = ""];
+	always [shape = circle, width="2,0", fixedsize=true, label = "STALL_stable\n==\n0"];
+	reset -> always;
+}
+....
+
+
+
+
+
+
+
+
+
+
+==== Read Data: `DAT_O`, `DAT_I`
+
+===== Care Condition
+
+===== Stable Condition
+
+
+
+==== Read Data Tags: `TGD_O`, `TGD_I`
+
+===== Care Condition
+
+===== Stable Condition

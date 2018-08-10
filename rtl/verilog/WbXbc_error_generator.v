@@ -29,8 +29,8 @@
 //#                          |                   |                              #
 //#            initiator     |       WbXbc       |       target                 #
 //#               bus    --->|       error       |--->    bus                   #
-//#                          |     generator     |                              #
-//#                          |                   |                              #
+//#              with        |     generator     |        with                  #
+//#             selects      |                   |       selects                #
 //#                          |                   |                              #
 //#                          +-------------------+                              #
 //#                                                                             #

@@ -1,5 +1,5 @@
 //###############################################################################
-//# WbXbc - Wishbone Crossbar Components - Bus Address Decoder                  #
+//# WbXbc - Wishbone Crossbar Components - Address Bus Decoder                  #
 //###############################################################################
 //#    Copyright 2018 Dirk Heisswolf                                            #
 //#    This file is part of the WbXbc project.                                  #
@@ -44,10 +44,10 @@ module WbXbc_address_decoder
     parameter ADDR_WIDTH  = 16,  //width of the address bus
     parameter DATA_WIDTH  = 8,   //width of each data bus
     parameter SEL_WIDTH   = 2,   //number of write data select lines
-    parameter TGA_WIDTH   = 1,   //number of propagated address tags
-    parameter TGC_WIDTH   = 1,   //number of propagated cycle tags
-    parameter TGRD_WIDTH  = 1,   //number of propagated read data tags
-    parameter TGWD_WIDTH  = 1)   //number of propagated write data tags
+    parameter TGA_WIDTH   = 1,   //number of address tags
+    parameter TGC_WIDTH   = 1,   //number of cycle tags
+    parameter TGRD_WIDTH  = 1,   //number of read data tags
+    parameter TGWD_WIDTH  = 1)   //number of write data tags
 
    (//Target address regions
     //----------------------
