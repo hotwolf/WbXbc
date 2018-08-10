@@ -30,7 +30,7 @@
                |                   |           
                |                   |           
    Slow        |       WbXbc       |     Fast  
- Initiator --->|    Accelerator    |---> Target
+ Initiator --->|    Accelerator    +---> Target
     Bus        |                   |      Bus  
                |                   |           
                |                   |           

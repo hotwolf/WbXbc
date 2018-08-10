@@ -30,7 +30,7 @@
                |                   |            
                |                   |            
    Initiator   |       WbXbc       |    Target  
-      Bus  --->|       Error       |---> Bus    
+      Bus  --->|       Error       +---> Bus    
      with      |     Generator     |     with   
     Selects    |                   |    Selects 
                |                   |            

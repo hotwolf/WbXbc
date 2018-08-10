@@ -30,7 +30,7 @@
      Address     |                   |               
      Regions --->|                   |               
                  |       WbXbc       |     Target  
-    Initiator    |      Address      |--->  Bus    
+    Initiator    |      Address      +--->  Bus    
        Bus   --->|      Decoder      |      with   
       w/out      |                   |     Selects 
      Selects     |                   |               

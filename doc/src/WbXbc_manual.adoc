@@ -77,9 +77,9 @@ include::WbXbc_pipeliner.adoc[]
 
 include::WbXbc_standardizer.adoc[]
 
-//include::WbXbc_distributor.adoc[]
+include::WbXbc_distributor.adoc[]
 
-//include::WbXbc_xbar.adoc[]
+include::WbXbc_xbar.adoc[]
 
 :leveloffset: 0
 
@@ -97,26 +97,6 @@ Bibliography
 
 bibliography::WbXbc.bib[ieee]
 
-
-//[ditaa, ditaa, svg]
-//....
-//                   +-------------+
-//                   | Asciidoctor |-------+
-//                   |   diagram   |       |
-//                   +-------------+       | PNG out
-//                       ^                 |
-//                       | ditaa in        |
-//                       |                 v
-// +--------+   +--------+----+    /---------------\
-// |        | --+ Asciidoctor +--> |               |
-// |  Text  |   +-------------+    |   Beautiful   |
-// |Document|   |   !magic!   |    |    Output     |
-// |     {d}|   |             |    |               |
-// +---+----+   +-------------+    \---------------/
-//     :                                   ^
-//     |          Lots of work             |
-//     +-----------------------------------+
-//....
 
 
 

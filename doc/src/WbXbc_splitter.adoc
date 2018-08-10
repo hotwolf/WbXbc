@@ -27,13 +27,13 @@
 [ditaa, WbXbc_splitter, svg]
 ....
                +-------------------+             
-               |                   |--->         
+               |                   +--->         
     Single     |                   |             
-   Initiator   |      WbXbc        |---> Multiple
+   Initiator   |      WbXbc        +---> Multiple
       Bus  --->|     Splitter      |      Target 
      with      |                   | ...  Busses 
     Selects    |                   |             
-               |                   |--->         
+               |                   +--->         
                +-------------------+             
 ....
 

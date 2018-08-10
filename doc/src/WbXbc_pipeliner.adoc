@@ -30,7 +30,7 @@
                |                   |              
                |                   |              
  Standard      |       WbXbc       |     Pipelined
- Initiator --->|     Pipeliner     |--->  Target 
+ Initiator --->|     Pipeliner     +--->  Target 
     Bus        |                   |        Bus   
                |                   |              
                |                   |              

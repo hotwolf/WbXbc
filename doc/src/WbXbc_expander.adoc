@@ -30,7 +30,7 @@
                |                   |            
                |                   |            
   Narrow       |       WbXbc       |      Wide  
- Initiator --->|      Expander     |---> Target 
+ Initiator --->|      Expander     +---> Target 
     Bus        |                   |      Bus   
                |                   |            
                |                   |            

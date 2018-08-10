@@ -22,7 +22,7 @@
 //#      - Initial release                                                      #
 //###############################################################################
 
-== My Interpretation of the Pipelined Wishbone Bus Protocol
+== My Interpretation of the Pipelined Wishbone Protocol Spec
 
 === Protocol Signals Driven by the Initiator
 

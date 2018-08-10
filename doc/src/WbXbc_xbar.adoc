@@ -1,5 +1,5 @@
 //###############################################################################
-//# WbXbc - Manual - Bus Arbiter                                                #
+//# WbXbc - Manual - Plain Crossbar Switch                                      #
 //###############################################################################
 //#    Copyright 2018 Dirk Heisswolf                                            #
 //#    This file is part of the WbXbc project.                                  #
@@ -22,36 +22,61 @@
 //#      - Initial release                                                      #
 //###############################################################################
 
-== WbXbc Arbiter
+== WbXbc Xbar
 
-[ditaa, WbXbc_arbiter, svg]
+[ditaa, WbXbc_xbar, svg]
 ....
-               +-------------------+           
-           --->|                   |           
-               |                   |           
-  Multiple --->|       WbXbc       |      One 
- Initiator     |      Arbiter      +---> Target
-    Busses  ...|                   |      Bus 
-               |                   |           
-           --->|                   |           
-               +-------------------+           
+       Initiator         Initiator            Initiator   
+           |                 |      . . .        |    
+	   V                 V                   V    
+  +----------------------------------------------------------------------+
+  |        |                 |                   |                       | 
+  |        V                 V                   V         		 |
+  |  +-----------+     +-----------+       +-----------+		 |
+  |  |   WbXbc   |     |   WbXbc   |       |   WbXbc   |		 |
+  |  |Distributor|     |Distributor| . . . |Distributor|		 |
+  |  +-+-+-----+-+     +-+-+-----+-+       +-+-+-----+-+		 |
+  |    | | ... |         | | ... |           | | ... |   		 |
+  |    | |     |         | |     |           | |     |   		 |
+  |    | |     |         | |     |           | |     |     +---------+	 |	 
+  |    +-|-----|---------|-|-----|-----------|-|-----|---->|         |	 |	 
+  |      |     |         +-|---- |-----------|-|-----|---->|  WbXbc  +-->|-->Target
+  |      |     |           |     |           | |     | ... | Arbiter |	 |	 
+  |      |     |           |     |           +-|-----|---->|         |	 |	 
+  |      |     |           |     |             |     |     +---------+	 |	 
+  |      |     |           |     |             |     |     	       	 |	 
+  |      |     |           |     |             |     |     +---------+	 |	 
+  |      +-----|-----------|-----|-------------|-----|---->|         |	 |	 
+  |            |           +-----|-------------|-----|---->|  WbXbc  +-->|-->Target
+  |            |                 |             |     | ... | Arbiter |	 |	 
+  |            |                 |             +-----|---->|         |	 |	 
+  |            |                 |                   |     +---------+	 |	 
+  |            |                 |                   |  	       	 |	 
+  |            |                 |                   |        . . .   	 |   . . .	 
+  |            |                 |                   |  	       	 |	 
+  |            |                 |                   |     +---------+	 |	 
+  |            +-----------------|-------------------|---->|         |	 |	 
+  |                              +-------------------|---->|  WbXbc  +-->|-->Target
+  |                                                  | ... | Arbiter |	 |	 
+  |     WbXbc                                        +---->|         |	 |	 
+  |     Xbar                                               +---------+   |  
+  |                                                                      |
+  +----------------------------------------------------------------------+
 ....
 
-This module implements a bus arbiter for the pipelined Wishbone        
-protocol. Accesses from multiple initiator busses are arbitrated and   
-propagated to the target bus. Each initiator bus can request bus       
-accesses at two priority levels. The priority levels are selected via a
-set of address tags. Access requests of equal priority are arbitrated  
-with a fixed priority (initiator 0 has the higheest priority).         
+This module implements a full crossbar switch between a set of initator
+busses and a set of target busses, all using the pipelined Wishbone    
+protocol.                                                              
 
 === Integration Parameters
 [cols="4,2,8",options="header"]
 |=====================================================
 |Parameter   |Default Value |Description
 |ITR_CNT    >|4             |number of initiator busses
+|TGT_CNT    >|4             |number of target busses
 |ADDR_WIDTH >|16            |width of the address bus
 |DATA_WIDTH >|16            |width of each data bus
-|SEL_WIDTH  >|2             |number of write data select lines
+|SEL_WIDTH  >|2             |number of data select lines
 |TGA_WIDTH  >|1             |number of address tags
 |TGC_WIDTH  >|1             |number of cycle tags
 |TGRD_WIDTH >|1             |number of read data tags
@@ -68,6 +93,9 @@ Section <<parameters>> gives a detailed description of each parameter listed abo
 |clk_i             >|                         |input  |module clock	
 |async_rst_i       >|                         |input  |asynchronous reset	
 |sync_rst_i        >|                         |input  |synchronous reset  
+4+h|Target Address Regions
+|region_addr       >|(TGT_CNT*ADDR_WIDTH)-1:0 |input  |target address
+|region_mask       >|(TGT_CNT*ADDR_WIDTH)-1:0 |input  |selects relevant address bits
 4+h|Initiator Interface
 |itr_cyc_i         >|ITR_CNT-1:0              |input  |concatinated bus cycle indicators
 |itr_stb_i         >|ITR_CNT-1:0              |input  |concatinated access requests
@@ -86,23 +114,23 @@ Section <<parameters>> gives a detailed description of each parameter listed abo
 |itr_stall_o       >|ITR_CNT-1:0              |output |concatinated access delays
 |itr_dat_o         >|(ITR_CNT*DATA_WIDTH)-1:0 |output |concatinated read data buses
 |itr_tgd_o         >|(ITR_CNT*TGRD_WIDTH)-1:0 |output |concatinated read data tags
-4+h|Target Interface
-|tgt_cyc_o         >|                         |output |bus cycle indicator
-|tgt_stb_o         >|                         |output |access request
-|tgt_we_o          >|                         |output |write enable
-|tgt_lock_o        >|                         |output |uninterruptable bus cycle
-|tgt_sel_o         >|SEL_WIDTH-1:0            |output |write data selects
-|tgt_adr_o         >|ADDR_WIDTH-1:0           |output |write data selects
-|tgt_dat_o         >|DATA_WIDTH-1:0           |output |write data bus
-|tgt_tga_o         >|TGA_WIDTH-1:0            |output |address tags
-|tgt_tgc_o         >|TGC_WIDTH-1:0            |output |bus cycle tags
-|tgt_tgd_o         >|TGWD_WIDTH-1:0           |output |write data tags
-|tgt_ack_i         >|                         |input  |bus cycle acknowledge
-|tgt_err_i         >|                         |input  |error indicator
-|tgt_rty_i         >|                         |input  |retry request
-|tgt_stall_i       >|                         |input  |access delay
-|tgt_dat_i         >|DATA_WIDTH-1:0           |input  |read data bus
-|tgt_tgd_i         >|TGRD_WIDTH-1:0           |input  |read data tags
+4+h|Target Interfaces
+|tgt_cyc_o         >|TGT_CNT-1:0              |output |concatinated bus cycle indicators
+|tgt_stb_o         >|TGT_CNT-1:0              |output |concatinated access requests
+|tgt_we_o          >|TGT_CNT-1:0              |output |concatinated write enables
+|tgt_lock_o        >|TGT_CNT-1:0              |output |concatinated bus cycle locks
+|tgt_sel_o         >|(TGT_CNT*SEL_WIDTH)-1:0  |output |concatinated write data selects
+|tgt_adr_o         >|(TGT_CNT*ADDR_WIDTH)-1:0 |output |concatinated write data selects
+|tgt_dat_o         >|(TGT_CNT*DATA_WIDTH)-1:0 |output |concatinated write data busses
+|tgt_tga_o         >|(TGT_CNT*TGA_WIDTH)-1:0  |output |concatinated address tags
+|tgt_tgc_o         >|(TGT_CNT*TGC_WIDTH)-1:0  |output |concatinated bus cycle tags
+|tgt_tgd_o         >|(TGT_CNT*TGWD_WIDTH)-1:0 |output |concatinated write data tags
+|tgt_ack_i         >|TGT_CNT-1:0              |input  |concatinated bus cycle acknowledges
+|tgt_err_i         >|TGT_CNT-1:0              |input  |concatinated error indicators
+|tgt_rty_i         >|TGT_CNT-1:0              |input  |concatinated retry requests
+|tgt_stall_i       >|TGT_CNT-1:0              |input  |concatinated access delays
+|tgt_dat_i         >|(TGT_CNT*DATA_WIDTH)-1:0 |input  |concatinated read data busses
+|tgt_tgd_i         >|(TGT_CNT*TGRD_WIDTH)-1:0 |input  |concatinated read data tags
 |=====================================================
 
 Section <<signals>> gives a detailed description of each slignal listed above.
@@ -115,14 +143,15 @@ Section <<signals>> gives a detailed description of each slignal listed above.
 6+h|Default Configuration
 |ITR_CNT    >|4
 //Liniting
-.8+^.^| iVerilog,
+.9+^.^| iVerilog,
 Yosys
 //Simulation
-.8+^.^|
+.9+^.^|
 //Formal
-.8+^.^|
+.9+^.^|
 //FPGA
-.8+^.^|          
+.9+^.^|          
+|TGT_CNT    >|4
 |ADDR_WIDTH >|16            
 |DATA_WIDTH >|16             
 |SEL_WIDTH  >|2             
