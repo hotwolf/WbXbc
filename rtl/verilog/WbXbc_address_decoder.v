@@ -42,7 +42,7 @@
 module WbXbc_address_decoder
   #(parameter TGT_CNT     = 4,   //number of target addresses to decode
     parameter ADDR_WIDTH  = 16,  //width of the address bus
-    parameter DATA_WIDTH  = 8,   //width of each data bus
+    parameter DATA_WIDTH  = 16,  //width of each data bus
     parameter SEL_WIDTH   = 2,   //number of write data select lines
     parameter TGA_WIDTH   = 1,   //number of address tags
     parameter TGC_WIDTH   = 1,   //number of cycle tags

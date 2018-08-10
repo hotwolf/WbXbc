@@ -25,11 +25,11 @@
 //#                                                                             #
 //#                            +-------------------+                            #
 //#                            |                   |--->                        #
-//#                            |                   |                            #
-//#               single       |      WbXbc        |--->  multiple              #
-//#              initiator --->|     splitter      |       target               #
-//#                 bus        |                   | ...   busses               #
-//#                            |                   |                            #
+//#               single       |                   |                            #
+//#              initiator     |      WbXbc        |--->  multiple              #
+//#                 bus    --->|     splitter      |       target               #
+//#                with        |                   | ...   busses               #
+//#              selects       |                   |                            #
 //#                            |                   |--->                        #
 //#                            +-------------------+                            #
 //#                                                                             #

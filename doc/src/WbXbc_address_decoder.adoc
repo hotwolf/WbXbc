@@ -47,7 +47,7 @@ set of address tags which selecting the target block.
 |Parameter   |Default Value |Description
 |TGT_CNT    >|4             |number of target addresses to decode
 |ADDR_WIDTH >|16            |width of the address bus
-|DATA_WIDTH >|8             |width of each data bus
+|DATA_WIDTH >|16            |width of each data bus
 |SEL_WIDTH  >|2             |number of write data select lines
 |TGA_WIDTH  >|1             |number of address tags
 |TGC_WIDTH  >|1             |number of cycle tags
@@ -121,7 +121,7 @@ Yosys
 //FPGA
 .9+|TBD          
 |ADDR_WIDTH >|16            
-|DATA_WIDTH >|8             
+|DATA_WIDTH >|16             
 |SEL_WIDTH  >|2             
 |TGA_WIDTH  >|1             
 |TGC_WIDTH  >|1             
