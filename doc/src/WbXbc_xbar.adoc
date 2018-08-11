@@ -26,42 +26,42 @@
 
 [ditaa, WbXbc_xbar, svg]
 ....
-       Initiator         Initiator            Initiator   
-           |                 |      . . .        |    
-	   V                 V                   V    
-  +----------------------------------------------------------------------+
-  |        |                 |                   |                       | 
-  |        V                 V                   V         		 |
-  |  +-----------+     +-----------+       +-----------+		 |
-  |  |   WbXbc   |     |   WbXbc   |       |   WbXbc   |		 |
-  |  |Distributor|     |Distributor| . . . |Distributor|		 |
-  |  +-+-+-----+-+     +-+-+-----+-+       +-+-+-----+-+		 |
-  |    | | ... |         | | ... |           | | ... |   		 |
-  |    | |     |         | |     |           | |     |   		 |
-  |    | |     |         | |     |           | |     |     +---------+	 |	 
-  |    +-|-----|---------|-|-----|-----------|-|-----|---->|         |	 |	 
-  |      |     |         +-|---- |-----------|-|-----|---->|  WbXbc  +-->|-->Target
-  |      |     |           |     |           | |     | ... | Arbiter |	 |	 
-  |      |     |           |     |           +-|-----|---->|         |	 |	 
-  |      |     |           |     |             |     |     +---------+	 |	 
-  |      |     |           |     |             |     |     	       	 |	 
-  |      |     |           |     |             |     |     +---------+	 |	 
-  |      +-----|-----------|-----|-------------|-----|---->|         |	 |	 
-  |            |           +-----|-------------|-----|---->|  WbXbc  +-->|-->Target
-  |            |                 |             |     | ... | Arbiter |	 |	 
-  |            |                 |             +-----|---->|         |	 |	 
-  |            |                 |                   |     +---------+	 |	 
-  |            |                 |                   |  	       	 |	 
-  |            |                 |                   |        . . .   	 |   . . .	 
-  |            |                 |                   |  	       	 |	 
-  |            |                 |                   |     +---------+	 |	 
-  |            +-----------------|-------------------|---->|         |	 |	 
-  |                              +-------------------|---->|  WbXbc  +-->|-->Target
-  |                                                  | ... | Arbiter |	 |	 
-  |     WbXbc                                        +---->|         |	 |	 
-  |     Xbar                                               +---------+   |  
-  |                                                                      |
-  +----------------------------------------------------------------------+
+      Initiator         Initiator            Initiator   
+          |                 |      . . .        |    
+          V                 V                   V    
+ +----------------------------------------------------------------------+
+ |        |                 |                   |                       | 
+ |        V                 V                   V                       |
+ |  +-----------+     +-----------+       +-----------+                 |
+ |  |WbXbc      |     |WbXbc      |       |WbXbc      |                 |
+ |  |Distributor|     |Distributor| . . . |Distributor|                 |
+ |  +-+-+-----+-+     +-+-+-----+-+       +-+-+-----+-+                 |
+ |    | | ... |         | | ... |           | | ... |                   |
+ |    | |     |         | |     |           | |     |                   |
+ |    | |     |         | |     |           | |     |     +---------+   |       
+ |    +-|-----|---------|-|-----|-----------|-|-----|---->|         |   |       
+ |      |     |         +-|---- |-----------|-|-----|---->| WbXbc   +-->|-->Target
+ |      |     |           |     |           | |     | ... | Arbiter |   |       
+ |      |     |           |     |           +-|-----|---->|         |   |       
+ |      |     |           |     |             |     |     +---------+   |       
+ |      |     |           |     |             |     |                   |       
+ |      |     |           |     |             |     |     +---------+   |       
+ |      +-----|-----------|-----|-------------|-----|---->|         |   |       
+ |            |           +-----|-------------|-----|---->| WbXbc   +-->|-->Target
+ |            |                 |             |     | ... | Arbiter |   |       
+ |            |                 |             +-----|---->|         |   |       
+ |            |                 |                   |     +---------+   |       
+ |            |                 |                   |                   |       
+ |            |                 |                   |        . . .      |   . . .       
+ |            |                 |                   |                   |       
+ |            |                 |                   |     +---------+   |       
+ |            +-----------------|-------------------|---->|         |   |       
+ |                              +-------------------|---->| WbXbc   +-->|-->Target
+ |                                                  | ... | Arbiter |   |       
+ |     WbXbc                                        +---->|         |   |       
+ |     Xbar                                               +---------+   |  
+ |                                                                      |
+ +----------------------------------------------------------------------+
 ....
 
 This module implements a full crossbar switch between a set of initator
@@ -69,7 +69,7 @@ busses and a set of target busses, all using the pipelined Wishbone
 protocol.                                                              
 
 === Integration Parameters
-[cols="4,2,8",options="header"]
+[cols="30,20,50",options="header"]
 |=====================================================
 |Parameter   |Default Value |Description
 |ITR_CNT    >|4             |number of initiator busses
@@ -85,8 +85,11 @@ protocol.
 
 Section <<parameters>> gives a detailed description of each parameter listed above.
 
+//[cols="6,2,2,10v",options="header"]
+
+
 === Interface Signals
-[cols="6,2,2,10v",options="header"]
+[cols="20,35,15,30v",options="header"]
 |=====================================================
 |Signal   |Range |Direction |Description
 4+h|Clock and Reset
@@ -136,7 +139,7 @@ Section <<parameters>> gives a detailed description of each parameter listed abo
 Section <<signals>> gives a detailed description of each slignal listed above.
 
 === Verification Status
-[cols="2v,>1,4*3v",options="header"]
+[cols="16v,>4,4*20v",options="header"]
 |=====================================================
 2+<|Configuration <|Linting <|Simulation <|Formal <|FPGA
 //Default configuration

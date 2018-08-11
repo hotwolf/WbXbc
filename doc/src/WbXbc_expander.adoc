@@ -29,9 +29,9 @@
                +-------------------+            
                |                   |            
                |                   |            
-  Narrow       |       WbXbc       |      Wide  
+ Narrow        |      WbXbc        |     Wide  
  Initiator --->|      Expander     +---> Target 
-    Bus        |                   |      Bus   
+  Bus          |                   |      Bus   
                |                   |            
                |                   |            
                +-------------------+            
@@ -41,7 +41,7 @@ This module connects a pipelined Wishbone initiator to a target with
 wider data busses (twice the width of the initiator's data busses). 
 
 === Integration Parameters
-[cols="4,2,8",options="header"]
+[cols="30,20,50",options="header"]
 |=====================================================
 |Parameter       |Default Value |Description
 |ITR_ADDR_WIDTH >|16            |width of the initiator address bus
@@ -57,7 +57,7 @@ wider data busses (twice the width of the initiator's data busses).
 Section <<parameters>> gives a detailed description of each parameter listed above.
 
 === Interface Signals
-[cols="6,2,2,10v",options="header"]
+[cols="20,35,15,30v",options="header"]
 |=====================================================
 |Signal   |Range |Direction |Description
 4+h|Clock and Reset
@@ -103,7 +103,7 @@ Section <<parameters>> gives a detailed description of each parameter listed abo
 Section <<signals>> gives a detailed description of each slignal listed above.
 
 === Verification Status
-[cols="2v,>1,3v,3v,3v,3v",options="header"]
+[cols="16v,>4,4*20v",options="header"]
 |=====================================================
 2+<|Configuration <|Linting <|Simulation <|Formal <|FPGA
 //Default configuration

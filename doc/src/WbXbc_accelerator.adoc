@@ -29,9 +29,9 @@
                +-------------------+           
                |                   |           
                |                   |           
-   Slow        |       WbXbc       |     Fast  
+ Slow          |    WbXbc          |     Fast  
  Initiator --->|    Accelerator    +---> Target
-    Bus        |                   |      Bus  
+ Bus           |                   |     Bus  
                |                   |           
                |                   |           
                +-------------------+           
@@ -41,7 +41,7 @@ This module connects a pipelined Wishbone initiator, running at a higher
 frequency to a target, running at a lower frequency.                    
 
 === Integration Parameters
-[cols="4,2,8",options="header"]
+[cols="30,20,50",options="header"]
 |=====================================================
 |Parameter   |Default Value |Description
 |ADDR_WIDTH >|16            |width of the address bus
@@ -57,7 +57,7 @@ frequency to a target, running at a lower frequency.
 Section <<parameters>> gives a detailed description of each parameter listed above.
 
 === Interface Signals
-[cols="6,2,2,10v",options="header"]
+[cols="20,35,15,30v",options="header"]
 |=====================================================
 |Signal   |Range |Direction |Description
 4+h|Clock and Reset
@@ -104,7 +104,7 @@ Section <<parameters>> gives a detailed description of each parameter listed abo
 Section <<signals>> gives a detailed description of each slignal listed above.
 
 === Verification Status
-[cols="2v,>1,4*3v",options="header"]
+[cols="16v,>4,4*20v",options="header"]
 |=====================================================
 2+<|Configuration <|Linting <|Simulation <|Formal <|FPGA
 //Default configuration

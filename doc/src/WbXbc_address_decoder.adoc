@@ -26,15 +26,15 @@
 
 [ditaa, WbXbc_address_decoder, svg]
 ....
-                 +-------------------+               
-     Address     |                   |               
-     Regions --->|                   |               
-                 |       WbXbc       |     Target  
-    Initiator    |      Address      +--->  Bus    
-       Bus   --->|      Decoder      |      with   
-      w/out      |                   |     Selects 
-     Selects     |                   |               
-                 +-------------------+               
+               +-------------------+                
+   Address     |                   |                
+   Regions --->|                   |                
+               |      WbXbc        |     Target  
+   Initiator   |      Address      +---> Bus    
+   Bus     --->|      Decoder      |     with   
+   w/out       |                   |     Selects 
+   Selects     |                   |                
+               +-------------------+                 
 ....
 
 This module implements an address decoder for the Wishbone protocol. It 
@@ -42,7 +42,7 @@ propagates accesses from the initiator bus to the target bus and adds a
 set of address tags which selecting the target block.                   
 
 === Integration Parameters
-[cols="4,2,8",options="header"]
+[cols="30,20,50",options="header"]
 |=====================================================
 |Parameter   |Default Value |Description
 |TGT_CNT    >|4             |number of target addresses to decode
@@ -58,7 +58,7 @@ set of address tags which selecting the target block.
 Section <<parameters>> gives a detailed description of each parameter listed above.
 
 === Interface Signals
-[cols="6,2,2,10v",options="header"]
+[cols="20,35,15,30v",options="header"]
 |=====================================================
 |Signal   |Range |Direction |Description
 4+h|Target Address Regions
@@ -105,7 +105,7 @@ Section <<parameters>> gives a detailed description of each parameter listed abo
 Section <<signals>> gives a detailed description of each slignal listed above.
 
 === Verification Status
-[cols="2v,>1,4*3v",options="header"]
+[cols="16v,>4,4*20v",options="header"]
 |=====================================================
 2+<|Configuration <|Linting <|Simulation <|Formal <|FPGA
 //Default configuration

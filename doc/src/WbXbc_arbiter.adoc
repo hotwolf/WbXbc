@@ -26,15 +26,15 @@
 
 [ditaa, WbXbc_arbiter, svg]
 ....
-               +-------------------+           
-           --->|                   |           
-               |                   |           
-  Multiple --->|       WbXbc       |      One 
- Initiator     |      Arbiter      +---> Target
-    Busses  ...|                   |      Bus 
-               |                   |           
-           --->|                   |           
-               +-------------------+           
+              +-------------------+           
+          --->|                   |           
+              |                   |           
+ Multiple --->|      WbXbc        |     One 
+ Initiator    |      Arbiter      +---> Target
+ Busses    ...|                   |     Bus 
+              |                   |           
+          --->|                   |           
+              +-------------------+           
 ....
 
 This module implements a bus arbiter for the pipelined Wishbone        
@@ -45,7 +45,7 @@ set of address tags. Access requests of equal priority are arbitrated
 with a fixed priority (initiator 0 has the higheest priority).         
 
 === Integration Parameters
-[cols="4,2,8",options="header"]
+[cols="30,20,50",options="header"]
 |=====================================================
 |Parameter   |Default Value |Description
 |ITR_CNT    >|4             |number of initiator busses
@@ -61,7 +61,7 @@ with a fixed priority (initiator 0 has the higheest priority).
 Section <<parameters>> gives a detailed description of each parameter listed above.
 
 === Interface Signals
-[cols="6,2,2,10v",options="header"]
+[cols="20,35,15,30v",options="header"]
 |=====================================================
 |Signal   |Range |Direction |Description
 4+h|Clock and Reset
@@ -108,7 +108,7 @@ Section <<parameters>> gives a detailed description of each parameter listed abo
 Section <<signals>> gives a detailed description of each slignal listed above.
 
 === Verification Status
-[cols="2v,>1,4*3v",options="header"]
+[cols="16v,>4,4*20v",options="header"]
 |=====================================================
 2+<|Configuration <|Linting <|Simulation <|Formal <|FPGA
 //Default configuration
