@@ -100,36 +100,36 @@ bibliography::WbXbc.bib[ieee]
 
 
 
-//[wavedrom]
-//....
-//{signal: [
-//  //clock
-//  {name: 'CLK_I', wave: 'P.........'},
-//  {},
-//  ['Standard',
-//  {name: 'STB_O', wave: '01.....|.0'},
-//  {name: 'STB_O', wave: '0101.01|.0'},
-//  {name: 'WE_O',  wave: 'z=z=.z=|.z', data: ['we0', 'we1', 'we2']},
-//  {name: 'ADR_O', wave: 'x=x=.x=|.x', data: ['addr0', 'addr1', 'addr2']},
-//  {name: 'DAT_O', wave: 'x=x=.x=.|x', data: ['wdata0', 'wdata1', 'wdata2']},
-//  {name: 'ACK_I', wave: '010.10.|10'},
-//  {name: 'DAT_I', wave: 'x=x.=x..=x', data: ['rdata0','rdata1', 'rdata2']},
-//  ],
-//  {},
-//  ['Pipelined',
-//  {name: 'CYC_O',   wave: '01..|..|0.'},
-//  {name: 'STB_O',   wave: '0110|1.|.0'},
-//  {name: 'WE_O',    wave: 'z===|..|x.', data: ['we0', 'we1', 'we2']},
-//  {name: 'ADR_O',   wave: 'x===|..|x.', data: ['addr0', 'addr1', 'addr2']},
-//  {name: 'DAT_O',   wave: 'x===|..|x.', data: ['wdata0', 'wdata1', 'wdata2']},
-//  {name: 'STALL_I', wave: '0...|1.|0.'},
-//  {name: 'ACK_I',   wave: '0.10|10|10'},
-//  {name: 'DAT_I',   wave: 'x.=x|=x|=x', data: ['rdata0','rdata1', 'rdata2']},
-//  ],
-//  {},
-//],
-//   config: {hscale: 2},
-//  head: {text: 'Whishbone'}
-//}
-//....
+[wavedrom]
+....
+{signal: [
+  //clock
+  {name: 'CLK_I', wave: 'P.........'},
+  {},
+  ['Standard',
+  {name: 'STB_O', wave: '01.....|.0'},
+  {name: 'STB_O', wave: '0101.01|.0'},
+  {name: 'WE_O',  wave: 'z=z=.z=|.z', data: ['we0', 'we1', 'we2']},
+  {name: 'ADR_O', wave: 'x=x=.x=|.x', data: ['addr0', 'addr1', 'addr2']},
+  {name: 'DAT_O', wave: 'x=x=.x=.|x', data: ['wdata0', 'wdata1', 'wdata2']},
+  {name: 'ACK_I', wave: '010.10.|10'},
+  {name: 'DAT_I', wave: 'x=x.=x..=x', data: ['rdata0','rdata1', 'rdata2']},
+  ],
+  {},
+  ['Pipelined',
+  {name: 'CYC_O',   wave: '01..|..|0.'},
+  {name: 'STB_O',   wave: '0110|1.|.0'},
+  {name: 'WE_O',    wave: 'z===|..|x.', data: ['we0', 'we1', 'we2']},
+  {name: 'ADR_O',   wave: 'x===|..|x.', data: ['addr0', 'addr1', 'addr2']},
+  {name: 'DAT_O',   wave: 'x===|..|x.', data: ['wdata0', 'wdata1', 'wdata2']},
+  {name: 'STALL_I', wave: '0...|1.|0.'},
+  {name: 'ACK_I',   wave: '0.10|10|10'},
+  {name: 'DAT_I',   wave: 'x.=x|=x|=x', data: ['rdata0','rdata1', 'rdata2']},
+  ],
+  {},
+],
+   config: {hscale: 2},
+  head: {text: 'Whishbone'}
+}
+....
 

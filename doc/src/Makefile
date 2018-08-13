@@ -25,15 +25,28 @@
 #Source files
 SRC_MAIN = WbXbc_manual.adoc
 
+#Directories
+CUR_DIR_REL   = .
+OUT_DIR_REL   = ..
+IMG_DIR_REL   = ../img
+CUR_DIR_ABS   = $(realpath $(CUR_DIR_REL))
+OUT_DIR_ABS   = $(realpath $(OUT_DIR_REL))
+IMG_DIR_ABS   = $(realpath $(IMG_DIR_REL))
+
+#Wavedrom
+WAVEDROM      =  ~/Tools/cli/bin/wavedrom-cli.js
+PHANTOMJS     =  /usr/bin/phantomjs
+
 #ASCIIDoc command line arguments
-HTML_ARGS   = -b html5 -a toc2
-PDF_ARGS    = -r asciidoctor-pdf -b pdf
-EPUB_ARGS   = -r asciidoctor-epub3 -b epub3
-COMMON_ARGS = -r asciidoctor-bibtex -a toc -a imagesdir=img -D ..
-#COMMON_ARGS = -r asciidoctor-diagram -a toc -a imagesdir=img -D ..
+HTML_ARGS   = -b html5 -a toc2 -a imagesdir=$(IMG_DIR_REL) -D $(OUT_DIR_REL)
+//HTML_ARGS   = -b html5 -a toc2 -a data-uri -a icons -a imagesdir=$(IMG_DIR_REL) -D $(OUT_DIR_REL)
+PDF_ARGS    = -r asciidoctor-pdf -b pdf -a imagesdir=$(IMG_DIR_ABS) -D $(OUT_DIR_ABS)
+EPUB_ARGS   = -r asciidoctor-epub3 -b epub3 -a imagesdir=$(IMG_DIR_ABS) -D $(OUT_DIR_ABS)
+COMMON_ARGS = -r asciidoctor-bibtex -r asciidoctor-diagram -a toc -a WaveDromCLI=$(WAVEDROM) -a phantomjs=$(PHANTOMJS)
 
 #By default build everything 
-all: clean html pdf epub
+all: clean html pdf
+#all: clean html pdf epub
 
 #Set keywords
 .PHONY: all html pdf epub clean
@@ -45,13 +58,16 @@ html:	*.adoc
 #PDF documentation
 pdf:    *.adoc
 	asciidoctor $(PDF_ARGS) $(COMMON_ARGS) $(SRC_MAIN)
+#	asciidoctor-pdf $(COMMON_ARGS) $(SRC_MAIN)
 
 #EPUB documentation
 epub:    *.adoc
 	asciidoctor $(EPUB_ARGS) $(COMMON_ARGS) $(SRC_MAIN)
 #Clean up
 clean:
-	rm -f ../*.html ../*.pdf ../*.epub
-
+	rm -f $(OUT_DIR_ABS)/*.html
+	rm -f $(OUT_DIR_ABS)/*.pdf
+	rm -f $(OUT_DIR_ABS)/*.epub
+	rm -f $(IMG_DIR_ABS)/*
 
 

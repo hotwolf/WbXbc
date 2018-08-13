@@ -1,0 +1,54 @@
+#read_verilog WbXbc_address_decoder.v
+#read_verilog WbXbc_error_generator.v
+#read_verilog WbXbc_splitter.v
+#read_verilog WbXbc_arbiter.v
+#read_verilog WbXbc_distributor.v  
+#read_verilog WbXbc_xbar.v  
+#read_verilog WbXbc_expander.v  
+#read_verilog WbXbc_reducer.v  
+#read_verilog WbXbc_decelerator.v  
+#read_verilog WbXbc_accelerator.v  
+#read_verilog WbXbc_pipeliner.v  
+read_verilog WbXbc_standardizer.v  
+
+hierarchy -check -top WbXbc_standardizer
+#hierarchy -check
+
+
+#rename WbXbc_arbiter mapped
+#
+#synth_ice40 -top mapped -abc2
+#
+#read_verilog WbXbc_address_decoder.v
+#
+#rename WbXbc_arbiter golden
+#
+#select golden
+#
+proc; opt
+
+fsm; opt
+
+memory; opt
+
+techmap; opt
+
+clean
+
+#select -clear
+#
+#miter -equiv -make_assert -make_outputs golden mapped miter
+#
+#flatten miter
+#
+#delete golden
+#
+#clk2fflogic miter
+#
+##select miter
+#
+##sat -verify -prove-asserts -show-inputs -show-outputs miter
+#
+#write_verilog netlist.v
+
+shell

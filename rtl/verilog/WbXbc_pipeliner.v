@@ -35,17 +35,17 @@
 //#                     :__   :__   :__   :__   :__   :__   :__   :__   :__     #
 //#        clk_i      __|  |__|  |__|  |__|  |__|  |__|  |__|  |__|  |__|  |__  #
 //#                     :     :     :     :     :     :     :     :     :       #
-//#    request from     :_____:_____:     :_____:_____:_____:     :_____:_____  #  
-//#    initiator      --|___________|-----|_________________|-----|___________  # 
-//#                     :     :     :     :     :     :     :     :     :       #  
-//#    request to       :_____:     :     :_____:     :     :     :_____:       #  
-//#    target         --|_____|-----:-----|_____|-----:-----:-----|_____|-----  #  
-//#                     :     :     :     :     :     :     :     :     :       #  
-//#    response from    :     :_____:     :     :     :_____:     :     :       #  
-//#    target         --:-----|_____|-----:-----:-----|_____|-----|-----|-----  #  
-//#                     :     :     :     :     :noack:     :     :noack:noack  #  
-//#    response to      :     :_____:     :     :     :_____:     :     :       #  
-//#    initiator      --:-----|_____|-----:-----:-----|_____|-----:-----:-----  #  
+//#    request from     :_____:_____:     :_____:_____:_____:     :_____:_____  #
+//#    initiator      --|___________|-----|_________________|-----|___________  #
+//#                     :     :     :     :     :     :     :     :     :       #
+//#    request to       :_____:     :     :_____:     :     :     :_____:       #
+//#    target         --|_____|-----:-----|_____|-----:-----:-----|_____|-----  #
+//#                     :     :     :     :     :     :     :     :     :       #
+//#    response from    :     :_____:     :     :     :_____:     :     :       #
+//#    target         --:-----|_____|-----:-----:-----|_____|-----|-----|-----  #
+//#                     :     :     :     :     :noack:     :     :noack:noack  #
+//#    response to      :     :_____:     :     :     :_____:     :     :       #
+//#    initiator      --:-----|_____|-----:-----:-----|_____|-----:-----:-----  #
 //#                     :     :     :     :     :     :     :     :     :       #
 //#                                                                             #
 //###############################################################################
@@ -92,7 +92,7 @@ module WbXbc_pipeliner
     //Target interfaces
     //-----------------
     output wire                          tgt_cyc_o,                           //bus cycle indicator       +-
-    output wire                          tgt_stb_o,                           //access request            |
+    output reg                           tgt_stb_o,                           //access request            |
     output wire                          tgt_we_o,                            //write enable              |
     output wire                          tgt_lock_o,                          //uninterruptable bus cycle |
     output wire [SEL_WIDTH-1:0]          tgt_sel_o,                           //write data selects        | initiator
@@ -108,9 +108,14 @@ module WbXbc_pipeliner
     input  wire [DATA_WIDTH-1:0]         tgt_dat_i,                           //read data bus             |
     input  wire [TGRD_WIDTH-1:0]         tgt_tgd_i);                          //read data tags            +-
 
+   //Internal signals
+   reg                                   state_next;                          //next state
+
+   //State variable
+   reg                                   state_reg;                           //state variable
+
    //Signal propagation to the target bus
    assign tgt_cyc_o        = itr_cyc_i;                                       //bus cycle indicator       +-
-   assign tgt_stb_o        = itr_stb_i;                                       //access request            |
    assign tgt_we_o         = itr_we_i;                                        //write enable              |
    assign tgt_lock_o       = itr_lock_i;                                      //uninterruptable bus cycle | initiator
    assign tgt_sel_o        = itr_sel_i;                                       //write data selects        | to
@@ -128,12 +133,37 @@ module WbXbc_pipeliner
    assign itr_dat_o        = tgt_dat_i;                                       //                          |
    assign itr_tgd_o        = tgt_tgd_i;                                       //read data tags            +-
 
+   //Finite state machine
+   parameter STATE_READY         = 1'b0;  //waiting for bus request (reset state)
+   parameter STATE_RESP_PENDING  = 1'b1;  //waiting for bus acknowledge
+   always @*
+     begin
+        //Default outputs
+        tgt_stb_o        = itr_stb_i;                                         //propagate access request
+        case (state_reg)
+          STATE_READY:
+            begin
+               if (itr_cyc_i & itr_stb_i & ~tgt_stall_i)                      //bus request before initiator only clock event
+                 begin
+                    state_next      = STATE_RESP_PENDING;                     //initiate target request
+                 end
+            end
+          STATE_RESP_PENDING:
+            begin
+               tgt_stb_o        = 1'b0;                                       //don't propagate access request
+               if (itr_ack_o | itr_err_o | itr_rty_o)
+                 state_next      = STATE_RESP_PENDING;                        //initiate target request
+            end
+        endcase // case (state_reg)
+     end // always @ *
 
+   //State variable
+   always @(posedge async_rst_i or posedge clk_i)
+     if (async_rst_i)                                                         //asynchronous reset
+       state_reg <= STATE_READY;
+     else if (sync_rst_i)                                                     //synchronous reset
+       state_reg <= STATE_READY;
+     else if(1)
+       state_reg <= state_next;                                               //state transition
 
-
-
-
-
-
-   
 endmodule // WbXbc_pipeliner
