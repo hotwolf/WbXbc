@@ -1,0 +1,104 @@
+%###############################################################################
+%# WbXbc - Manual - Main                                                       #
+%###############################################################################
+%#    Copyright 2018 Dirk Heisswolf                                            #
+%#    This file is part of the WbXbc project.                                  #
+%#                                                                             #
+%#    WbXbc is free software: you can redistribute it and/or modify            #
+%#    it under the terms of the GNU General Public License as published by     #
+%#    the Free Software Foundation, either version 3 of the License, or        #
+%#    (at your option) any later version.                                      #
+%#                                                                             #
+%#    WbXbc is distributed in the hope that it will be useful,                 #
+%#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+%#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+%#    GNU General Public License for more details.                             #
+%#                                                                             #
+%#    You should have received a copy of the GNU General Public License        #
+%#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
+%###############################################################################
+%# Version History:                                                            #
+%#   September 10, 2018                                                        #
+%#      - Initial release                                                      #
+%###############################################################################
+
+\documentclass{article}
+\usepackage{fancyhdr}
+\usepackage{nameref}
+\usepackage{enumitem}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{pgf}
+\usepackage{tikz}
+\usepackage{tikz-timing}
+\usepackage[colorlinks=true]{hyperref}
+
+\begin{document}
+
+%References
+\newcommand{\secref}[2][Section]{\hyperref[{#2}]{\mbox{#1~\ref*{#2}} \mbox{``\nameref*{#2}``}}}
+\newcommand{\tabref}[2][Table]{\hyperref[{#2}]{\mbox{#1~\ref*{#2}}}}
+\newcommand{\figref}[2][Figure]{\hyperref[{#2}]{\mbox{#1~\ref*{#2}}}}
+
+%--------------------
+% Title
+%--------------------
+\title{WbXbc Manual}
+\date{\today}
+\author{Dirk Heisswolf}
+\maketitle
+
+%--------------------
+% Table of Contents
+%--------------------
+\setcounter{tocdepth}{3}
+\tableofcontents
+
+%--------------------
+% Overview
+%--------------------
+\include{WbXbc_overview}
+
+%--------------------
+% WbXbc integration parameters
+%--------------------
+\include{WbXbc_parameters}
+
+%--------------------
+% WbXbc interface signals
+%--------------------
+\include{WbXbc_signals}
+
+%--------------------
+% WbXbc components
+%--------------------
+\include{WbXbc_components}
+
+\include{WbXbc_address_decoder}
+%\include{WbXbc_error_generator.tex}
+%\include{WbXbc_splitter.tex}
+%\include{WbXbc_arbiter.tex}
+%\include{WbXbc_expander.tex}
+%\include{WbXbc_reducer.tex}
+%\include{WbXbc_accelerator.tex}
+%\include{WbXbc_decelerator.tex}
+%\include{WbXbc_pipeliner.tex}
+%\include{WbXbc_standardizer.tex}
+%\include{WbXbc_distributor.tex}
+%\include{WbXbc_xbar.tex}
+
+%--------------------
+% Wishbone pipelined bus interface
+%--------------------
+%\include{WbXbc_wishbone.tex}
+
+%--------------------
+% Bibliography
+%--------------------
+\bibliographystyle{ieee}
+\bibliography{WbXbc.bib}
+
+\end{document}

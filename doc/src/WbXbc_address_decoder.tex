@@ -1,0 +1,258 @@
+%###############################################################################
+%# WbXbc - Manual - Address Bus Decoder                                        #
+%###############################################################################
+%#    Copyright 2018 Dirk Heisswolf                                            #
+%#    This file is part of the WbXbc project.                                  #
+%#                                                                             #
+%#    WbXbc is free software: you can redistribute it and/or modify            #
+%#    it under the terms of the GNU General Public License as published by     #
+%#    the Free Software Foundation, either version 3 of the License, or        #
+%#    (at your option) any later version.                                      #
+%#                                                                             #
+%#    WbXbc is distributed in the hope that it will be useful,                 #
+%#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+%#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+%#    GNU General Public License for more details.                             #
+%#                                                                             #
+%#    You should have received a copy of the GNU General Public License        #
+%#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
+%###############################################################################
+%# Version History:                                                            #
+%#   September 10, 2018                                                        #
+%#      - Initial release                                                      #
+%###############################################################################
+
+\subsection[WbXbc Address Decoder]{WbXbc Address Decoder (\texttt{WbXbc\_addesss\_decoder})}
+\label{adec}
+
+This module implements an address decoder for the Wishbone protocol. It 
+propagates accesses from the initiator bus to the target bus and adds a 
+set of address tags which selecting the target block (see \figref{adec:diag}).                   
+%               +-------------------+                
+%   Address     |                   |                
+%   Regions --->|                   |                
+%               |      WbXbc        |     Target  
+%   Initiator   |      Address      +---> Bus    
+%   Bus     --->|      Decoder      |     with   
+%   w/out       |                   |     Selects 
+%   Selects     |                   |                
+%               +-------------------+                 
+\begin{figure}[!h]
+  \begin{center}
+    \begin{tikzpicture}
+      %Block
+      \draw [thick, fill=white] (4,0) rectangle (8,4);
+      \node at (6,2)
+            {\begin{minipage}[c]{8em}
+                \begin{center}
+                  \hyphenchar\font=-1
+                  \large{\textbf{\nameref*{adec}}}
+                \end{center}
+             \end{minipage}};
+      %Inputs     
+      \node [left] at (3.5,3)
+            {\begin{minipage}[c]{6em}
+                \begin{flushright}
+                  \hyphenchar\font=-1
+                  \small{Address Regions}
+                \end{flushright}
+             \end{minipage}};
+      \draw [thick, ->] (3.5,3) -- (4,3);
+      \node [left] at (3.5,2)
+            {\begin{minipage}[c]{6em}
+                \begin{flushright}
+                  \hyphenchar\font=-1
+                  \small{Initiator Bus w/out Selects}
+                \end{flushright}
+             \end{minipage}};
+      \draw [ultra thick, ->] (3.5,2) -- (4,2);
+      %Outputs     
+      \node [right] at (8.5,2)
+            {\begin{minipage}[c]{6em}
+                \begin{flushleft}
+                  \hyphenchar\font=-1
+                  \small{Initiator Bus w/ Selects}
+                \end{flushleft}
+             \end{minipage}};
+      \draw [ultra thick, ->] (8,2) -- (8.5,2);
+    \end{tikzpicture}
+    \caption[Block Diagram]{Block Diagram of the \nameref*{adec}}
+    \label{adec:diag}
+  \end{center}
+\end{figure}
+  
+
+\subsubsection{Integration Parameters}
+\label{adec:param}
+
+The \nameref*{adec} supports the integration parameters listed in \tabref{adec:param:tab}. 
+See \secref{param} for a detailed description of all integration parameters.
+
+\begin{center}
+  \rowcolors{1}{gray!12}{white}                                         %set alternating row color
+  \begin{longtable}{|l|r|l|}
+    \rowcolor{white}
+    \caption[Integration Parameters]{Integration Parameters of the \nameref*{adec}}
+    \label{adec:param:tab} \\
+    %Header
+    \hline                                     
+    \rowcolor{gray!25}
+    \multicolumn{1}{|c|}{\textbf{\rule{0pt}{2.5ex} Parameter}}  &  
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex}  Default}}    & 
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex}  Decription}} \\
+    \hline                                    
+    \endhead                               
+    %Footers
+    \hline
+    \rowcolor{white}
+    \multicolumn{3}{r}{\tiny{...continued}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    %Content
+    \texttt{TGT\_CNT   } & \texttt{4}  & Number of target addresses to decode \\
+    \texttt{ADDR\_WIDTH} & \texttt{16} & Width of the address bus             \\
+    \texttt{DATA\_WIDTH} & \texttt{16} & Width of each data bus               \\
+    \texttt{SEL\_WIDTH } & \texttt{2}  & Number of data select lines          \\
+    \texttt{TGA\_WIDTH } & \texttt{1}  & Number of address tags               \\
+    \texttt{TGC\_WIDTH } & \texttt{1}  & Number of cycle tags                 \\
+    \texttt{TGRD\_WIDTH} & \texttt{1}  & Number of read data tags             \\
+    \texttt{TGWD\_WIDTH} & \texttt{1}  & Number of write data tags            \\
+  \end{longtable}
+\end{center}
+
+\subsubsection{Interface Signals}
+\label{adec:sig}
+
+\tabref{adec:sig:tab} lists the interface signals of the \nameref*{adec}. 
+See \secref{sig} for a detailed description of all interface signals.
+
+\begin{center}
+  \rowcolors{1}{gray!12}{white}                                         %set alternating row color
+  \begin{longtable}{|l|r|l|l|}
+    \rowcolor{white}
+    \caption[Interface Signals]{Interface Signals of the \nameref*{adec}}
+    \label{adec:sig:tab} \\
+    %Header
+    \hline                                     
+    \rowcolor{gray!25}
+    \multicolumn{1}{|c|}{\textbf{\rule{0pt}{2.5ex} Signal}}     &  
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex}  Range}}      & 
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex}  Direction}}  & 
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex}  Decription}} \\
+    \hline
+    \endhead                               
+    %Footers
+    \hline
+    \rowcolor{white}
+    \multicolumn{4}{r}{\tiny{...continued}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    %Section 'Target Address Regions'
+    %\hline
+    \rowcolor{gray!20}
+    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Target Address Regions}} \global\rownum=1\relax \\  
+    \hline                                    
+    \texttt{region\_addr}   & \texttt{(TGT\_CNT*ADDR\_WIDTH)\-1:0} & input & target address                             \\
+    \texttt{region\_mask}   & \texttt{(TGT\_CNT*ADDR\_WIDTH)\-1:0} & input & \makecell[l]{selects relevant address bits \\
+                                                                                          (1: relevant, 0: ignored)}    \\
+    %Section 'Initiator Interface'
+    \hline                                 
+    \rowcolor{gray!20}
+    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Initiator Interface}} \global\rownum=1\relax \\    
+    \hline                                 
+    \texttt{itr\_cyc\_i}   &                                & input  & bus cycle indicator       \\
+    \texttt{itr\_stb\_i}   &                                & input  & access request            \\
+    \texttt{itr\_we\_i}    &                                & input  & write enable              \\
+    \texttt{itr\_lock\_i}  &                                & input  & uninterruptable bus cycle \\
+    \texttt{itr\_sel\_i}   & \texttt{SEL\_WIDTH-1:0}        & input  & write data selects        \\
+    \texttt{itr\_adr\_i}   & \texttt{ADDR\_WIDTH-1:0}       & input  & address bus               \\
+    \texttt{itr\_dat\_i}   & \texttt{DATA\_WIDTH-1:0}       & input  & write data bus            \\
+    \texttt{itr\_tga\_i}   & \texttt{TGA\_WIDTH-1:0}        & input  & address tags              \\
+    \texttt{itr\_tgc\_i}   & \texttt{TGC\_WIDTH-1:0}        & input  & bus cycle tags            \\
+    \texttt{itr\_tgd\_i}   & \texttt{TGWD\_WIDTH-1:0}       & input  & write data tags           \\
+    \texttt{itr\_ack\_o}   &                                & output & bus cycle acknowledge     \\
+    \texttt{itr\_err\_o}   &                                & output & error indicator           \\
+    \texttt{itr\_rty\_o}   &                                & output & retry request             \\
+    \texttt{itr\_stall\_o} &                                & output & access delay              \\
+    \texttt{itr\_dat\_o}   & \texttt{DATA\_WIDTH-1:0}       & output & read data bus             \\
+    \texttt{itr\_tgd\_o}   & \texttt{TGRD\_WIDTH-1:0}       & output & read data tags            \\ 
+    %Section 'Target Interface'
+    \hline                                                                                      
+    \rowcolor{gray!20}
+    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Target Interface}} \global\rownum=1\relax \\  
+    \hline                                                                                      
+    \texttt{tgt\_cyc\_o}         &                          & output & bus cycle indicator       \\
+    \texttt{tgt\_stb\_o}         &                          & output & access request            \\
+    \texttt{tgt\_we\_o}          &                          & output & write enable              \\
+    \texttt{tgt\_lock\_o}        &                          & output & uninterruptable bus cycle \\
+    \texttt{tgt\_sel\_o}         & \texttt{SEL\_WIDTH-1:0}  & output & write data selects        \\
+    \texttt{tgt\_adr\_o}         & \texttt{ADDR\_WIDTH-1:0} & output & write data selects        \\
+    \texttt{tgt\_dat\_o}         & \texttt{DATA\_WIDTH-1:0} & output & write data bus            \\
+    \texttt{tgt\_tga\_o}         & \texttt{TGA\_WIDTH-1:0}  & output & address tags              \\
+    \texttt{itr\_tga\_tgtsel\_o} & \texttt{TGT\_CNT-1:0}    & output & target select tags        \\
+    \texttt{tgt\_tgc\_o}         & \texttt{TGC\_WIDTH-1:0}  & output & bus cycle tags            \\
+    \texttt{tgt\_tgd\_o}         & \texttt{TGWD\_WIDTH-1:0} & output & write data tags           \\
+    \texttt{tgt\_ack\_i}         &                          & input  & bus cycle acknowledge     \\
+    \texttt{tgt\_err\_i}         &                          & input  & error indicator           \\
+    \texttt{tgt\_rty\_i}         &                          & input  & retry request             \\
+    \texttt{tgt\_stall\_i}       &                          & input  & access delay              \\
+    \texttt{tgt\_dat\_i}         & \texttt{DATA\_WIDTH-1:0} & input  & read data bus             \\
+    \texttt{tgt\_tgd\_i}         & \texttt{TGRD\_WIDTH-1:0} & input  & read data tags            \\   
+  \end{longtable}
+\end{center}  
+
+\subsubsection{Verification Status}
+\label{adec:verif}
+
+\tabref[Table]{adec:verif:tab} provides an overview of the verification status of the \nameref*{adec}.
+Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and the Yosys synthesis tool~\cite{yosys}.
+
+\begin{center}
+  \rowcolors{1}{gray!12}{white}                                         %set alternating row color
+  \begin{longtable}{|lr|c|c|c|c|}
+    \rowcolor{white}
+    \caption[Interface Signals]{Verification Status of the \nameref*{adec}}
+    \label{adec:verif:tab} \\
+    %Header
+    \hline                              
+    \rowcolor{gray!25}
+    \multicolumn{2}{|c|}{\textbf{\rule{0pt}{2.5ex} Configuration}} &  
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex}  Linting}}       &  
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex}  Simulation}}    &  
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex}  Formal}}        &  
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex}  FPGA}}          \\
+    \hline                              
+    \endhead                               
+    %Footers
+    \hline
+    \rowcolor{white}
+    \multicolumn{6}{r}{\tiny{...continued}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    %Content
+    \makecell[l]{Default:             \\ 
+                 \texttt{ADDR\_WIDTH} \\
+                 \texttt{DATA\_WIDTH} \\
+                 \texttt{SEL\_WIDTH}  \\
+                 \texttt{TGA\_WIDTH}  \\
+                 \texttt{TGC\_WIDTH}  \\
+                 \texttt{TGRD\_WIDTH} \\
+                 \texttt{TGWD\_WIDTH}}   &
+    \makecell[r]{                     \\ 
+                 \texttt{16}          \\
+                 \texttt{16}          \\
+                 \texttt{2}           \\
+                 \texttt{1}           \\
+                 \texttt{1}           \\
+                 \texttt{1}           \\
+                 \texttt{1}}             &     
+    \makecell[c]{iVerilog~\cite{iverilog} \\                    
+                 Yosis~\cite{yosys}}     &
+    & & \\
+  \end{longtable}
+\end{center}
+  
+

@@ -1,0 +1,162 @@
+%###############################################################################
+%# WbXbc - Manual - Interface Signals                                          #
+%###############################################################################
+%#    Copyright 2018 Dirk Heisswolf                                            #
+%#    This file is part of the WbXbc project.                                  #
+%#                                                                             #
+%#    WbXbc is free software: you can redistribute it and/or modify            #
+%#    it under the terms of the GNU General Public License as published by     #
+%#    the Free Software Foundation, either version 3 of the License, or        #
+%#    (at your option) any later version.                                      #
+%#                                                                             #
+%#    WbXbc is distributed in the hope that it will be useful,                 #
+%#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+%#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+%#    GNU General Public License for more details.                             #
+%#                                                                             #
+%#    You should have received a copy of the GNU General Public License        #
+%#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
+%###############################################################################
+%# Version History:                                                            #
+%#   September 10, 2018                                                        #
+%#      - Initial release                                                      #
+%###############################################################################
+
+\section{Interface Signals}
+\label{sig}
+
+All WbXbc components share common interface signals, which are described in this
+chapter. Most of these signals refer directly to the Wishbone specification~\cite{wishbone}.
+
+\subsection{General Signals (SYSCON)}
+
+\begin{description}[style=nextline]
+
+\item[\texttt{clk\_i}] Common clock input for all Wishbone interfaces
+
+\item[\texttt{itr\_clk\_i}] clock input for all initiator busses. Target busses must be clocked by
+  synchronous and subdivided clock.
+
+\item[\texttt{tgt\_clk\_i}] clock input for all target busses. Initiator busses must be clocked by
+  synchronous and subdivided clock.
+
+\item[\texttt{itr2tgt\_sync\_i}] This signal indicates a common positive clock edge of the initiator
+  clock and the synchronous and subdivided target clock (see \figref{sig:itr2tgtsync:fig}). 
+
+  \begin{figure}[!h]
+    \begin{center}
+      \begin{tikztimingtable}
+        \texttt{itr\_clk\_i}      & 15{4c}        \\
+        \texttt{tgt\_clk\_i}      &  5{12c}       \\
+        \texttt{itr2tgt\_sync\_i} &  4t8t16t8t12L \\
+      \end{tikztimingtable}
+      \caption[Timing Diagram]{\texttt{itr2tgt\_sync\_i} Timing Diagram}
+      \label{sig:itr2tgtsync:fig}
+    \end{center}
+  \end{figure}
+  
+\item[\texttt{tgt2itr\_sync\_i}] This signal indicates a common positive clock edge of the targert
+  clock and the synchronous and subdivided initiator clock (see \figref{sig:tgt2itrsync:fig}).
+
+  \begin{figure}[!h]
+    \begin{center}
+      \begin{tikzpicture}
+
+        \texttt{itr\_clk\_i}      &  7{8c}        \\
+        \texttt{tgt\_clk\_i}      & 15{4c}       \\
+        \texttt{itr2tgt\_sync\_i} &  4t8t16t8t12L \\
+
+        
+        
+      \end{tikzpicture}
+      \caption[Timing Diagram]{\texttt{tgt2itr\_sync\_i} Timing Diagram}
+      \label{sig:tgt2itrsync:fig}
+    \end{center}
+  \end{figure}
+
+\item[\texttt{async\_rst\_i}] An optional asynchronous reset signal for all sequential logic. This
+  reset signal may assert asynchronously, but must deassert synchronously. If no
+  asynchrounous reset is implemented, this input must be tied to zero.
+
+\item[\texttt{sync\_rst\_i}] A synchronous reset signal as required by the Wishbone specification (RST\_I).
+  For WbXBC components, this synchronous reset is not required, if an asynchronous reset is provided.
+  If no synchrounous reset is implemented, this input must be tied to zero.
+
+\end{description}
+
+\subsection{Initiator Bus Signals}
+
+\begin{description}[style=nextline]
+
+\item[\texttt{itr\_cyc\_i}] TBD 
+
+\item[\texttt{itr\_stb\_i}] TBD
+
+\item[\texttt{itr\_we\_i}] TBD
+
+\item[\texttt{itr\_lock\_i}] TBD
+
+\item[\texttt{itr\_sel\_i}] TBD
+
+\item[\texttt{itr\_adr\_i}] TBD
+
+\item[\texttt{itr\_dat\_i}] TBD
+
+\item[\texttt{itr\_tga\_i}] TBD
+
+\item[\texttt{itr\_tgc\_i}] TBD
+
+\item[\texttt{itr\_tgd\_i}] TBD
+
+\item[\texttt{itr\_ack\_o}] TBD
+
+\item[\texttt{itr\_err\_o}] TBD
+
+\item[\texttt{itr\_rty\_o}] TBD
+
+\item[\texttt{itr\_stall\_o}] TBD
+
+\item[\texttt{itr\_dat\_o}] TBD
+
+\item[\texttt{itr\_tgd\_o}] TBD
+
+\end{description}
+
+\subsection{Target Bus Signals}
+
+\begin{description}[style=nextline]
+
+\item[\texttt{tgt\_cyc\_o}] TBD
+
+\item[\texttt{tgt\_stb\_o}] TBD    
+
+\item[\texttt{tgt\_we\_o}] TBD     
+
+\item[\texttt{tgt\_lock\_o}] TBD   
+
+\item[\texttt{tgt\_sel\_o}] TBD    
+
+\item[\texttt{tgt\_adr\_o}] TBD    
+
+\item[\texttt{tgt\_dat\_o}] TBD    
+
+\item[\texttt{tgt\_tga\_o}] TBD    
+
+\item[\texttt{tgt\_tgc\_o}] TBD    
+
+\item[\texttt{tgt\_tgd\_o}] TBD    
+
+\item[\texttt{tgt\_ack\_i}] TBD    
+
+\item[\texttt{tgt\_err\_i}] TBD    
+
+\item[\texttt{tgt\_rty\_i}] TBD    
+
+\item[\texttt{tgt\_stall\_i}] TBD  
+
+\item[\texttt{tgt\_dat\_i}] TBD    
+
+\item[\texttt{tgt\_tgd\_i}] TBD  
+
+\end{description}
+
