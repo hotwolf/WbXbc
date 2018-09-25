@@ -51,8 +51,8 @@ module WbXbc_address_decoder
 
    (//Target address regions
     //----------------------
-    input  wire [(TGT_CNT*ADDR_WIDTH)-1:0] region_addr,      //target address
-    input  wire [(TGT_CNT*ADDR_WIDTH)-1:0] region_mask,      //selects relevant address bits
+    input  wire [(TGT_CNT*ADDR_WIDTH)-1:0] region_addr_i,    //target address
+    input  wire [(TGT_CNT*ADDR_WIDTH)-1:0] region_mask_i,    //selects relevant address bits
                                                              //(1: relevant, 0: ignored)
 
     //Initiator interface
@@ -99,12 +99,12 @@ module WbXbc_address_decoder
 
    //Address decoding
    always @*                                                 //target select tags
-   //always @(itr_adr_i or region_addr or region_mask)       //target select tags
+   //always @(itr_adr_i or region_addr_i or region_mask_i)   //target select tags
      begin
         itr_tga_tgtsel_o = {TGT_CNT{1'b1}};
         for (i=0; i<(TGT_CNT*ADDR_WIDTH); i=i+1)
           itr_tga_tgtsel_o[i/ADDR_WIDTH] = itr_tga_tgtsel_o[i/ADDR_WIDTH] &
-                                          ~((region_addr[i] ^ itr_adr_i[i%ADDR_WIDTH]) & region_mask[i]);
+                                          ~((region_addr_i[i] ^ itr_adr_i[i%ADDR_WIDTH]) & region_mask_i[i]);
      end
 
    //Plain signal propagation to the target bus

@@ -1,5 +1,5 @@
 %###############################################################################
-%# WbXbc - Manual - Address Bus Decoder                                        #
+%# WbXbc - Manual - Bus Arbiter                                                #
 %###############################################################################
 %#    Copyright 2018 Dirk Heisswolf                                            #
 %#    This file is part of the WbXbc project.                                  #
@@ -18,25 +18,28 @@
 %#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 %###############################################################################
 %# Version History:                                                            #
-%#   September 10, 2018                                                        #
+%#   September 25, 2018                                                        #
 %#      - Initial release                                                      #
 %###############################################################################
 
-\subsection[WbXbc Address Decoder]{WbXbc Address Decoder (\texttt{WbXbc\_addesss\_decoder})}
-\label{adec}
+\subsection[WbXbc Splitter]{WbXbc Arbiter (\texttt{WbXbc\_arbiter})}
+\label{arb}
 
-This module implements an address decoder for the Wishbone protocol. It 
-propagates accesses from the initiator bus to the target bus and adds a 
-set of address tags which selecting the target block (see \figref{adec:diag}).                   
-%               +-------------------+                
-%   Address     |                   |                
-%   Regions --->|                   |                
-%               |      WbXbc        |     Target  
-%   Initiator   |      Address      +---> Bus    
-%   Bus     --->|      Decoder      |     with   
-%   w/out       |                   |     Selects 
-%   Selects     |                   |                
-%               +-------------------+                 
+This module implements a bus arbiter for the pipelined Wishbone        
+protocol. Accesses from multiple initiator busses are arbitrated and   
+propagated to the target bus. Each initiator bus can request bus       
+accesses at two priority levels. The priority levels are selected via a
+set of address tags. Access requests of equal priority are arbitrated  
+with a fixed priority (initiator 0 has the higheest priority).         
+%              +-------------------+           
+%          --->|                   |           
+%              |                   |           
+% Multiple --->|      WbXbc        |     One 
+% Initiator    |      Arbiter      +---> Target
+% Busses    ...|                   |     Bus 
+%              |                   |           
+%          --->|                   |           
+%              +-------------------+           
 \begin{figure}[!h]
   \begin{center}
     \begin{tikzpicture}
@@ -46,54 +49,48 @@ set of address tags which selecting the target block (see \figref{adec:diag}).
             {\begin{minipage}[c]{8em}
                 \begin{center}
                   \hyphenchar\font=-1
-                  \large{\textbf{\nameref*{adec}}}
+                  \large{\textbf{\nameref*{arb}}}
                 \end{center}
              \end{minipage}};
       %Inputs     
-      \node [left] at (3.5,3)
-            {\begin{minipage}[c]{6em}
-                \begin{flushright}
-                  \hyphenchar\font=-1
-                  \small{Address Regions}
-                \end{flushright}
-             \end{minipage}};
-      \draw [thick, ->] (3.5,3) -- (4,3);
       \node [left] at (3.5,2)
             {\begin{minipage}[c]{6em}
                 \begin{flushright}
                   \hyphenchar\font=-1
-                  \small{Initiator Bus w/out Selects}
+                  \small{Multiple Initiator Busses}
                 \end{flushright}
              \end{minipage}};
-      \draw [ultra thick, ->] (3.5,2) -- (4,2);
-      %Outputs     
+      \draw [ultra thick, ->] (3.5,2.75) -- (4.5,2.75);
+      \draw [ultra thick, ->] (3.5,2.25) -- (4.5,2.25);
+      \node [rotate=90] at (3.75,1.75) {\small{\texttt{...}}};
+      \draw [ultra thick, ->] (3.5,1.25) -- (4.5,1.25);
+     %Outputs     
       \node [right] at (8.5,2)
-            {\begin{minipage}[c]{6em}
+            {\begin{minipage}[c]{5em}
                 \begin{flushleft}
                   \hyphenchar\font=-1
-                  \small{Target Bus w/ Selects}
+                  \small{Single Target Bus}
                 \end{flushleft}
              \end{minipage}};
       \draw [ultra thick, ->] (8,2) -- (8.5,2);
     \end{tikzpicture}
-    \caption{Block Diagram of the \nameref*{adec}}
-    \label{adec:diag}
+    \caption{Block Diagram of the \nameref*{arb}}
+    \label{arb:diag}
   \end{center}
 \end{figure}
   
-
 \subsubsection{Integration Parameters}
-\label{adec:param}
+\label{arb:param}
 
-The \nameref*{adec} supports the integration parameters listed in \tabref{adec:param:tab}. 
+The \nameref*{arb} supports the integration parameters listed in \tabref{arb:param:tab}. 
 See \secref{param} for a detailed description of all integration parameters.
 
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
   \begin{longtable}{|l|r|l|}
     \rowcolor{white}
-    \caption{Integration Parameters of the \nameref*{adec}}
-    \label{adec:param:tab} \\
+    \caption{Integration Parameters of the \nameref*{arb}}
+    \label{arb:param:tab} \\
     %Header
     \hline                                     
     \rowcolor{gray!25}
@@ -122,17 +119,17 @@ See \secref{param} for a detailed description of all integration parameters.
 \end{center}
 
 \subsubsection{Interface Signals}
-\label{adec:sig}
+\label{arb:sig}
 
-\tabref{adec:sig:tab} lists the interface signals of the \nameref*{adec}. 
+\tabref{arb:sig:tab} lists the interface signals of the \nameref*{arb}. 
 See \secref{sig} for a detailed description of all interface signals.
 
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
   \begin{longtable}{|l|r|l|l|}
     \rowcolor{white}
-    \caption{Interface Signals of the \nameref*{adec}}
-    \label{adec:sig:tab} \\
+    \caption{Interface Signals of the \nameref*{arb}}
+    \label{arb:sig:tab} \\
     %Header
     \hline                                     
     \rowcolor{gray!25}
@@ -149,35 +146,36 @@ See \secref{sig} for a detailed description of all interface signals.
     \endfoot
     \hline
     \endlastfoot
-    %Section 'Target Address Regions'
+    %Section 'Clock and Reset'
     %\hline
     \rowcolor{gray!20}
-    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Target Address Regions}} \global\rownum=1\relax \\  
+    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Clock and Reset}} \global\rownum=1\relax \\  
     \hline                                    
-    \texttt{region\_addr\_i} & \texttt{(TGT\_CNT*ADDR\_WIDTH)\-1:0} & input & target address                             \\
-    \texttt{region\_mask\_i} & \texttt{(TGT\_CNT*ADDR\_WIDTH)\-1:0} & input & \makecell[l]{selects relevant address bits \\
-                                                                                           (1: relevant, 0: ignored)}    \\
+    \texttt{clk\_i}        &                                & input & module clock              \\
+    \texttt{async\_rst\_i} &                                & input & asynchronous reset        \\
+    \texttt{sync\_rst\_i}  &                                & input & synchronous reset         \\
     %Section 'Initiator Interface'
     \hline                                 
     \rowcolor{gray!20}
     \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Initiator Interface}} \global\rownum=1\relax \\    
     \hline                                 
-    \texttt{itr\_cyc\_i}   &                                & input  & bus cycle indicator       \\
-    \texttt{itr\_stb\_i}   &                                & input  & access request            \\
-    \texttt{itr\_we\_i}    &                                & input  & write enable              \\
-    \texttt{itr\_lock\_i}  &                                & input  & uninterruptable bus cycle \\
-    \texttt{itr\_sel\_i}   & \texttt{SEL\_WIDTH-1:0}        & input  & write data selects        \\
-    \texttt{itr\_adr\_i}   & \texttt{ADDR\_WIDTH-1:0}       & input  & address bus               \\
-    \texttt{itr\_dat\_i}   & \texttt{DATA\_WIDTH-1:0}       & input  & write data bus            \\
-    \texttt{itr\_tga\_i}   & \texttt{TGA\_WIDTH-1:0}        & input  & address tags              \\
-    \texttt{itr\_tgc\_i}   & \texttt{TGC\_WIDTH-1:0}        & input  & bus cycle tags            \\
-    \texttt{itr\_tgd\_i}   & \texttt{TGWD\_WIDTH-1:0}       & input  & write data tags           \\
-    \texttt{itr\_ack\_o}   &                                & output & bus cycle acknowledge     \\
-    \texttt{itr\_err\_o}   &                                & output & error indicator           \\
-    \texttt{itr\_rty\_o}   &                                & output & retry request             \\
-    \texttt{itr\_stall\_o} &                                & output & access delay              \\
-    \texttt{itr\_dat\_o}   & \texttt{DATA\_WIDTH-1:0}       & output & read data bus             \\
-    \texttt{itr\_tgd\_o}   & \texttt{TGRD\_WIDTH-1:0}       & output & read data tags            \\ 
+    \texttt{itr\_cyc\_i}   & \texttt{ITR\_CNT-1:0}                 & input  & concatinated bus cycle indicators    \\
+    \texttt{itr\_stb\_i}   & \texttt{ITR\_CNT-1:0}                 & input  & concatinated access requests	   \\
+    \texttt{itr\_we\_i}    & \texttt{ITR\_CNT-1:0}                 & input  & concatinated write enables	   \\
+    \texttt{itr\_lock\_i}  & \texttt{ITR\_CNT-1:0}                 & input  & concatinated bus cycle locks	   \\
+    \texttt{itr\_sel\_i}   & \texttt{(ITR\_CNT*SEL\_WIDTH)-1:0}    & input  & concatinated write data selects	   \\
+    \texttt{itr\_adr\_i}   & \texttt{(ITR\_CNT*ADDR\_WIDTH)-1:0}   & input  & concatinated address busses	   \\
+    \texttt{itr\_dat\_i}   & \texttt{(ITR\_CNT*DATA\_WIDTH)-1:0}   & input  & concatinated write data busses	   \\
+    \texttt{itr\_tga\_i}   & \texttt{(ITR\_CNT*TGA\_WIDTH)-1:0}    & input  & concatinated address tags	           \\
+    \texttt{itr\_tga\_prio\_i} & \texttt{ITR\_CNT-1:0}             & input  & concatinated access priorities	   \\
+    \texttt{itr\_tgc\_i}   & \texttt{(ITR\_CNT*TGC\_WIDTH)-1:0}    & input  & concatinated bus cycle tags	   \\
+    \texttt{itr\_tgd\_i}   & \texttt{(ITR\_CNT*TGWD\_WIDTH)-1:0}   & input  & concatinated write data tags	   \\
+    \texttt{itr\_ack\_o}   & \texttt{ITR\_CNT-1:0}                 & output & concatinated bus cycle acknowledges  \\
+    \texttt{itr\_err\_o}   & \texttt{ITR\_CNT-1:0}                 & output & concatinated error indicators	   \\
+    \texttt{itr\_rty\_o}   & \texttt{ITR\_CNT-1:0}                 & output & concatinated retry requests	   \\
+    \texttt{itr\_stall\_o} & \texttt{ITR\_CNT-1:0}                 & output & concatinated access delays	   \\
+    \texttt{itr\_dat\_o}   & \texttt{(ITR\_CNT*DATA\_WIDTH)-1:0}   & output & concatinated read data buses	   \\
+    \texttt{itr\_tgd\_o}   & \texttt{(ITR\_CNT*TGRD\_WIDTH)-1:0}   & output & concatinated read data tags          \\ 
     %Section 'Target Interface'
     \hline                                                                                      
     \rowcolor{gray!20}
@@ -191,7 +189,6 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{tgt\_adr\_o}         & \texttt{ADDR\_WIDTH-1:0} & output & write data selects        \\
     \texttt{tgt\_dat\_o}         & \texttt{DATA\_WIDTH-1:0} & output & write data bus            \\
     \texttt{tgt\_tga\_o}         & \texttt{TGA\_WIDTH-1:0}  & output & address tags              \\
-    \texttt{itr\_tga\_tgtsel\_o} & \texttt{TGT\_CNT-1:0}    & output & target select tags        \\
     \texttt{tgt\_tgc\_o}         & \texttt{TGC\_WIDTH-1:0}  & output & bus cycle tags            \\
     \texttt{tgt\_tgd\_o}         & \texttt{TGWD\_WIDTH-1:0} & output & write data tags           \\
     \texttt{tgt\_ack\_i}         &                          & input  & bus cycle acknowledge     \\
@@ -204,17 +201,17 @@ See \secref{sig} for a detailed description of all interface signals.
 \end{center}  
 
 \subsubsection{Verification Status}
-\label{adec:verif}
+\label{arb:verif}
 
-\tabref[Table]{adec:verif:tab} provides an overview of the verification status of the \nameref*{adec}.
+\tabref[Table]{arb:verif:tab} provides an overview of the verification status of the \nameref*{arb}.
 Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and the Yosys synthesis tool~\cite{yosys}.
 
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
   \begin{longtable}{|lr|c|c|c|c|}
     \rowcolor{white}
-    \caption[Interface Signals]{Verification Status of the \nameref*{adec}}
-    \label{adec:verif:tab} \\
+    \caption[Interface Signals]{Verification Status of the \nameref*{arb}}
+    \label{arb:verif:tab} \\
     %Header
     \hline                              
     \rowcolor{gray!25}

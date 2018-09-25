@@ -28,6 +28,69 @@
 All WbXbc components share common interface signals, which are described in this
 chapter. Most of these signals refer directly to the Wishbone specification~\cite{wishbone}.
 
+Some WbXbc components offer multiple of instances of a particular interface type (e.g. the
+WbXbx Splitter offers multiple Wishbone target interfaces, the WbXbc Arbiter offers multiple
+Wishbone initiator interfaces). In these cases, the interfaces are concatinated on a signal
+by signal basis.
+For instance, a set of concatinated Wishbone initiator interfaces shares a single
+\texttt{itr\_adr\_i} bus signal. The individual bus signals are concatinated as a whole
+(see \figref{sig:concat}).
+The order of the signal concatination is consistent throughout all interface signals.
+
+\begin{figure}[!h]
+  \begin{center}
+    \begin{tikzpicture}
+      \node [left] at (1,1.4) {\Huge{\texttt{ \{ }}};
+      
+      \draw [thick] (1,1) rectangle (3,1.6);
+      \node at (2,1.3) {\small{\texttt{itrN\_adr\_i}}};
+      \node [above right] at (1,1.6) {\tiny{MSB}};
+      \node [above left]  at (3,1.6) {\tiny{LSB}};
+
+      \node [below] at (3.75,1.3) {\Large{\texttt{,...,}}};
+     
+      \draw [thick] (4.5,1) rectangle (6.5,1.6);
+      \node at (5.5,1.3) {\small{\texttt{itr2\_adr\_i}}};
+      \node [above right] at (4.5,1.6) {\tiny{MSB}};
+      \node [above left]  at (6.5,1.6) {\tiny{LSB}};
+
+      \node [below] at (6.75,1.3) {\Large{\texttt{,}}};
+
+      \draw [thick] (7,1) rectangle (9,1.6);
+      \node at (8,1.3) {\small{\texttt{itr1\_adr\_i}}};
+      \node [above right] at (7,1.6) {\tiny{MSB}};
+      \node [above left]  at (9,1.6) {\tiny{LSB}};
+
+      \node [below] at (9.25,1.3) {\Large{\texttt{,}}};
+
+      \draw [thick] (9.5,1) rectangle (11.5,1.6);
+      \node at (10.5,1.3) {\small{\texttt{itr0\_adr\_i}}};
+      \node [above right] at (9.5,1.6) {\tiny{MSB}};
+      \node [above left]  at (11.5,1.6) {\tiny{LSB}};
+
+      \node [right] at (11.5,1.4) {\Huge{\texttt{\} }}};
+
+      \draw [thick] (0.25,0.75) rectangle (12.25,2);
+      \node [above right] at (0.25,2) {\tiny{MSB}};
+      \node [above left]  at (12.25,2) {\tiny{LSB}};
+
+      \node [below] at (6.25,0.75) {\Large{\texttt{itr\_adr\_i}}};
+    \end{tikzpicture}
+    \caption{Concatination of Interface signals}
+    \label{sig:concat}
+  \end{center}
+\end{figure}
+
+\subsection{Address Region Descriptors}
+
+\begin{description}[style=nextline]
+  
+\item[\texttt{region\_addr\_i}] TBD
+  
+\item[\texttt{region\_mask\_i}] TBD
+  
+\end{description}
+
 \subsection{General Signals (SYSCON)}
 
 \begin{description}[style=nextline]
@@ -65,7 +128,7 @@ chapter. Most of these signals refer directly to the Wishbone specification~\cit
       \begin{tikztimingtable}[timing/slope=0.8]
         \texttt{itr\_clk\_i}      &  5{12c}       \\
         \texttt{tgt\_clk\_i}      & 15{4c}        \\
-        \texttt{itr2tgt\_sync\_i} &  4t8t16t8t12L \\
+        \texttt{itr2tgt\_sync\_i} &  4t8t16t8t8t2H \\
         \extracode
         \vertlines[thin, dotted]{2,6,...,\twidth}        
       \end{tikztimingtable}
