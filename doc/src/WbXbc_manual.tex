@@ -22,7 +22,11 @@
 %#      - Initial release                                                      #
 %###############################################################################
 
-\documentclass{article}
+\documentclass[a4paper,
+               titlepage]{article}
+%\pagestyle{headings}
+
+\usepackage{float}
 \usepackage{fancyhdr}
 \usepackage{nameref}
 \usepackage{enumitem}
@@ -34,7 +38,39 @@
 \usepackage{pgf}
 \usepackage{tikz}
 \usepackage{tikz-timing}
-\usepackage[colorlinks=true]{hyperref}
+\usepackage[colorlinks=true,
+            linkcolor=blue,
+            citecolor=blue,
+            urlcolor=blue,
+            bookmarks=true,
+            bookmarksopen=true,
+            pdftitle={WbXbc Manual},
+            pdfauthor={Dirk Heisswolf},
+            pdfdisplaydoctitle=true]{hyperref}
+
+%Tables
+\makeatletter
+\def\nobreakhline{%
+  \noalign{\ifnum0=`}\fi
+    \penalty\@M
+    \futurelet\@let@token\LT@@nobreakhline}
+\def\LT@@nobreakhline{%
+  \ifx\@let@token\hline
+    \global\let\@gtempa\@gobble
+    \gdef\LT@sep{\penalty\@M\vskip\doublerulesep}% <-- change here
+  \else
+    \global\let\@gtempa\@empty
+    \gdef\LT@sep{\penalty\@M\vskip-\arrayrulewidth}% <-- change here
+  \fi
+  \ifnum0=`{\fi}%
+  \multispan\LT@cols
+     \unskip\leaders\hrule\@height\arrayrulewidth\hfill\cr
+  \noalign{\LT@sep}%
+  \multispan\LT@cols
+     \unskip\leaders\hrule\@height\arrayrulewidth\hfill\cr
+  \noalign{\penalty\@M}%
+  \@gtempa}
+\makeatother
 
 \begin{document}
 
@@ -80,20 +116,20 @@
 \include{WbXbc_address_decoder}
 \include{WbXbc_error_generator}
 \include{WbXbc_splitter}
-\include{WbXbc_arbiter.tex}
-%\include{WbXbc_expander.tex}
-%\include{WbXbc_reducer.tex}
-%\include{WbXbc_accelerator.tex}
-%\include{WbXbc_decelerator.tex}
-%\include{WbXbc_pipeliner.tex}
-%\include{WbXbc_standardizer.tex}
-%\include{WbXbc_distributor.tex}
-%\include{WbXbc_xbar.tex}
+\include{WbXbc_arbiter}
+\include{WbXbc_expander}
+\include{WbXbc_reducer}
+\include{WbXbc_accelerator}
+\include{WbXbc_decelerator}
+\include{WbXbc_pipeliner}
+\include{WbXbc_standardizer}
+\include{WbXbc_distributor}
+\include{WbXbc_xbar}
 
 %--------------------
 % Wishbone pipelined bus interface
 %--------------------
-%\include{WbXbc_wishbone.tex}
+%\include{WbXbc_wishbone}
 
 %--------------------
 % Bibliography

@@ -38,7 +38,11 @@
 ....
 
 This module connects a pipelined Wishbone initiator to a target with
-wider data busses (twice the width of the initiator's data busses). 
+wider data busses (twice the width of the initiator's data busses).
+
+
+(see \figref{split:diag})
+
 
 === Integration Parameters
 [cols="30,20,50",options="header"]

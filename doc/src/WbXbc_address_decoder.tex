@@ -68,7 +68,7 @@ set of address tags which selecting the target block (see \figref{adec:diag}).
       \draw [ultra thick, ->] (3.5,2) -- (4,2);
       %Outputs     
       \node [right] at (8.5,2)
-            {\begin{minipage}[c]{6em}
+            {\begin{minipage}[c]{5em}
                 \begin{flushleft}
                   \hyphenchar\font=-1
                   \small{Target Bus w/ Selects}
@@ -80,7 +80,6 @@ set of address tags which selecting the target block (see \figref{adec:diag}).
     \label{adec:diag}
   \end{center}
 \end{figure}
-  
 
 \subsubsection{Integration Parameters}
 \label{adec:param}
@@ -127,6 +126,9 @@ See \secref{param} for a detailed description of all integration parameters.
 \tabref{adec:sig:tab} lists the interface signals of the \nameref*{adec}. 
 See \secref{sig} for a detailed description of all interface signals.
 
+\begingroup
+\setlength{\LTleft}{-20cm plus -1fill}
+\setlength{\LTright}{\LTleft}
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
   \begin{longtable}{|l|r|l|l|}
@@ -202,6 +204,7 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{tgt\_tgd\_i}         & \texttt{TGRD\_WIDTH-1:0} & input  & read data tags            \\   
   \end{longtable}
 \end{center}  
+\endgroup
 
 \subsubsection{Verification Status}
 \label{adec:verif}

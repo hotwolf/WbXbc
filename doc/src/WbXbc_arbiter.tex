@@ -22,12 +22,12 @@
 %#      - Initial release                                                      #
 %###############################################################################
 
-\subsection[WbXbc Splitter]{WbXbc Arbiter (\texttt{WbXbc\_arbiter})}
+\subsection[WbXbc Arbiter]{WbXbc Arbiter (\texttt{WbXbc\_arbiter})}
 \label{arb}
 
 This module implements a bus arbiter for the pipelined Wishbone        
 protocol. Accesses from multiple initiator busses are arbitrated and   
-propagated to the target bus. Each initiator bus can request bus       
+propagated to the target bus (see \figref{arb:diag}). Each initiator bus can request bus       
 accesses at two priority levels. The priority levels are selected via a
 set of address tags. Access requests of equal priority are arbitrated  
 with a fixed priority (initiator 0 has the higheest priority).         
@@ -60,13 +60,13 @@ with a fixed priority (initiator 0 has the higheest priority).
                   \small{Multiple Initiator Busses}
                 \end{flushright}
              \end{minipage}};
-      \draw [ultra thick, ->] (3.5,2.75) -- (4.5,2.75);
-      \draw [ultra thick, ->] (3.5,2.25) -- (4.5,2.25);
+      \draw [ultra thick, ->] (3.5,2.75) -- (4,2.75);
+      \draw [ultra thick, ->] (3.5,2.25) -- (4,2.25);
       \node [rotate=90] at (3.75,1.75) {\small{\texttt{...}}};
-      \draw [ultra thick, ->] (3.5,1.25) -- (4.5,1.25);
+      \draw [ultra thick, ->] (3.5,1.25) -- (4,1.25);
      %Outputs     
       \node [right] at (8.5,2)
-            {\begin{minipage}[c]{5em}
+            {\begin{minipage}[c]{4em}
                 \begin{flushleft}
                   \hyphenchar\font=-1
                   \small{Single Target Bus}
@@ -107,7 +107,7 @@ See \secref{param} for a detailed description of all integration parameters.
     \hline
     \endlastfoot
     %Content
-    \texttt{TGT\_CNT   } & \texttt{4}  & Number of target addresses to decode \\
+    \texttt{ITR\_CNT   } & \texttt{4}  & Number of initiator busses           \\
     \texttt{ADDR\_WIDTH} & \texttt{16} & Width of the address bus             \\
     \texttt{DATA\_WIDTH} & \texttt{16} & Width of each data bus               \\
     \texttt{SEL\_WIDTH } & \texttt{2}  & Number of data select lines          \\
@@ -124,6 +124,9 @@ See \secref{param} for a detailed description of all integration parameters.
 \tabref{arb:sig:tab} lists the interface signals of the \nameref*{arb}. 
 See \secref{sig} for a detailed description of all interface signals.
 
+\begingroup
+\setlength{\LTleft}{-20cm plus -1fill}
+\setlength{\LTright}{\LTleft}
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
   \begin{longtable}{|l|r|l|l|}
@@ -199,6 +202,7 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{tgt\_tgd\_i}         & \texttt{TGRD\_WIDTH-1:0} & input  & read data tags            \\   
   \end{longtable}
 \end{center}  
+\endgroup
 
 \subsubsection{Verification Status}
 \label{arb:verif}
@@ -231,6 +235,7 @@ Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and
     \endlastfoot
     %Content
     \makecell[l]{Default:             \\ 
+                 \texttt{ITR\_CNT}    \\
                  \texttt{ADDR\_WIDTH} \\
                  \texttt{DATA\_WIDTH} \\
                  \texttt{SEL\_WIDTH}  \\
@@ -239,6 +244,7 @@ Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and
                  \texttt{TGRD\_WIDTH} \\
                  \texttt{TGWD\_WIDTH}}   &
     \makecell[r]{                     \\ 
+                 \texttt{4}           \\
                  \texttt{16}          \\
                  \texttt{16}          \\
                  \texttt{2}           \\
