@@ -1,0 +1,43 @@
+#Ignore OS X meta files
+.DS_Store
+profile
+Desktop DF
+Desktop DB
+.Spotlight-V100
+.Trashes
+.com.apple.timemachine.supported
+.fseventsd
+.syncinfo
+.TemporaryItems
+
+#Ignore temporary files and backups
+*~
+*.bak
+*#
+*.tmp
+
+#Ignore S-records, list files, and symbol files
+*.s19
+*.s28
+*.s37
+*.sx
+*.lst
+*.sym
+
+#Ignore temporary build files
+*.o
+*.a
+*.app
+*.swp
+*~.nib
+*.pbxuser
+*.perspective
+*.perspectivev3
+*.mode1v3
+*.mode2v3 
+
+#Ignore the Xcode build direcories
+#build
+
+#Ignore Platypus files
+*.platypus
