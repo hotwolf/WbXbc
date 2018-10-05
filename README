@@ -1,0 +1,29 @@
+WbXbc
+=====
+
+WbXbc stands for "Wishbone Crossbar Components". It is a collection of soft IP
+blocks for building customized crossbar switches.
+
+Please refer to the manual for further information:
+
+
+Directories:
+============
+|
++-rtl           
+|  |
+|  +-verilog            - Verilog source code
+|
++-doc                   - User manual 
+|  |                       
+|  +-src                - LaTex source file
+|
+
+The WbXbc soft IP is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with the WbXbc soft IP. If not, see
+<http://www.gnu.org/licenses/>.
