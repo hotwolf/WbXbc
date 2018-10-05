@@ -5,7 +5,7 @@ WbXbc stands for "Wishbone Crossbar Components". It is a collection of soft IP
 blocks for building customized crossbar switches.
 
 Please refer to the manual for further information:
-
+https://github.com/hotwolf/WbXbc/blob/master/doc/WbXbc_manual.pdf
 
 Directories:
 ============
