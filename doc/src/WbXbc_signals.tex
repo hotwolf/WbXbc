@@ -87,26 +87,41 @@ The order of the signal concatination is consistent throughout all interface sig
 
 \begin{description}[style=nextline]
   
-\item[\texttt{region\_addr\_i}] TBD
+\item[\texttt{region\_adr\_i}] Target region descriptors (base addresses). \\
   
-\item[\texttt{region\_mask\_i}] TBD
-  
+  The address range of each bus target is determined by a base address and an address mask.
+  An address \texttt{itr\_adr\_i} is within the range of the $n$-th bus target if 
+  \begin{center}
+    \texttt{itr\_adr\_i[ADR\_WIDTH-1:0] |
+      region\_msk\_i[(ADR\_WIDTH*($n$+1))-1:ADR\_WIDTH*$n$]} \\
+    $\equiv$ \\
+    \texttt{region\_adr\_i[(ADR\_WIDTH*($n$+1))-1:ADR\_WIDTH*$n$] |
+      region\_msk\_i[(ADR\_WIDTH*($n$+1))-1:ADR\_WIDTH*$n$]} \\
+  \end{center}
+
+\item[\texttt{region\_msk\_i}]  Target region descriptors (address masks). \\
+  See \texttt{region\_adr\_i}. 
+   
 \end{description}
 
 \subsection{General Signals (SYSCON)}
 
 \begin{description}[style=nextline]
 
-\item[\texttt{clk\_i}] Common clock input for all Wishbone interfaces
+\item[\texttt{clk\_i}] Common clock input for all Wishbone interfaces.\\  
+  This clock input  corresponds to signal \texttt{CLK\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_clk\_i}] clock input for all initiator busses. Target busses must be clocked by
-  synchronous and subdivided clock.
+\item[\texttt{itr\_clk\_i}] Clock input for all initiator busses. \\
+  Target busses must be clocked by synchronous and subdivided clock.
+  This clock input corresponds to signal \texttt{CLK\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_clk\_i}] clock input for all target busses. Initiator busses must be clocked by
-  synchronous and subdivided clock.
+\item[\texttt{tgt\_clk\_i}] Clock input for all target busses. \\
+  Initiator busses must be clocked by synchronous and subdivided clock.
+  This clock input corresponds to signal \texttt{CLK\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr2tgt\_sync\_i}] This signal indicates a common positive clock edge of the initiator
-  clock and the synchronous and subdivided target clock (see \figref{sig:itr2tgtsync:fig}). 
+\item[\texttt{itr2tgt\_sync\_i}] Clock phase indicator for for the \nameref{decel} component. \\
+    This signal indicates a common positive clock edge of the initiator clock and the synchronous and subdivided
+    target clock (see \figref{sig:itr2tgtsync:fig}). 
 
   \begin{figure}[H]
     \begin{center}
@@ -122,8 +137,9 @@ The order of the signal concatination is consistent throughout all interface sig
     \end{center}
   \end{figure}
   
-\item[\texttt{tgt2itr\_sync\_i}] This signal indicates a common positive clock edge of the targert
-  clock and the synchronous and subdivided initiator clock (see \figref{sig:tgt2itrsync:fig}).
+\item[\texttt{tgt2itr\_sync\_i}] Clock phase indicator for for the \nameref{accel} component. \\
+  This signal indicates a common positive clock edge of the target clock and the synchronous and subdivided
+  initiator clock (see \figref{sig:tgt2itrsync:fig}).
 
   \begin{figure}[H]
     \begin{center}
@@ -139,51 +155,69 @@ The order of the signal concatination is consistent throughout all interface sig
     \end{center}
   \end{figure}
 
-\item[\texttt{async\_rst\_i}] An optional asynchronous reset signal for all sequential logic. This
-  reset signal may assert asynchronously, but must deassert synchronously. If no
+\item[\texttt{async\_rst\_i}] Optional asynchronous reset input for all sequential logic. \\
+  This reset signal may assert asynchronously, but must deassert synchronously. If no
   asynchrounous reset is implemented, this input must be tied to zero.
 
-\item[\texttt{sync\_rst\_i}] A synchronous reset signal as required by the Wishbone specification (RST\_I).
+\item[\texttt{sync\_rst\_i}] Synchronous reset input. \\
   For WbXBC components, this synchronous reset is not required, if an asynchronous reset is provided.
   If no synchrounous reset is implemented, this input must be tied to zero.
-
+  This reset input corresponds to signal \texttt{RST\_I} of the Wishbone specification~\cite{wishbone}.
+ 
 \end{description}
 
 \subsection{Initiator Bus Signals}
 
 \begin{description}[style=nextline]
 
-\item[\texttt{itr\_cyc\_i}] TBD 
+\item[\texttt{itr\_cyc\_i}] Cycle indicator input. \\
+  This input signal corresponds to signal \texttt{CYC\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_stb\_i}] TBD
+\item[\texttt{itr\_stb\_i}] Strobe input. \\
+  This input signal corresponds to signal \texttt{STB\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_we\_i}] TBD
+\item[\texttt{itr\_we\_i}] Write enable input. \\
+  This input signal corresponds to signal \texttt{WE\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_lock\_i}] TBD
+\item[\texttt{itr\_lock\_i}] Cycle lock input. \\   
+  This input signal corresponds to signal \texttt{LOCK\_I} of the Wishbone specification~\cite{wishbone}.
+    
+\item[\texttt{itr\_sel\_i}] Write data select inputs. \\
+  These input signals correspond to bus \texttt{SEL\_I} of the Wishbone specification~\cite{wishbone}.
+    
+\item[\texttt{itr\_adr\_i}] Address bus. \\
+  These input signals correspond to bus \texttt{ADR\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_sel\_i}] TBD
+\item[\texttt{itr\_dat\_i}] Write data bus. \\
+  These input signals correspond to bus \texttt{DAT\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_adr\_i}] TBD
+\item[\texttt{itr\_tga\_i}] Address bus tags. \\
+  These input signals correspond to bus \texttt{TGA\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_dat\_i}] TBD
+\item[\texttt{itr\_tgc\_i}] Cycle tags. \\
+  These input signals correspond to bus \texttt{TGC\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_tga\_i}] TBD
+\item[\texttt{itr\_tgd\_i}] Write data tags. \\
+  These input signals correspond to bus \texttt{TGD\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_tgc\_i}] TBD
+\item[\texttt{itr\_ack\_o}] Acknowlede output. \\
+  This output signal corresponds to signal \texttt{ACK\_O} of the Wishbone specification~\cite{wishbone}.
+ 
+\item[\texttt{itr\_err\_o}] Error indicator output. \\
+  This output signal corresponds to signal \texttt{ERR\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_tgd\_i}] TBD
+\item[\texttt{itr\_rty\_o}] Retry output. \\
+  This output signal corresponds to signal \texttt{RTY\_O} of the Wishbone specification~\cite{wishbone}.
+  For all WbXbc components this signal serves as indicator for a lost bus arbitration.
 
-\item[\texttt{itr\_ack\_o}] TBD
+\item[\texttt{itr\_stall\_o}] Pipeline stall output. \\
+  This output signal corresponds to signal \texttt{STALL\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_err\_o}] TBD
+\item[\texttt{itr\_dat\_o}] Read data bus. \\
+  These output signals correspond to bus \texttt{DAT\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{itr\_rty\_o}] TBD
-
-\item[\texttt{itr\_stall\_o}] TBD
-
-\item[\texttt{itr\_dat\_o}] TBD
-
-\item[\texttt{itr\_tgd\_o}] TBD
+\item[\texttt{itr\_tgd\_o}] Read data tags. \\
+  These output signals correspond to bus \texttt{TGD\_O} of the Wishbone specification~\cite{wishbone}.
 
 \end{description}
 
@@ -191,37 +225,54 @@ The order of the signal concatination is consistent throughout all interface sig
 
 \begin{description}[style=nextline]
 
-\item[\texttt{tgt\_cyc\_o}] TBD
+\item[\texttt{tgt\_cyc\_o}] Cycle indicator output. \\
+  This output signal corresponds to signal \texttt{CYC\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_stb\_o}] TBD    
+\item[\texttt{tgt\_stb\_o}] Strobe output. \\   
+  This output signal corresponds to signal \texttt{STB\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_we\_o}] TBD     
+\item[\texttt{tgt\_we\_o}]  Write enable output. \\
+  This output signal corresponds to signal \texttt{WE\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_lock\_o}] TBD   
+\item[\texttt{tgt\_lock\_o}]  Cycle lock output. \\
+  This output signal corresponds to signal \texttt{LOCK\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_sel\_o}] TBD    
+\item[\texttt{tgt\_sel\_o}] Write data select outputs. \\    
+  These output signals correspond to bus \texttt{SEL\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_adr\_o}] TBD    
+\item[\texttt{tgt\_adr\_o}] Address bus. \\   
+  These output signals correspond to bus \texttt{ADR\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_dat\_o}] TBD    
+\item[\texttt{tgt\_dat\_o}] Write data bus. \\    
+  These output signals correspond to bus \texttt{DAT\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_tga\_o}] TBD    
+\item[\texttt{tgt\_tga\_o}] Address bus tags. \\   
+  These output signals correspond to bus \texttt{TGA\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_tgc\_o}] TBD    
+\item[\texttt{tgt\_tgc\_o}] Cycle tags. \\    
+  These output signals correspond to bus \texttt{TGC\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_tgd\_o}] TBD    
+\item[\texttt{tgt\_tgd\_o}] Write data tags. \\  
+  These output signals correspond to bus \texttt{TGD\_O} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_ack\_i}] TBD    
+\item[\texttt{tgt\_ack\_i}] Acknowlede input. \\   
+  This input signal corresponds to signal \texttt{ACK\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_err\_i}] TBD    
+\item[\texttt{tgt\_err\_i}] Error indicator input. \\  
+  This input signal corresponds to signal \texttt{ERR\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_rty\_i}] TBD    
+\item[\texttt{tgt\_rty\_i}] Retry input. \\  
+  This output signal corresponds to signal \texttt{RTY\_I} of the Wishbone specification~\cite{wishbone}.
+  For all WbXbc components this signal serves as indicator for a lost bus arbitration.
 
-\item[\texttt{tgt\_stall\_i}] TBD  
+\item[\texttt{tgt\_stall\_i}] Pipeline stall input. \\
+  This input signal corresponds to signal \texttt{STALL\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_dat\_i}] TBD    
+\item[\texttt{tgt\_dat\_i}] Read data bus. \\ 
+  These input signals correspond to bus \texttt{DAT\_I} of the Wishbone specification~\cite{wishbone}.
 
-\item[\texttt{tgt\_tgd\_i}] TBD  
+\item[\texttt{tgt\_tgd\_i}] Read data tags. \\
+  These input signals correspond to bus \texttt{TGD\_I} of the Wishbone specification~\cite{wishbone}.
 
 \end{description}
 

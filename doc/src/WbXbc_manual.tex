@@ -24,7 +24,6 @@
 
 \documentclass[a4paper,
                titlepage]{article}
-%\pagestyle{headings}
 
 \usepackage{float}
 \usepackage{fancyhdr}
@@ -72,7 +71,20 @@
   \@gtempa}
 \makeatother
 
+\pagestyle{fancy}
+
 \begin{document}
+
+%Counters
+\makeatletter
+\renewcommand{\thetable}{\thesection-\@arabic\c@table}
+\@addtoreset{table}{section}
+\makeatother
+
+\makeatletter
+\renewcommand{\thefigure}{\thesection-\@arabic\c@figure}
+\@addtoreset{figure}{section}
+\makeatother
 
 %References
 \newcommand{\secref}[2][Section]{\hyperref[{#2}]{\mbox{#1~\ref*{#2}} \mbox{``\nameref*{#2}``}}}
@@ -92,6 +104,11 @@
 %--------------------
 \setcounter{tocdepth}{3}
 \tableofcontents
+
+%--------------------
+% Revision history
+%--------------------
+\include{WbXbc_history}
 
 %--------------------
 % Overview

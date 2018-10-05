@@ -23,6 +23,54 @@
 %###############################################################################
 
 \section{Crossbar Switch components}
+\label{comp}
 
-TBD
+The WbXbc tontains components to connect Wishbone intefaces of various types. 
+\tabref{comp:tab} summarizes the components, which are currently available. 
+Detailed descriptions are given in the following sections.
+
+\begingroup
+\setlength{\LTleft}{-20cm plus -1fill}
+\setlength{\LTright}{\LTleft}
+\begin{center}
+  \rowcolors{1}{gray!12}{white}                                         %set alternating row color
+  \begin{longtable}{|l|p{40em}|}
+    \rowcolor{white}
+    \caption{List of WbXbc Components}
+    \label{comp:tab} \\
+    %Header
+    \hline                                     
+    \rowcolor{gray!25}
+    \multicolumn{1}{|c|}{\textbf{\rule{0pt}{2.5ex} Component}}  &  
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex}  Decription}} \\
+    \hline                                    
+    \endhead                               
+    %Footers
+    \hline
+    \rowcolor{white}
+    \multicolumn{2}{r}{\tiny{...continued}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    %Content
+    \hyperref[adec]  {\texttt{WbXbc\_address\_decoder}} & Decodes the initiator address and generates tags selecting the target memory.             \\
+    \hyperref[errgen]{\texttt{WbXbc\_error\_generator}} & Generates an error response, if no target is selected.                                    \\
+    \hyperref[split] {\texttt{WbXbc\_splitter}}         & Connects an initiator bus to a set of targets. Tatgets are selected based on tags.        \\
+    \hyperref[arb]   {\texttt{WbXbc\_arbiter}}          & Propagates a bus cycle from one of many initiator interfaces to a single target.          \\
+    \hyperref[expand]{\texttt{WbXbc\_expander}}         & Connects an initiator bus to a target with a wider data bus.                              \\
+    \hyperref[reduc] {\texttt{WbXbc\_reducer}}          & Connects an initiator bus to a target with a narrower data bus.                           \\
+    \hyperref[accel] {\texttt{WbXbc\_accelerator}}      & Connects an initiator bus to a target running at a higher clock frequency.                \\
+    \hyperref[decel] {\texttt{WbXbc\_decellerator}}     & Connects an initiator bus to a target running at a lower clock frequency.                 \\
+    \hyperref[pipe]  {\texttt{WbXbc\_pipeliner}}        & Connects a standard Wishbone interface to a pipelined target.                             \\
+    \hyperref[stand] {\texttt{WbXbc\_standardizer}}     & Connects a pipelined Wishbone interface to a standard target.                             \\
+    \hyperref[dist]  {\texttt{WbXbc\_distributor}}      & Connects an initiator bus to a set of targets. Tatgets are selected based on the address. \\
+    \hyperref[xbar]  {\texttt{WbXbc\_xbar}}             & Preassembled full crossbar switch.                                                        \\
+  \end{longtable}
+\end{center}
+\endgroup
+
+
+
+
+
 

@@ -36,42 +36,42 @@ The number of initiator bus interfaces to be offered by the WbXbc component
 \item[\texttt{TGT\_CNT}] 
 The number of target bus interfaces to be offered by the WbXbc component
 
-\item[\texttt{ADDR\_WIDTH}] 
-Width of all address busses (ADR\_I and ADR\_0)
+\item[\texttt{ADR\_WIDTH}] 
+Width of all address busses (\texttt{ADR\_I} and \texttt{ADR\_0})
 
-\item[\texttt{ITR\_ADDR\_WIDTH}] 
-Width of the initiator address bus(ses) (ADR\_I), in case it differs
-from the target address bus(es) (ADR\_O) 
+\item[\texttt{ITR\_ADR\_WIDTH}] 
+Width of the initiator address bus(ses) (\texttt{ADR\_I}), in case it differs
+from the target address bus(es) (\texttt{ADR\_O}) 
 
 \item[\texttt{SEL\_WIDTH}] 
 Number data select lines of all initiator and target busses
-(SEL\_I and SEL\_O)  
+(\texttt{SEL\_I} and \texttt{SEL\_O})  
 
 \item[\texttt{ITR\_SEL\_WIDTH}] 
-Number of data select lines of the initiator bus (SEL\_I), in case it
-from the target bus (SEL\_O) 
+Number of data select lines of the initiator bus (\texttt{SEL\_I}), in case it
+from the target bus (\texttt{SEL\_O}) 
 
-\item[\texttt{DATA\_WIDTH}] 
+\item[\texttt{DAT\_WIDTH}] 
 Width of all data busses (initiator and target, read and write direction) 
 
-\item[\texttt{ITR\_DATA\_WIDTH}] 
+\item[\texttt{ITR\_DAT\_WIDTH}] 
 Width of the initiator's data busses (read and write direction
 
 \item[\texttt{TGA\_WIDTH}] 
 Number of tags associated with the address busses of the initiator and
-the target (TGA\_I and TGA\_O) 
+the target (\texttt{TGA\_I} and \texttt{TGA\_O}) 
 
 \item[\texttt{TGC\_WIDTH}] 
-Number of tags associated with the cycle indicators (CYC\_I and CYC\_O) of
-thw initiator and the target (TGC\_I and TGC\_O)
+Number of tags associated with the cycle indicators (\texttt{CYC\_I} and \texttt{CYC\_O}) of
+thw initiator and the target (\texttt{TGC\_I} and \texttt{TGC\_O})
 
 \item[\texttt{TGRD\_WIDTH}] 
 Number of tags assoociated with the read data busses of the initiator and
-the target (TGD\_O and TGD\_I) 
+the target (\texttt{TGD\_O} and \texttt{TGD\_I}) 
 
 \item[\texttt{TGWD\_WIDTH}] 
 Number of tags associated with the write data busses of the initiator and
-the target (TGD\_I and TGD\_O) 
+the target (\texttt{TGD\_I} and \texttt{TGD\_O}) 
 
 \item[\texttt{BIG\_ENDIAN}] 
 Selects the endianess of the design (1=big endian, 0=little endian)

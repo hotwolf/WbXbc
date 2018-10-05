@@ -27,7 +27,8 @@
 
 This module implements a full crossbar switch between a set of initator
 busses and a set of target busses, all using the pipelined Wishbone    
-protocol (see \figref{xbar:diag}).                                                              
+protocol. The \nameref*{xbar} consists \hyperref{dist}{ditributor} and
+\hyperref{arb}{arbiter} components (see \figref{xbar:diag}).                                                              
 %      Initiator         Initiator            Initiator   
 %          |                 |      . . .        |    
 %          V                 V                   V    
@@ -177,8 +178,8 @@ See \secref{param} for a detailed description of all integration parameters.
     %Content
     \texttt{ITR\_CNT   } & \texttt{4}  & Number of initiator busses           \\
     \texttt{TGT\_CNT   } & \texttt{4}  & Number of target busses              \\
-    \texttt{ADDR\_WIDTH} & \texttt{16} & Width of the address bus             \\
-    \texttt{DATA\_WIDTH} & \texttt{16} & Width of each data bus               \\
+    \texttt{ADR\_WIDTH } & \texttt{16} & Width of the address bus             \\
+    \texttt{DAT\_WIDTH } & \texttt{16} & Width of each data bus               \\
     \texttt{SEL\_WIDTH } & \texttt{2}  & Number of data select lines          \\
     \texttt{TGA\_WIDTH } & \texttt{1}  & Number of address tags               \\
     \texttt{TGC\_WIDTH } & \texttt{1}  & Number of cycle tags                 \\
@@ -193,6 +194,9 @@ See \secref{param} for a detailed description of all integration parameters.
 \tabref{xbar:sig:tab} lists the interface signals of the \nameref*{xbar}. 
 See \secref{sig} for a detailed description of all interface signals.
 
+\begingroup
+\setlength{\LTleft}{-20cm plus -1fill}
+\setlength{\LTright}{\LTleft}
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
   \begin{longtable}{|l|r|l|l|}
@@ -226,11 +230,11 @@ See \secref{sig} for a detailed description of all interface signals.
     %Section 'Target Address Regions'
     %\hline
     \rowcolor{gray!20}
-    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Target Address Regions}} \global\rownum=1\relax                   \\*  
+    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Target Address Regions}} \global\rownum=1\relax                 \\*  
     \nobreakhline                                    
-    \texttt{region\_addr\_i} & \texttt{(TGT\_CNT*ADDR\_WIDTH)\-1:0} & input & target address                             \\*
-    \texttt{region\_mask\_i} & \texttt{(TGT\_CNT*ADDR\_WIDTH)\-1:0} & input & \makecell[l]{selects relevant address bits \\*
-                                                                                           (1: relevant, 0: ignored)}    \\
+    \texttt{region\_adr\_i} & \texttt{(TGT\_CNT*ADR\_WIDTH)\-1:0} & input & target address                             \\*
+    \texttt{region\_msk\_i} & \texttt{(TGT\_CNT*ADR\_WIDTH)\-1:0} & input & \makecell[l]{selects relevant address bits \\*
+                                                                                         (1: relevant, 0: ignored)}    \\
     %Section 'Initiator Interface'
     \hline                                 
     \rowcolor{gray!20}
@@ -241,8 +245,8 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{itr\_we\_i}          & \texttt{ITR\_CNT-1:0}               & input  & concatinated write enables	       \\*
     \texttt{itr\_lock\_i}        & \texttt{ITR\_CNT-1:0}               & input  & concatinated bus cycle locks	       \\*
     \texttt{itr\_sel\_i}         & \texttt{(ITR\_CNT*SEL\_WIDTH)-1:0}  & input  & concatinated write data selects      \\*
-    \texttt{itr\_adr\_i}         & \texttt{(ITR\_CNT*ADDR\_WIDTH)-1:0} & input  & concatinated address busses	       \\*
-    \texttt{itr\_dat\_i}         & \texttt{(ITR\_CNT*DATA\_WIDTH)-1:0} & input  & concatinated write data busses       \\*
+    \texttt{itr\_adr\_i}         & \texttt{(ITR\_CNT*ADR\_WIDTH)-1:0}  & input  & concatinated address busses	       \\*
+    \texttt{itr\_dat\_i}         & \texttt{(ITR\_CNT*DAT\_WIDTH)-1:0}  & input  & concatinated write data busses       \\*
     \texttt{itr\_tga\_i}         & \texttt{(ITR\_CNT*TGA\_WIDTH)-1:0}  & input  & concatinated address tags	       \\*
     \texttt{itr\_tga\_prio\_i}   & \texttt{ITR\_CNT-1:0}               & input  & concatinated access priorities       \\*
     \texttt{itr\_tgc\_i}         & \texttt{(ITR\_CNT*TGC\_WIDTH)-1:0}  & input  & concatinated bus cycle tags	       \\*
@@ -251,7 +255,7 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{itr\_err\_o}         & \texttt{ITR\_CNT-1:0}               & output & concatinated error indicators	       \\*
     \texttt{itr\_rty\_o}         & \texttt{ITR\_CNT-1:0}               & output & concatinated retry requests	       \\*
     \texttt{itr\_stall\_o}       & \texttt{ITR\_CNT-1:0}               & output & concatinated access delays	       \\*
-    \texttt{itr\_dat\_o}         & \texttt{(ITR\_CNT*DATA\_WIDTH)-1:0} & output & concatinated read data buses	       \\*
+    \texttt{itr\_dat\_o}         & \texttt{(ITR\_CNT*DAT\_WIDTH)-1:0}  & output & concatinated read data buses	       \\*
     \texttt{itr\_tgd\_o}         & \texttt{(ITR\_CNT*TGRD\_WIDTH)-1:0} & output & concatinated read data tags          \\ 
     %Section 'Target Interface'
     \hline                                                                                      
@@ -263,8 +267,8 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{tgt\_we\_o}          & \texttt{TGT\_CNT-1:0}               & output & concatinated write enables	      \\*
     \texttt{tgt\_lock\_o}        & \texttt{TGT\_CNT-1:0}               & output & concatinated bus cycle locks	      \\*
     \texttt{tgt\_sel\_o}         & \texttt{(TGT\_CNT*SEL\_WIDTH)-1:0}  & output & concatinated write data selects     \\*
-    \texttt{tgt\_adr\_o}         & \texttt{(TGT\_CNT*ADDR\_WIDTH)-1:0} & output & concatinated write data selects     \\*
-    \texttt{tgt\_dat\_o}         & \texttt{(TGT\_CNT*DATA\_WIDTH)-1:0} & output & concatinated write data busses      \\*
+    \texttt{tgt\_adr\_o}         & \texttt{(TGT\_CNT*ADR\_WIDTH)-1:0}  & output & concatinated write data selects     \\*
+    \texttt{tgt\_dat\_o}         & \texttt{(TGT\_CNT*DAT\_WIDTH)-1:0}  & output & concatinated write data busses      \\*
     \texttt{tgt\_tga\_o}         & \texttt{(TGT\_CNT*TGA\_WIDTH))-1:0} & output & concatinated address tags	      \\*
     \texttt{tgt\_tgc\_o}         & \texttt{(TGT\_CNT*TGC\_WIDTH)-1:0}  & output & concatinated bus cycle tags	      \\*
     \texttt{tgt\_tgd\_o}         & \texttt{(TGT\_CNT*TGWD\_WIDT)-1:0}  & output & concatinated write data tags	      \\*
@@ -272,10 +276,11 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{tgt\_err\_i}         & \texttt{TGT\_CNT-1:0}               & input  & concatinated error indicators	      \\*
     \texttt{tgt\_rty\_i}         & \texttt{TGT\_CNT-1:0}               & input  & concatinated retry requests	      \\*
     \texttt{tgt\_stall\_i}       & \texttt{TGT\_CNT-1:0}               & input  & concatinated access delays	      \\*
-    \texttt{tgt\_dat\_i}         & \texttt{(TGT\_CNT*DATA\_WIDTH-1):0} & input  & concatinated read data busses	      \\*
+    \texttt{tgt\_dat\_i}         & \texttt{(TGT\_CNT*DAT\_WIDTH-1):0}  & input  & concatinated read data busses	      \\*
     \texttt{tgt\_tgd\_i}         & \texttt{(TGT\_CNT*TGRD\_WIDTH-1):0} & input  & concatinated read data tags         \\   
   \end{longtable}
 \end{center}  
+\endgroup
 
 \subsubsection{Verification Status}
 \label{xbar:verif}
@@ -310,8 +315,8 @@ Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and
     \makecell[l]{Default:             \\ 
                  \texttt{ITR\_CNT}    \\
                  \texttt{TGT\_CNT}    \\
-                 \texttt{ADDR\_WIDTH} \\
-                 \texttt{DATA\_WIDTH} \\
+                 \texttt{ADR\_WIDTH}  \\
+                 \texttt{DAT\_WIDTH}  \\
                  \texttt{SEL\_WIDTH}  \\
                  \texttt{TGA\_WIDTH}  \\
                  \texttt{TGC\_WIDTH}  \\

@@ -25,8 +25,8 @@
 \subsection[WbXbc Distributor]{WbXbc Distributor (\texttt{WbXbc\_distributor})}
 \label{dist}
 
-This module combines an address decoder, an error generatot, and a bus splitter
-for the pipelined Wishbone protocol (see \figref{dist:diag}). 
+This module combines an \hyperref{adec}{address decoder}, an \hyperref{errgen}{error generator},
+and a \hyperref{split}{bus splitter} for the pipelined Wishbone protocol (see \figref{dist:diag}). 
 %             +-------------------------------------------------------------------------------+         
 %             |                                                                               |
 %             |                               WbXbc Distributor                               |
@@ -150,8 +150,8 @@ See \secref{param} for a detailed description of all integration parameters.
     \endlastfoot
     %Content
     \texttt{TGT\_CNT   } & \texttt{4}  & Number of target busses              \\
-    \texttt{ADDR\_WIDTH} & \texttt{16} & Width of the address bus             \\
-    \texttt{DATA\_WIDTH} & \texttt{16} & Width of each data bus               \\
+    \texttt{ADR\_WIDTH}  & \texttt{16} & Width of the address bus             \\
+    \texttt{DAT\_WIDTH}  & \texttt{16} & Width of each data bus               \\
     \texttt{SEL\_WIDTH } & \texttt{2}  & Number of data select lines          \\
     \texttt{TGA\_WIDTH } & \texttt{1}  & Number of address tags               \\
     \texttt{TGC\_WIDTH } & \texttt{1}  & Number of cycle tags                 \\
@@ -204,9 +204,9 @@ See \secref{sig} for a detailed description of all interface signals.
     \rowcolor{gray!20}
     \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Target Address Regions}} \global\rownum=1\relax \\  
     \hline                                    
-    \texttt{region\_addr\_i} & \texttt{(TGT\_CNT*ADDR\_WIDTH)\-1:0} & input & target address                             \\
-    \texttt{region\_mask\_i} & \texttt{(TGT\_CNT*ADDR\_WIDTH)\-1:0} & input & \makecell[l]{selects relevant address bits \\
-                                                                                           (1: relevant, 0: ignored)}    \\
+    \texttt{region\_adr\_i} & \texttt{(TGT\_CNT*ADR\_WIDTH)\-1:0} & input & target address regions                     \\
+    \texttt{region\_msk\_i} & \texttt{(TGT\_CNT*ADR\_WIDTH)\-1:0} & input & \makecell[l]{selects relevant address bits \\
+                                                                                         (1: relevant, 0: ignored)}    \\
     %Section 'Initiator Interface'
     \hline                                 
     \rowcolor{gray!20}
@@ -217,8 +217,8 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{itr\_we\_i}    &                                & input  & write enable              \\
     \texttt{itr\_lock\_i}  &                                & input  & uninterruptable bus cycle \\
     \texttt{itr\_sel\_i}   & \texttt{SEL\_WIDTH-1:0}        & input  & write data selects        \\
-    \texttt{itr\_adr\_i}   & \texttt{ADDR\_WIDTH-1:0}       & input  & address bus               \\
-    \texttt{itr\_dat\_i}   & \texttt{DATA\_WIDTH-1:0}       & input  & write data bus            \\
+    \texttt{itr\_adr\_i}   & \texttt{ADR\_WIDTH-1:0}        & input  & address bus               \\
+    \texttt{itr\_dat\_i}   & \texttt{DAT\_WIDTH-1:0}        & input  & write data bus            \\
     \texttt{itr\_tga\_i}   & \texttt{TGA\_WIDTH-1:0}        & input  & address tags              \\
     \texttt{itr\_tgc\_i}   & \texttt{TGC\_WIDTH-1:0}        & input  & bus cycle tags            \\
     \texttt{itr\_tgd\_i}   & \texttt{TGWD\_WIDTH-1:0}       & input  & write data tags           \\
@@ -226,7 +226,7 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{itr\_err\_o}   &                                & output & error indicator           \\
     \texttt{itr\_rty\_o}   &                                & output & retry request             \\
     \texttt{itr\_stall\_o} &                                & output & access delay              \\
-    \texttt{itr\_dat\_o}   & \texttt{DATA\_WIDTH-1:0}       & output & read data bus             \\
+    \texttt{itr\_dat\_o}   & \texttt{DAT\_WIDTH-1:0}        & output & read data bus             \\
     \texttt{itr\_tgd\_o}   & \texttt{TGRD\_WIDTH-1:0}       & output & read data tags            \\ 
     %Section 'Target Interface'
     \hline                                                                                      
@@ -238,8 +238,8 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{tgt\_we\_o}          & \texttt{TGT\_CNT-1:0}               & output & concatinated write enables	      \\
     \texttt{tgt\_lock\_o}        & \texttt{TGT\_CNT-1:0}               & output & concatinated bus cycle locks	      \\
     \texttt{tgt\_sel\_o}         & \texttt{(TGT\_CNT*SEL\_WIDTH)-1:0}  & output & concatinated write data selects     \\
-    \texttt{tgt\_adr\_o}         & \texttt{(TGT\_CNT*ADDR\_WIDTH)-1:0} & output & concatinated write data selects     \\
-    \texttt{tgt\_dat\_o}         & \texttt{(TGT\_CNT*DATA\_WIDTH)-1:0} & output & concatinated write data busses      \\
+    \texttt{tgt\_adr\_o}         & \texttt{(TGT\_CNT*ADR\_WIDTH)-1:0}  & output & concatinated write data selects     \\
+    \texttt{tgt\_dat\_o}         & \texttt{(TGT\_CNT*DAT\_WIDTH)-1:0}  & output & concatinated write data busses      \\
     \texttt{tgt\_tga\_o}         & \texttt{(TGT\_CNT*TGA\_WIDTH))-1:0} & output & concatinated address tags	      \\
     \texttt{tgt\_tgc\_o}         & \texttt{(TGT\_CNT*TGC\_WIDTH)-1:0}  & output & concatinated bus cycle tags	      \\
     \texttt{tgt\_tgd\_o}         & \texttt{(TGT\_CNT*TGWD\_WIDT)-1:0}  & output & concatinated write data tags	      \\
@@ -247,7 +247,7 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{tgt\_err\_i}         & \texttt{TGT\_CNT-1:0}               & input  & concatinated error indicators	      \\
     \texttt{tgt\_rty\_i}         & \texttt{TGT\_CNT-1:0}               & input  & concatinated retry requests	      \\
     \texttt{tgt\_stall\_i}       & \texttt{TGT\_CNT-1:0}               & input  & concatinated access delays	      \\
-    \texttt{tgt\_dat\_i}         & \texttt{(TGT\_CNT*DATA\_WIDTH-1):0} & input  & concatinated read data busses	      \\
+    \texttt{tgt\_dat\_i}         & \texttt{(TGT\_CNT*DAT\_WIDTH-1):0}  & input  & concatinated read data busses	      \\
     \texttt{tgt\_tgd\_i}         & \texttt{(TGT\_CNT*TGRD\_WIDTH-1):0} & input  & concatinated read data tags         \\   
   \end{longtable}
 \end{center}  
@@ -285,8 +285,8 @@ Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and
     %Content
     \makecell[l]{Default:             \\ 
                  \texttt{TGT\_CNT}    \\
-                 \texttt{ADDR\_WIDTH} \\
-                 \texttt{DATA\_WIDTH} \\
+                 \texttt{ADR\_WIDTH}  \\
+                 \texttt{DAT\_WIDTH}  \\
                  \texttt{SEL\_WIDTH}  \\
                  \texttt{TGA\_WIDTH}  \\
                  \texttt{TGC\_WIDTH}  \\

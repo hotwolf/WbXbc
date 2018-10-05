@@ -18,7 +18,7 @@
 //#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 //###############################################################################
 //# Description:                                                                #
-//#    This module combines an address decoder, an error generatot, and a bus   #
+//#    This module combines an address decoder, an error generator, and a bus   #
 //#    splitter for the pipelined Wishbone protocol.                            #
 //#                                                                             #
 //#                           +-------------------+                             #

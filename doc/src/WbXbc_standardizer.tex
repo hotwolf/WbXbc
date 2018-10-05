@@ -50,7 +50,7 @@ protocol target (see \figref{stand:diag}).
              \end{minipage}};
       %Inputs     
       \node [left] at (3.5,2)
-            {\begin{minipage}[c]{6em}
+            {\begin{minipage}[c]{4em}
                 \begin{flushright}
                   \hyphenchar\font=-1
                   \small{Pipelined Initiator Bus}
@@ -59,7 +59,7 @@ protocol target (see \figref{stand:diag}).
       \draw [ultra thick, ->] (3.5,2) -- (4,2);
       %Outputs     
       \node [right] at (8.5,2)
-            {\begin{minipage}[c]{6em}
+            {\begin{minipage}[c]{4em}
                 \begin{flushleft}
                   \hyphenchar\font=-1
                   \small{Standard Target Bus}
@@ -100,8 +100,8 @@ See \secref{param} for a detailed description of all integration parameters.
     \hline
     \endlastfoot
     %Content
-    \texttt{ADDR\_WIDTH}      & \texttt{16} & Width of the address bus             \\
-    \texttt{DATA\_WIDTH}      & \texttt{16} & Width of each data bus               \\
+    \texttt{ADR\_WIDTH}       & \texttt{16} & Width of the address bus             \\
+    \texttt{DAT\_WIDTH}       & \texttt{16} & Width of each data bus               \\
     \texttt{SEL\_WIDTH }      & \texttt{2}  & Number of data select lines          \\
     \texttt{TGA\_WIDTH }      & \texttt{1}  & Number of address tags               \\
     \texttt{TGC\_WIDTH }      & \texttt{1}  & Number of cycle tags                 \\
@@ -116,6 +116,9 @@ See \secref{param} for a detailed description of all integration parameters.
 \tabref{stand:sig:tab} lists the interface signals of the \nameref*{stand}. 
 See \secref{sig} for a detailed description of all interface signals.
 
+\begingroup
+\setlength{\LTleft}{-20cm plus -1fill}
+\setlength{\LTright}{\LTleft}
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
   \begin{longtable}{|l|r|l|l|}
@@ -141,44 +144,44 @@ See \secref{sig} for a detailed description of all interface signals.
      %Section 'Clock and Reset'
     %\hline
     \rowcolor{gray!20}
-    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Clock and Reset}} \global\rownum=1\relax  \\  
-    \hline                                                                                       
-    \texttt{clk\_i}        &                                & input  & module    clock           \\
-    \texttt{async\_rst\_i} &                                & input  & asynchronous reset        \\
+    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Clock and Reset}} \global\rownum=1\relax  \\*  
+    \nobreakhline                                                                                       
+    \texttt{clk\_i}        &                                & input  & module    clock           \\*
+    \texttt{async\_rst\_i} &                                & input  & asynchronous reset        \\*
     \texttt{sync\_rst\_i}  &                                & input  & synchronous reset         \\
     %Section 'Initiator Interface'
     \hline                                 
     \rowcolor{gray!20}
-    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Initiator Interface}} \global\rownum=1\relax \\    
-    \hline                                 
-    \texttt{itr\_cyc\_i}   &                                & input  & bus cycle indicator       \\
-    \texttt{itr\_stb\_i}   &                                & input  & access request            \\
-    \texttt{itr\_we\_i}    &                                & input  & write enable              \\
-    \texttt{itr\_lock\_i}  &                                & input  & uninterruptable bus cycle \\
-    \texttt{itr\_sel\_i}   & \texttt{SEL\_WIDTH-1:0}        & input  & write data selects        \\
-    \texttt{itr\_adr\_i}   & \texttt{ADDR\_WIDTH-1:0}       & input  & address bus               \\
-    \texttt{itr\_dat\_i}   & \texttt{DATA\_WIDTH-1:0}       & input  & write data bus            \\
-    \texttt{itr\_tga\_i}   & \texttt{TGA\_WIDTH-1:0}        & input  & address tags              \\
-    \texttt{itr\_tgc\_i}   & \texttt{TGC\_WIDTH-1:0}        & input  & bus cycle tags            \\
-    \texttt{itr\_tgd\_i}   & \texttt{TGWD\_WIDTH-1:0}       & input  & write data tags           \\
-    \texttt{itr\_ack\_o}   &                                & output & bus cycle acknowledge     \\
-    \texttt{itr\_err\_o}   &                                & output & error indicator           \\
-    \texttt{itr\_rty\_o}   &                                & output & retry request             \\
-    \texttt{itr\_stall\_o} &                                & output & access delay              \\
-    \texttt{itr\_dat\_o}   & \texttt{DATA\_WIDTH-1:0}       & output & read data bus             \\
-    \texttt{itr\_tgd\_o}   & \texttt{TGRD\_WIDTH-1:0}       & output & read data tags            \\ 
+    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Initiator Interface}} \global\rownum=1\relax \\*    
+    \nobreakhline                                 
+    \texttt{itr\_cyc\_i}   &                                & input  & bus cycle indicator          \\*
+    \texttt{itr\_stb\_i}   &                                & input  & access request               \\*
+    \texttt{itr\_we\_i}    &                                & input  & write enable                 \\*
+    \texttt{itr\_lock\_i}  &                                & input  & uninterruptable bus cycle    \\*
+    \texttt{itr\_sel\_i}   & \texttt{SEL\_WIDTH-1:0}        & input  & write data selects           \\*
+    \texttt{itr\_adr\_i}   & \texttt{ADR\_WIDTH-1:0}        & input  & address bus                  \\*
+    \texttt{itr\_dat\_i}   & \texttt{DAT\_WIDTH-1:0}        & input  & write data bus               \\*
+    \texttt{itr\_tga\_i}   & \texttt{TGA\_WIDTH-1:0}        & input  & address tags                 \\*
+    \texttt{itr\_tgc\_i}   & \texttt{TGC\_WIDTH-1:0}        & input  & bus cycle tags               \\*
+    \texttt{itr\_tgd\_i}   & \texttt{TGWD\_WIDTH-1:0}       & input  & write data tags              \\*
+    \texttt{itr\_ack\_o}   &                                & output & bus cycle acknowledge        \\*
+    \texttt{itr\_err\_o}   &                                & output & error indicator              \\*
+    \texttt{itr\_rty\_o}   &                                & output & retry request                \\*
+    \texttt{itr\_stall\_o} &                                & output & access delay                 \\*
+    \texttt{itr\_dat\_o}   & \texttt{DAT\_WIDTH-1:0}        & output & read data bus                \\*
+    \texttt{itr\_tgd\_o}   & \texttt{TGRD\_WIDTH-1:0}       & output & read data tags               \\ 
     %Section 'Target Interface'
     \hline                                                                                      
     \rowcolor{gray!20}
     \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Target Interface}} \global\rownum=1\relax \\  
-    \hline                                                                                      
+    \nobreakhline                                                                                      
     \texttt{tgt\_cyc\_o}         &                          & output & bus cycle indicator       \\
     \texttt{tgt\_stb\_o}         &                          & output & access request            \\
     \texttt{tgt\_we\_o}          &                          & output & write enable              \\
     \texttt{tgt\_lock\_o}        &                          & output & uninterruptable bus cycle \\
     \texttt{tgt\_sel\_o}         & \texttt{SEL\_WIDTH-1:0}  & output & write data selects        \\
-    \texttt{tgt\_adr\_o}         & \texttt{ADDR\_WIDTH-1:0} & output & write data selects        \\
-    \texttt{tgt\_dat\_o}         & \texttt{DATA\_WIDTH-1:0} & output & write data bus            \\
+    \texttt{tgt\_adr\_o}         & \texttt{ADR\_WIDTH-1:0}  & output & write data selects        \\
+    \texttt{tgt\_dat\_o}         & \texttt{DAT\_WIDTH-1:0}  & output & write data bus            \\
     \texttt{tgt\_tga\_o}         & \texttt{TGA\_WIDTH-1:0}  & output & address tags              \\
     \texttt{tgt\_tgc\_o}         & \texttt{TGC\_WIDTH-1:0}  & output & bus cycle tags            \\
     \texttt{tgt\_tgd\_o}         & \texttt{TGWD\_WIDTH-1:0} & output & write data tags           \\
@@ -186,10 +189,11 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{tgt\_err\_i}         &                          & input  & error indicator           \\
     \texttt{tgt\_rty\_i}         &                          & input  & retry request             \\
     \texttt{tgt\_stall\_i}       &                          & input  & access delay              \\
-    \texttt{tgt\_dat\_i}         & \texttt{DATA\_WIDTH-1:0} & input  & read data bus             \\
+    \texttt{tgt\_dat\_i}         & \texttt{DAT\_WIDTH-1:0}  & input  & read data bus             \\
     \texttt{tgt\_tgd\_i}         & \texttt{TGRD\_WIDTH-1:0} & input  & read data tags            \\   
   \end{longtable}
 \end{center}  
+\endgroup
 
 \subsubsection{Verification Status}
 \label{stand:verif}
@@ -222,8 +226,8 @@ Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and
     \endlastfoot
     %Content
     \makecell[l]{Default:                   \\ 
-                 \texttt{ADDR\_WIDTH}       \\
-                 \texttt{DATA\_WIDTH}       \\
+                 \texttt{ADR\_WIDTH}        \\
+                 \texttt{DAT\_WIDTH}        \\
                  \texttt{SEL\_WIDTH}        \\
                  \texttt{TGA\_WIDTH}        \\
                  \texttt{TGC\_WIDTH}        \\

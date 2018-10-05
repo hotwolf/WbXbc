@@ -108,8 +108,8 @@ See \secref{param} for a detailed description of all integration parameters.
     \endlastfoot
     %Content
     \texttt{ITR\_CNT   } & \texttt{4}  & Number of initiator busses           \\
-    \texttt{ADDR\_WIDTH} & \texttt{16} & Width of the address bus             \\
-    \texttt{DATA\_WIDTH} & \texttt{16} & Width of each data bus               \\
+    \texttt{ADR\_WIDTH} & \texttt{16}  & Width of the address bus             \\
+    \texttt{DAT\_WIDTH} & \texttt{16}  & Width of each data bus               \\
     \texttt{SEL\_WIDTH } & \texttt{2}  & Number of data select lines          \\
     \texttt{TGA\_WIDTH } & \texttt{1}  & Number of address tags               \\
     \texttt{TGC\_WIDTH } & \texttt{1}  & Number of cycle tags                 \\
@@ -167,8 +167,8 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{itr\_we\_i}    & \texttt{ITR\_CNT-1:0}                 & input  & concatinated write enables	   \\
     \texttt{itr\_lock\_i}  & \texttt{ITR\_CNT-1:0}                 & input  & concatinated bus cycle locks	   \\
     \texttt{itr\_sel\_i}   & \texttt{(ITR\_CNT*SEL\_WIDTH)-1:0}    & input  & concatinated write data selects	   \\
-    \texttt{itr\_adr\_i}   & \texttt{(ITR\_CNT*ADDR\_WIDTH)-1:0}   & input  & concatinated address busses	   \\
-    \texttt{itr\_dat\_i}   & \texttt{(ITR\_CNT*DATA\_WIDTH)-1:0}   & input  & concatinated write data busses	   \\
+    \texttt{itr\_adr\_i}   & \texttt{(ITR\_CNT*ADR\_WIDTH)-1:0}   & input  & concatinated address busses	   \\
+    \texttt{itr\_dat\_i}   & \texttt{(ITR\_CNT*DAT\_WIDTH)-1:0}   & input  & concatinated write data busses	   \\
     \texttt{itr\_tga\_i}   & \texttt{(ITR\_CNT*TGA\_WIDTH)-1:0}    & input  & concatinated address tags	           \\
     \texttt{itr\_tga\_prio\_i} & \texttt{ITR\_CNT-1:0}             & input  & concatinated access priorities	   \\
     \texttt{itr\_tgc\_i}   & \texttt{(ITR\_CNT*TGC\_WIDTH)-1:0}    & input  & concatinated bus cycle tags	   \\
@@ -177,7 +177,7 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{itr\_err\_o}   & \texttt{ITR\_CNT-1:0}                 & output & concatinated error indicators	   \\
     \texttt{itr\_rty\_o}   & \texttt{ITR\_CNT-1:0}                 & output & concatinated retry requests	   \\
     \texttt{itr\_stall\_o} & \texttt{ITR\_CNT-1:0}                 & output & concatinated access delays	   \\
-    \texttt{itr\_dat\_o}   & \texttt{(ITR\_CNT*DATA\_WIDTH)-1:0}   & output & concatinated read data buses	   \\
+    \texttt{itr\_dat\_o}   & \texttt{(ITR\_CNT*DAT\_WIDTH)-1:0}   & output & concatinated read data buses	   \\
     \texttt{itr\_tgd\_o}   & \texttt{(ITR\_CNT*TGRD\_WIDTH)-1:0}   & output & concatinated read data tags          \\ 
     %Section 'Target Interface'
     \hline                                                                                      
@@ -189,8 +189,8 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{tgt\_we\_o}          &                          & output & write enable              \\
     \texttt{tgt\_lock\_o}        &                          & output & uninterruptable bus cycle \\
     \texttt{tgt\_sel\_o}         & \texttt{SEL\_WIDTH-1:0}  & output & write data selects        \\
-    \texttt{tgt\_adr\_o}         & \texttt{ADDR\_WIDTH-1:0} & output & write data selects        \\
-    \texttt{tgt\_dat\_o}         & \texttt{DATA\_WIDTH-1:0} & output & write data bus            \\
+    \texttt{tgt\_adr\_o}         & \texttt{ADR\_WIDTH-1:0}  & output & write data selects        \\
+    \texttt{tgt\_dat\_o}         & \texttt{DAT\_WIDTH-1:0}  & output & write data bus            \\
     \texttt{tgt\_tga\_o}         & \texttt{TGA\_WIDTH-1:0}  & output & address tags              \\
     \texttt{tgt\_tgc\_o}         & \texttt{TGC\_WIDTH-1:0}  & output & bus cycle tags            \\
     \texttt{tgt\_tgd\_o}         & \texttt{TGWD\_WIDTH-1:0} & output & write data tags           \\
@@ -198,7 +198,7 @@ See \secref{sig} for a detailed description of all interface signals.
     \texttt{tgt\_err\_i}         &                          & input  & error indicator           \\
     \texttt{tgt\_rty\_i}         &                          & input  & retry request             \\
     \texttt{tgt\_stall\_i}       &                          & input  & access delay              \\
-    \texttt{tgt\_dat\_i}         & \texttt{DATA\_WIDTH-1:0} & input  & read data bus             \\
+    \texttt{tgt\_dat\_i}         & \texttt{DAT\_WIDTH-1:0}  & input  & read data bus             \\
     \texttt{tgt\_tgd\_i}         & \texttt{TGRD\_WIDTH-1:0} & input  & read data tags            \\   
   \end{longtable}
 \end{center}  
@@ -236,8 +236,8 @@ Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and
     %Content
     \makecell[l]{Default:             \\ 
                  \texttt{ITR\_CNT}    \\
-                 \texttt{ADDR\_WIDTH} \\
-                 \texttt{DATA\_WIDTH} \\
+                 \texttt{ADR\_WIDTH}  \\
+                 \texttt{DAT\_WIDTH}  \\
                  \texttt{SEL\_WIDTH}  \\
                  \texttt{TGA\_WIDTH}  \\
                  \texttt{TGC\_WIDTH}  \\
