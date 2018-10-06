@@ -1,0 +1,23 @@
+safe:        false
+auto:        true
+server:      true
+server_port: 80
+baseurl:     /
+url:         //hotwolf.github.io/WbXbc
+
+source:      .
+destination: ./_site
+
+future:      true
+lsi:         false
+pygments:    false
+markdown:    kramdown
+permalink:   date
+
+kramdown:
+  auto_ids: true,
+  footnote_nr: 1
+  entity_output: as_char
+  toc_levels: 1..6
+  use_coderay: false
+  
