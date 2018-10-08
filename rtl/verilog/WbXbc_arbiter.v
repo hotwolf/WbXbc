@@ -39,13 +39,15 @@
 //# Version History:                                                            #
 //#   July 18, 2018                                                             #
 //#      - Initial release                                                      #
+//#   October 8, 2018                                                           #
+//#      - Updated parameter and signal naming                                  #
 //###############################################################################
 `default_nettype none
 
 module WbXbc_arbiter
   #(parameter ITR_CNT     = 4,   //number of initiator busses
-    parameter ADDR_WIDTH  = 16,  //width of the address bus
-    parameter DATA_WIDTH  = 16,  //width of each data bus
+    parameter ADR_WIDTH   = 16,  //width of the address bus
+    parameter DAT_WIDTH   = 16,  //width of each data bus
     parameter SEL_WIDTH   = 2,   //number of data select lines
     parameter TGA_WIDTH   = 1,   //number of propagated address tags
     parameter TGC_WIDTH   = 1,   //number of propagated cycle tags
@@ -65,8 +67,8 @@ module WbXbc_arbiter
     input  wire [ITR_CNT-1:0]              itr_we_i,         //write enable              |
     input  wire [ITR_CNT-1:0]              itr_lock_i,       //uninterruptable bus cycle |
     input  wire [(ITR_CNT*SEL_WIDTH)-1:0]  itr_sel_i,        //write data selects        | initiator
-    input  wire [(ITR_CNT*ADDR_WIDTH)-1:0] itr_adr_i,        //address bus               | to
-    input  wire [(ITR_CNT*DATA_WIDTH)-1:0] itr_dat_i,        //write data bus            | target
+    input  wire [(ITR_CNT*ADR_WIDTH)-1:0]  itr_adr_i,        //address bus               | to
+    input  wire [(ITR_CNT*DAT_WIDTH)-1:0]  itr_dat_i,        //write data bus            | target
     input  wire [(ITR_CNT*TGA_WIDTH)-1:0]  itr_tga_i,        //generic address tags      |
     input  wire [ITR_CNT-1:0]              itr_tga_prio_i,   //access priorities         |
     input  wire [(ITR_CNT*TGC_WIDTH)-1:0]  itr_tgc_i,        //bus cycle tags            |
@@ -75,7 +77,7 @@ module WbXbc_arbiter
     output wire [ITR_CNT-1:0]              itr_err_o,        //error indicator           | target
     output wire [ITR_CNT-1:0]              itr_rty_o,        //retry request             | to
     output reg  [ITR_CNT-1:0]              itr_stall_o,      //access delay              | initiator
-    output wire [(ITR_CNT*DATA_WIDTH)-1:0] itr_dat_o,        //read data bus             |
+    output wire [(ITR_CNT*DAT_WIDTH)-1:0]  itr_dat_o,        //read data bus             |
     output wire [(ITR_CNT*TGRD_WIDTH)-1:0] itr_tgd_o,        //read data tags            +-
 
     //Target interfaces
@@ -85,8 +87,8 @@ module WbXbc_arbiter
     output wire                            tgt_we_o,         //write enable              |
     output wire                            tgt_lock_o,       //uninterruptable bus cycle | initiator
     output reg  [SEL_WIDTH-1:0]            tgt_sel_o,        //write data selects        | to
-    output reg  [ADDR_WIDTH-1:0]           tgt_adr_o,        //address bus               | target
-    output reg  [DATA_WIDTH-1:0]           tgt_dat_o,        //write data bus            |
+    output reg  [ADR_WIDTH-1:0]            tgt_adr_o,        //address bus               | target
+    output reg  [DAT_WIDTH-1:0]            tgt_dat_o,        //write data bus            |
     output reg  [TGA_WIDTH-1:0]            tgt_tga_o,        //propagated address tags   |
     output reg  [TGC_WIDTH-1:0]            tgt_tgc_o,        //bus cycle tags            |
     output reg  [TGWD_WIDTH-1:0]           tgt_tgd_o,        //write data tags           +-
@@ -94,7 +96,7 @@ module WbXbc_arbiter
     input  wire                            tgt_err_i,        //error indicator           | target
     input  wire                            tgt_rty_i,        //retry request             | to
     input  wire                            tgt_stall_i,      //access delay              | initiator
-    input  wire [DATA_WIDTH-1:0]           tgt_dat_i,        //read data bus             |
+    input  wire [DAT_WIDTH-1:0]            tgt_dat_i,        //read data bus             |
     input  wire [TGRD_WIDTH-1:0]           tgt_tgd_i);       //read data tags            +-
 
    //Internal signals
@@ -118,12 +120,11 @@ module WbXbc_arbiter
 
    //Arbitrate incoming requests
    always @*
-   //always @(hiprio_req or loprio_req or arb_req)
      begin
         arb_req = {ITR_CNT{1'b0}};
-        for (i=0; i<ITR_CNT; i=i+1)                   //high priority requests
+        for (i=0; i<ITR_CNT; i=i+1)                       //high priority requests
           if (~|arb_req)
-            arb_req[i] = hiprio_req[i];               //low priority requests
+            arb_req[i] = hiprio_req[i];                   //low priority requests
         for (j=0; j<ITR_CNT; j=j+1)
           if (~|arb_req)
             arb_req[j] = loprio_req[j];
@@ -153,7 +154,6 @@ module WbXbc_arbiter
    assign tgt_lock_o  = |(cyc_sel & itr_lock_i);          //write enable
 
    always @*                                              //write data selects
-   //always @(cyc_sel or itr_sel_i)                       //write data selects
      begin
         tgt_sel_o = {SEL_WIDTH{1'b0}};
         for (k=0; k<(ITR_CNT*SEL_WIDTH); k=k+1)
@@ -162,16 +162,14 @@ module WbXbc_arbiter
      end
 
    always @*                                              //address bus
-   //always @(cyc_sel or itr_adr_i)                       //address bus
      begin
-        tgt_adr_o = {ADDR_WIDTH{1'b0}};
-        for (l=0; l<(ITR_CNT*ADDR_WIDTH); l=l+1)
-          tgt_adr_o[l%ADDR_WIDTH] = tgt_adr_o[l%ADDR_WIDTH] |
-                                    (cyc_sel[l/ADDR_WIDTH] & itr_adr_i[l]);
+        tgt_adr_o = {ADR_WIDTH{1'b0}};
+        for (l=0; l<(ITR_CNT*ADR_WIDTH); l=l+1)
+          tgt_adr_o[l%ADR_WIDTH] = tgt_adr_o[l%ADR_WIDTH] |
+                                    (cyc_sel[l/ADR_WIDTH] & itr_adr_i[l]);
      end
 
    always @*                                              //address tags
-   //always @(cyc_sel or itr_tga_i)                       //address tags
      begin
         tgt_tga_o = {TGA_WIDTH{1'b0}};
         for (m=0; m<(ITR_CNT*TGA_WIDTH); m=m+1)
@@ -180,7 +178,6 @@ module WbXbc_arbiter
      end
 
    always @*                                              //bus cycle tags
-   //always @(cyc_sel or itr_tgc_i)                       //bus cycle tags
      begin
         tgt_tgc_o = {TGC_WIDTH{1'b0}};
         for (n=0; n<(ITR_CNT*TGC_WIDTH); n=n+1)
@@ -189,16 +186,14 @@ module WbXbc_arbiter
      end
 
    always @*                                              //write data bus
-   //always @(cur_itr_reg or itr_dat_i)                   //write data bus
      begin
-        tgt_dat_o = {DATA_WIDTH{1'b0}};
-        for (o=0; o<(ITR_CNT*DATA_WIDTH); o=o+1)
-          tgt_dat_o[o%DATA_WIDTH] = tgt_dat_o[o%DATA_WIDTH] |
-                                    (cur_itr_reg[o/DATA_WIDTH] & itr_dat_i[o]);
+        tgt_dat_o = {DAT_WIDTH{1'b0}};
+        for (o=0; o<(ITR_CNT*DAT_WIDTH); o=o+1)
+          tgt_dat_o[o%DAT_WIDTH] = tgt_dat_o[o%DAT_WIDTH] |
+                                    (cur_itr_reg[o/DAT_WIDTH] & itr_dat_i[o]);
      end
 
    always @*                                              //write data tags
-   //always @(cur_itr_reg or itr_tgd_i)                   //write data tags
      begin
         tgt_tgd_o = {TGWD_WIDTH{1'b0}};
         for (p=0; p<(ITR_CNT*TGWD_WIDTH); p=p+1)
@@ -210,14 +205,6 @@ module WbXbc_arbiter
    parameter STATE_READY       = 1'b0;  //awaiting bus request (reset state)
    parameter STATE_ACK_PENDING = 1'b1;  //awaiting bus acknowledge
    always @*
-   //always @(state_reg      or //state variable
-   //         tgt_stall_i    or //access delay
-   //         arb_req        or //arbitrated request (one hot)
-   //         cyc_sel        or //select the initiator for the current
-   //         cur_itr_reg    or //current initiator bus (one hot)
-   //         any_req        or //any access request at all
-   //         any_ack        or //any acknowledge request at all
-   //         locked)           //atomic access sequence
      begin
         //Default outputs
         state_next  = state_reg;                                      //remain in current state

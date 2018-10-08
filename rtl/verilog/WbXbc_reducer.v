@@ -37,12 +37,14 @@
 //# Version History:                                                            #
 //#   July 30, 2018                                                             #
 //#      - Initial release                                                      #
+//#   October 8, 2018                                                           #
+//#      - Updated parameter and signal naming                                  #
 //###############################################################################
 `default_nettype none
 
 module WbXbc_reducer
-  #(parameter ITR_ADDR_WIDTH  = 16, //width of the initiator address bus
-    parameter ITR_DATA_WIDTH  = 16,  //width of each initiator data bus
+  #(parameter ITR_ADR_WIDTH   = 16, //width of the initiator address bus
+    parameter ITR_DAT_WIDTH   = 16,  //width of each initiator data bus
     parameter ITR_SEL_WIDTH   = 2,  //number of initiator write data select lines
     parameter TGA_WIDTH       = 1,  //number of propagated address tags
     parameter TGC_WIDTH       = 1,  //number of propagated cycle tags
@@ -63,8 +65,8 @@ module WbXbc_reducer
     input  wire                          itr_we_i,         //write enable              |
     input  wire                          itr_lock_i,       //uninterruptable bus cycle | initiator
     input  wire [ITR_SEL_WIDTH-1:0]      itr_sel_i,        //write data selects        | initiator
-    input  wire [ITR_ADDR_WIDTH-1:0]     itr_adr_i,        //address bus               | to
-    input  wire [ITR_DATA_WIDTH-1:0]     itr_dat_i,        //write data bus            | target
+    input  wire [ITR_ADR_WIDTH-1:0]      itr_adr_i,        //address bus               | to
+    input  wire [ITR_DAT_WIDTH-1:0]      itr_dat_i,        //write data bus            | target
     input  wire [TGA_WIDTH-1:0]          itr_tga_i,        //address tags              |
     input  wire [TGC_WIDTH-1:0]          itr_tgc_i,        //bus cycle tags            |
     input  wire [TGWD_WIDTH-1:0]         itr_tgd_i,        //write data tags           +-
@@ -72,7 +74,7 @@ module WbXbc_reducer
     output reg                           itr_err_o,        //error indicator           | target
     output reg                           itr_rty_o,        //retry request             | to
     output reg                           itr_stall_o,      //access delay              | initiator
-    output wire [ITR_DATA_WIDTH-1:0]     itr_dat_o,        //read data bus             |
+    output wire [ITR_DAT_WIDTH-1:0]      itr_dat_o,        //read data bus             |
     output wire [TGRD_WIDTH-1:0]         itr_tgd_o,        //read data tags            +-
 
     //Target interfaces
@@ -82,8 +84,8 @@ module WbXbc_reducer
     output wire                          tgt_we_o,         //write enable              |
     output reg                           tgt_lock_o,       //uninterruptable bus cycle |
     output wire [(ITR_SEL_WIDTH/2)-1:0]  tgt_sel_o,        //write data selects        | initiator
-    output wire [ITR_ADDR_WIDTH:0]       tgt_adr_o,        //write data selects        | to
-    output wire [(ITR_DATA_WIDTH/2)-1:0] tgt_dat_o,        //write data bus            | target
+    output wire [ITR_ADR_WIDTH:0]        tgt_adr_o,        //write data selects        | to
+    output wire [(ITR_DAT_WIDTH/2)-1:0]  tgt_dat_o,        //write data bus            | target
     output wire [TGA_WIDTH-1:0]          tgt_tga_o,        //address tags              |
     output wire [TGC_WIDTH-1:0]          tgt_tgc_o,        //bus cycle tags            |
     output wire [TGWD_WIDTH-1:0]         tgt_tgd_o,        //write data tags           +-
@@ -91,12 +93,12 @@ module WbXbc_reducer
     input  wire                          tgt_err_i,        //error indicator           | target
     input  wire                          tgt_rty_i,        //retry request             | to
     input  wire                          tgt_stall_i,      //access delay              | initiator
-    input  wire [(ITR_DATA_WIDTH/2)-1:0] tgt_dat_i,        //read data bus             |
+    input  wire [(ITR_DAT_WIDTH/2)-1:0]  tgt_dat_i,        //read data bus             |
     input  wire [TGRD_WIDTH-1:0]         tgt_tgd_i);       //read data tags            +-
 
    //Internal signals
    reg  [1:0]                            state_next;                               //next state
-   wire [(ITR_SEL_WIDTH/2)-1:0]          itr_sel_msd = itr_sel_i[ITR_SEL_WIDTH:(ITR_SEL_WIDTH/2)];
+   wire [(ITR_SEL_WIDTH/2)-1:0]          itr_sel_msd = itr_sel_i[ITR_SEL_WIDTH-1:(ITR_SEL_WIDTH/2)];
    wire [(ITR_SEL_WIDTH/2)-1:0]          itr_sel_lsd = itr_sel_i[(ITR_SEL_WIDTH/2)-1:0];
    reg                                   capture_dat;                              //capture read data
    reg                                   tgt_dat_msd;                              //drive MSD to target data bus
@@ -106,7 +108,7 @@ module WbXbc_reducer
 
    //Internal registers
    reg  [1:0]                            state_reg;                                //state variable
-   reg  [(ITR_DATA_WIDTH/2)-1:0]         tgt_dat_reg;                              //state variable
+   reg  [(ITR_DAT_WIDTH/2)-1:0]          tgt_dat_reg;                              //state variable
 
    //Signal propagation to the target bus
    assign tgt_cyc_o        = itr_cyc_i;                                            //bus cycle indicator       +-
@@ -116,24 +118,24 @@ module WbXbc_reducer
                                            itr_sel_lsd;                            //                          | initiator
    assign tgt_adr_o        = {itr_adr_i, tgt_adr_0};                               //write data selects        | to
    assign tgt_dat_o        = (tgt_dat_msd) ?                                       //write data bus            | target
-                               itr_dat_i[ITR_DATA_WIDTH:(ITR_DATA_WIDTH/2)] :      //                          |
-                               itr_dat_i[(ITR_DATA_WIDTH/2)-1:0];                  //                          |
+                               itr_dat_i[ITR_DAT_WIDTH-1:(ITR_DAT_WIDTH/2)] :      //                          |
+                               itr_dat_i[(ITR_DAT_WIDTH/2)-1:0];                   //                          |
    assign tgt_tga_o        = itr_tga_i;                                            //address tags              |
    assign tgt_tgc_o        = itr_tgc_i;                                            //bus cycle tags            |
    assign tgt_tgd_o        = itr_tgd_i;                                            //write data tags           +-
 
    //Signal propagation to the initiator bus
-   assign itr_dat_o[ITR_DATA_WIDTH-1:ITR_DATA_WIDTH/2] = itr_dat_cap ?             //read data bus             +-
+   assign itr_dat_o[ITR_DAT_WIDTH-1:ITR_DAT_WIDTH/2] = itr_dat_cap ?               //read data bus             +-
                                                             tgt_dat_reg :          //                          | target to
                                                             tgt_dat_i;             //                          | initiator
-   assign itr_dat_o[(ITR_DATA_WIDTH/2)-1:0]            = tgt_dat_i;                //read data tags            +-
+   assign itr_dat_o[(ITR_DAT_WIDTH/2)-1:0]           = tgt_dat_i;                  //read data tags            +-
 
    //Capture read data
    always @(posedge async_rst_i or posedge clk_i)
      if (async_rst_i)                                                              //asynchronous reset
-       tgt_dat_reg <= {ITR_DATA_WIDTH/2{1'b0}};
+       tgt_dat_reg <= {ITR_DAT_WIDTH/2{1'b0}};
      else if (sync_rst_i)                                                          //synchronous reset
-       tgt_dat_reg <= {ITR_DATA_WIDTH/2{1'b0}};
+       tgt_dat_reg <= {ITR_DAT_WIDTH/2{1'b0}};
      else if (capture_dat)                                                         //capture read data
        tgt_dat_reg <= itr_dat_i;
 

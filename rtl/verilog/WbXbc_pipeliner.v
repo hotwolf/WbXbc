@@ -52,12 +52,14 @@
 //# Version History:                                                            #
 //#   August 3, 2018                                                            #
 //#      - Initial release                                                      #
+//#   October 8, 2018                                                           #
+//#      - Updated parameter and signal naming                                  #
 //###############################################################################
 `default_nettype none
 
 module WbXbc_pipeliner
-  #(parameter ADDR_WIDTH  = 16, //width of the initiator address bus
-    parameter DATA_WIDTH  = 16, //width of each initiator data bus
+  #(parameter ADR_WIDTH   = 16, //width of the initiator address bus
+    parameter DAT_WIDTH   = 16, //width of each initiator data bus
     parameter SEL_WIDTH   = 2,  //number of initiator write data select lines
     parameter TGA_WIDTH   = 1,  //number of propagated address tags
     parameter TGC_WIDTH   = 1,  //number of propagated cycle tags
@@ -77,8 +79,8 @@ module WbXbc_pipeliner
     input  wire                          itr_we_i,                            //write enable              |
     input  wire                          itr_lock_i,                          //uninterruptable bus cycle | initiator
     input  wire [SEL_WIDTH-1:0]          itr_sel_i,                           //write data selects        | initiator
-    input  wire [ADDR_WIDTH-1:0]         itr_adr_i,                           //address bus               | to
-    input  wire [DATA_WIDTH-1:0]         itr_dat_i,                           //write data bus            | target
+    input  wire [ADR_WIDTH-1:0]          itr_adr_i,                           //address bus               | to
+    input  wire [DAT_WIDTH-1:0]          itr_dat_i,                           //write data bus            | target
     input  wire [TGA_WIDTH-1:0]          itr_tga_i,                           //address tags              |
     input  wire [TGC_WIDTH-1:0]          itr_tgc_i,                           //bus cycle tags            |
     input  wire [TGWD_WIDTH-1:0]         itr_tgd_i,                           //write data tags           +-
@@ -86,7 +88,7 @@ module WbXbc_pipeliner
     output wire                          itr_err_o,                           //error indicator           | target
     output wire                          itr_rty_o,                           //retry request             | to
     output wire                          itr_stall_o,                         //access delay              | initiator
-    output wire [DATA_WIDTH-1:0]         itr_dat_o,                           //read data bus             |
+    output wire [DAT_WIDTH-1:0]          itr_dat_o,                           //read data bus             |
     output wire [TGRD_WIDTH-1:0]         itr_tgd_o,                           //read data tags            +-
 
     //Target interfaces
@@ -96,8 +98,8 @@ module WbXbc_pipeliner
     output wire                          tgt_we_o,                            //write enable              |
     output wire                          tgt_lock_o,                          //uninterruptable bus cycle |
     output wire [SEL_WIDTH-1:0]          tgt_sel_o,                           //write data selects        | initiator
-    output wire [ADDR_WIDTH-1:0]         tgt_adr_o,                           //write data selects        | to
-    output wire [DATA_WIDTH-1:0]         tgt_dat_o,                           //write data bus            | target
+    output wire [ADR_WIDTH-1:0]          tgt_adr_o,                           //write data selects        | to
+    output wire [DAT_WIDTH-1:0]          tgt_dat_o,                           //write data bus            | target
     output wire [TGA_WIDTH-1:0]          tgt_tga_o,                           //address tags              |
     output wire [TGC_WIDTH-1:0]          tgt_tgc_o,                           //bus cycle tags            |
     output wire [TGWD_WIDTH-1:0]         tgt_tgd_o,                           //write data tags           +-
@@ -105,7 +107,7 @@ module WbXbc_pipeliner
     input  wire                          tgt_err_i,                           //error indicator           | target
     input  wire                          tgt_rty_i,                           //retry request             | to
     input  wire                          tgt_stall_i,                         //access delay              | initiator
-    input  wire [DATA_WIDTH-1:0]         tgt_dat_i,                           //read data bus             |
+    input  wire [DAT_WIDTH-1:0]          tgt_dat_i,                           //read data bus             |
     input  wire [TGRD_WIDTH-1:0]         tgt_tgd_i);                          //read data tags            +-
 
    //Internal signals

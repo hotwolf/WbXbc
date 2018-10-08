@@ -35,12 +35,14 @@
 //# Version History:                                                            #
 //#   July 30, 2018                                                             #
 //#      - Initial release                                                      #
+//#   October 8, 2018                                                           #
+//#      - Updated parameter and signal naming                                  #
 //###############################################################################
 `default_nettype none
 
 module WbXbc_expander
-  #(parameter ITR_ADDR_WIDTH  = 16, //width of the initiator address bus
-    parameter ITR_DATA_WIDTH  = 16, //width of each initiator data bus
+  #(parameter ITR_ADR_WIDTH   = 16, //width of the initiator address bus
+    parameter ITR_DAT_WIDTH   = 16, //width of each initiator data bus
     parameter ITR_SEL_WIDTH   = 2,  //number of initiator data select lines
     parameter TGA_WIDTH       = 1,  //number of propagated address tags
     parameter TGC_WIDTH       = 1,  //number of propagated cycle tags
@@ -61,8 +63,8 @@ module WbXbc_expander
     input  wire                          itr_we_i,                            //write enable              |
     input  wire                          itr_lock_i,                          //uninterruptable bus cycle | initiator
     input  wire [ITR_SEL_WIDTH-1:0]      itr_sel_i,                           //write data selects        | initiator
-    input  wire [ITR_ADDR_WIDTH-1:0]     itr_adr_i,                           //address bus               | to
-    input  wire [ITR_DATA_WIDTH-1:0]     itr_dat_i,                           //write data bus            | target
+    input  wire [ITR_ADR_WIDTH-1:0]      itr_adr_i,                           //address bus               | to
+    input  wire [ITR_DAT_WIDTH-1:0]      itr_dat_i,                           //write data bus            | target
     input  wire [TGA_WIDTH-1:0]          itr_tga_i,                           //address tags              |
     input  wire [TGC_WIDTH-1:0]          itr_tgc_i,                           //bus cycle tags            |
     input  wire [TGWD_WIDTH-1:0]         itr_tgd_i,                           //write data tags           +-
@@ -70,7 +72,7 @@ module WbXbc_expander
     output wire                          itr_err_o,                           //error indicator           | target
     output wire                          itr_rty_o,                           //retry request             | to
     output wire                          itr_stall_o,                         //access delay              | initiator
-    output wire [ITR_DATA_WIDTH-1:0]     itr_dat_o,                           //read data bus             |
+    output wire [ITR_DAT_WIDTH-1:0]      itr_dat_o,                           //read data bus             |
     output wire [TGRD_WIDTH-1:0]         itr_tgd_o,                           //read data tags            +-
 
     //Target interfaces
@@ -80,8 +82,8 @@ module WbXbc_expander
     output wire                          tgt_we_o,                            //write enable              |
     output wire                          tgt_lock_o,                          //uninterruptable bus cycle |
     output wire [(ITR_SEL_WIDTH*2)-1:0]  tgt_sel_o,                           //write data selects        | initiator
-    output wire [ITR_ADDR_WIDTH-2:0]     tgt_adr_o,                           //write data selects        | to
-    output wire [(ITR_DATA_WIDTH*2)-1:0] tgt_dat_o,                           //write data bus            | target
+    output wire [ITR_ADR_WIDTH-2:0]      tgt_adr_o,                           //write data selects        | to
+    output wire [(ITR_DAT_WIDTH*2)-1:0]  tgt_dat_o,                           //write data bus            | target
     output wire [TGA_WIDTH-1:0]          tgt_tga_o,                           //address tags              |
     output wire [TGC_WIDTH-1:0]          tgt_tgc_o,                           //bus cycle tags            |
     output wire [TGWD_WIDTH-1:0]         tgt_tgd_o,                           //write data tags           +-
@@ -89,11 +91,11 @@ module WbXbc_expander
     input  wire                          tgt_err_i,                           //error indicator           | target
     input  wire                          tgt_rty_i,                           //retry request             | to
     input  wire                          tgt_stall_i,                         //access delay              | initiator
-    input  wire [(ITR_DATA_WIDTH*2)-1:0] tgt_dat_i,                           //read data bus             |
+    input  wire [(ITR_DAT_WIDTH*2)-1:0]  tgt_dat_i,                           //read data bus             |
     input  wire [TGRD_WIDTH-1:0]         tgt_tgd_i);                          //read data tags            +-
 
    //Internal registers
-   reg                                   itr_addr_0_reg;                       //LSB of the initiator address
+   reg                                   itr_addr_0_reg;                      //LSB of the initiator address
 
    //Capture LSB of initiator address
    always @(posedge async_rst_i or posedge clk_i)
@@ -115,7 +117,7 @@ module WbXbc_expander
    assign tgt_sel_o        = (itr_adr_i[0] ^ |BIG_ENDIAN) ?                   //write data selects        |
                                {itr_sel_i, {ITR_SEL_WIDTH{1'b0}}} :           //                          | initiator
                                {{ITR_SEL_WIDTH{1'b0}}, itr_sel_i};            //                          | to
-   assign tgt_adr_o        = itr_adr_i[ITR_ADDR_WIDTH-1:1];                   //write data selects        | target
+   assign tgt_adr_o        = itr_adr_i[ITR_ADR_WIDTH-1:1];                    //write data selects        | target
    assign tgt_dat_o        = {itr_dat_i, itr_dat_i};                          //write data bus            |
    assign tgt_tga_o        = itr_tga_i;                                       //address tags              |
    assign tgt_tgc_o        = itr_tgc_i;                                       //bus cycle tags            |
@@ -127,8 +129,8 @@ module WbXbc_expander
    assign itr_rty_o        = tgt_rty_i;                                       //retry request             | target
    assign itr_stall_o      = tgt_stall_i;                                     //access delay              | to
    assign itr_dat_o        = (itr_addr_0_reg ^ |BIG_ENDIAN) ?                 //                          | initiator
-                               tgt_dat_i[ITR_DATA_WIDTH-1:ITR_DATA_WIDTH/2] : //                          |
-                               tgt_dat_i[(ITR_DATA_WIDTH/2)-1:0];             //                          |
+                               tgt_dat_i[ITR_DAT_WIDTH-1:ITR_DAT_WIDTH/2] :   //                          |
+                               tgt_dat_i[(ITR_DAT_WIDTH/2)-1:0];              //                          |
    assign itr_tgd_o        = tgt_tgd_i;                                       //read data tags            +-
 
 endmodule // WbXbc_expander

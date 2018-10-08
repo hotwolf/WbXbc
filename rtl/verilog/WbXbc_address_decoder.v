@@ -36,13 +36,15 @@
 //# Version History:                                                            #
 //#   July 18, 2018                                                             #
 //#      - Initial release                                                      #
+//#   October 8, 2018                                                           #
+//#      - Updated parameter and signal naming                                  #
 //###############################################################################
 `default_nettype none
 
 module WbXbc_address_decoder
   #(parameter TGT_CNT     = 4,   //number of target addresses to decode
-    parameter ADDR_WIDTH  = 16,  //width of the address bus
-    parameter DATA_WIDTH  = 16,  //width of each data bus
+    parameter ADR_WIDTH   = 16,  //width of the address bus
+    parameter DAT_WIDTH   = 16,  //width of each data bus
     parameter SEL_WIDTH   = 2,   //number of data select lines
     parameter TGA_WIDTH   = 1,   //number of address tags
     parameter TGC_WIDTH   = 1,   //number of cycle tags
@@ -51,8 +53,8 @@ module WbXbc_address_decoder
 
    (//Target address regions
     //----------------------
-    input  wire [(TGT_CNT*ADDR_WIDTH)-1:0] region_addr_i,    //target address
-    input  wire [(TGT_CNT*ADDR_WIDTH)-1:0] region_mask_i,    //selects relevant address bits
+    input  wire [(TGT_CNT*ADR_WIDTH)-1:0] region_adr_i,      //target address
+    input  wire [(TGT_CNT*ADR_WIDTH)-1:0] region_msk_i,      //selects relevant address bits
                                                              //(1: relevant, 0: ignored)
 
     //Initiator interface
@@ -62,8 +64,8 @@ module WbXbc_address_decoder
     input  wire                            itr_we_i,         //write enable              |
     input  wire                            itr_lock_i,       //uninterruptable bus cycle | initiator
     input  wire [SEL_WIDTH-1:0]            itr_sel_i,        //write data selects        | initiator
-    input  wire [ADDR_WIDTH-1:0]           itr_adr_i,        //address bus               | to
-    input  wire [DATA_WIDTH-1:0]           itr_dat_i,        //write data bus            | target
+    input  wire [ADR_WIDTH-1:0]            itr_adr_i,        //address bus               | to
+    input  wire [DAT_WIDTH-1:0]            itr_dat_i,        //write data bus            | target
     input  wire [TGA_WIDTH-1:0]            itr_tga_i,        //address tags              |
     input  wire [TGC_WIDTH-1:0]            itr_tgc_i,        //bus cycle tags            |
     input  wire [TGWD_WIDTH-1:0]           itr_tgd_i,        //write data tags           +-
@@ -71,7 +73,7 @@ module WbXbc_address_decoder
     output wire                            itr_err_o,        //error indicator           | target
     output wire                            itr_rty_o,        //retry request             | to
     output wire                            itr_stall_o,      //access delay              | initiator
-    output wire [DATA_WIDTH-1:0]           itr_dat_o,        //read data bus             |
+    output wire [DAT_WIDTH-1:0]            itr_dat_o,        //read data bus             |
     output wire [TGRD_WIDTH-1:0]           itr_tgd_o,        //read data tags            +-
 
     //Target interface
@@ -81,8 +83,8 @@ module WbXbc_address_decoder
     output wire                            tgt_we_o,         //write enable              |
     output wire                            tgt_lock_o,       //uninterruptable bus cycle |
     output wire [SEL_WIDTH-1:0]            tgt_sel_o,        //write data selects        | initiator
-    output wire [ADDR_WIDTH-1:0]           tgt_adr_o,        //write data selects        | to
-    output wire [DATA_WIDTH-1:0]           tgt_dat_o,        //write data bus            | target
+    output wire [ADR_WIDTH-1:0]            tgt_adr_o,        //write data selects        | to
+    output wire [DAT_WIDTH-1:0]            tgt_dat_o,        //write data bus            | target
     output wire [TGA_WIDTH-1:0]            tgt_tga_o,        //address tags              |
     output reg  [TGT_CNT-1:0]              itr_tga_tgtsel_o, //target select tags        |
     output wire [TGC_WIDTH-1:0]            tgt_tgc_o,        //bus cycle tags            |
@@ -91,7 +93,7 @@ module WbXbc_address_decoder
     input  wire                            tgt_err_i,        //error indicator           | target
     input  wire                            tgt_rty_i,        //retry request             | to
     input  wire                            tgt_stall_i,      //access delay              | initiator
-    input  wire [DATA_WIDTH-1:0]           tgt_dat_i,        //read data bus             |
+    input  wire [DAT_WIDTH-1:0]            tgt_dat_i,        //read data bus             |
     input  wire [TGRD_WIDTH-1:0]           tgt_tgd_i);       //read data tags            +-
 
    //Counters
@@ -99,12 +101,12 @@ module WbXbc_address_decoder
 
    //Address decoding
    always @*                                                 //target select tags
-   //always @(itr_adr_i or region_addr_i or region_mask_i)   //target select tags
+   //always @(itr_adr_i or region_adr_i or region_msk_i)     //target select tags
      begin
         itr_tga_tgtsel_o = {TGT_CNT{1'b1}};
-        for (i=0; i<(TGT_CNT*ADDR_WIDTH); i=i+1)
-          itr_tga_tgtsel_o[i/ADDR_WIDTH] = itr_tga_tgtsel_o[i/ADDR_WIDTH] &
-                                          ~((region_addr_i[i] ^ itr_adr_i[i%ADDR_WIDTH]) & region_mask_i[i]);
+        for (i=0; i<(TGT_CNT*ADR_WIDTH); i=i+1)
+          itr_tga_tgtsel_o[i/ADR_WIDTH] = itr_tga_tgtsel_o[i/ADR_WIDTH] &
+                                          ~((region_adr_i[i] ^ itr_adr_i[i%ADR_WIDTH]) & region_msk_i[i]);
      end
 
    //Plain signal propagation to the target bus

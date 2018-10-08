@@ -38,13 +38,15 @@
 //# Version History:                                                            #
 //#   July 30, 2018                                                             #
 //#      - Initial release                                                      #
+//#   October 8, 2018                                                           #
+//#      - Updated parameter and signal naming                                  #
 //###############################################################################
 `default_nettype none
 
 module WbXbc_distributor
   #(parameter TGT_CNT     = 4,   //number of target busses
-    parameter ADDR_WIDTH  = 16,  //width of the address bus
-    parameter DATA_WIDTH  = 16,  //width of each data bus
+    parameter ADR_WIDTH   = 16,  //width of the address bus
+    parameter DAT_WIDTH   = 16,  //width of each data bus
     parameter SEL_WIDTH   = 2,   //number of write data select lines
     parameter TGA_WIDTH   = 1,   //number of propagated address tags
     parameter TGC_WIDTH   = 1,   //number of propagated cycle tags
@@ -59,8 +61,8 @@ module WbXbc_distributor
 
     //Target address regions
     //----------------------
-    input  wire [(TGT_CNT*ADDR_WIDTH)-1:0] region_addr,      //target address
-    input  wire [(TGT_CNT*ADDR_WIDTH)-1:0] region_mask,      //selects relevant address bits
+    input  wire [(TGT_CNT*ADR_WIDTH)-1:0]  region_adr_i,     //target address
+    input  wire [(TGT_CNT*ADR_WIDTH)-1:0]  region_msk_i,     //selects relevant address bits
 
     //Initiator interface
     //-------------------
@@ -69,8 +71,8 @@ module WbXbc_distributor
     input  wire                            itr_we_i,         //write enable              |
     input  wire                            itr_lock_i,       //uninterruptable bus cycle |
     input  wire [SEL_WIDTH-1:0]            itr_sel_i,        //write data selects        | initiator
-    input  wire [ADDR_WIDTH-1:0]           itr_adr_i,        //address bus               | to
-    input  wire [DATA_WIDTH-1:0]           itr_dat_i,        //write data bus            | target
+    input  wire [ADR_WIDTH-1:0]            itr_adr_i,        //address bus               | to
+    input  wire [DAT_WIDTH-1:0]            itr_dat_i,        //write data bus            | target
     input  wire [TGA_WIDTH-1:0]            itr_tga_i,        //generic address tags      |
     input  wire [TGC_WIDTH-1:0]            itr_tgc_i,        //bus cycle tags            |
     input  wire [TGWD_WIDTH-1:0]           itr_tgd_i,        //write data tags           +-
@@ -78,7 +80,7 @@ module WbXbc_distributor
     output wire                            itr_err_o,        //error indicator           | target
     output wire                            itr_rty_o,        //retry request             | to
     output wire                            itr_stall_o,      //access delay              | initiator
-    output wire [DATA_WIDTH-1:0]           itr_dat_o,        //read data bus             |
+    output wire [DAT_WIDTH-1:0]            itr_dat_o,        //read data bus             |
     output wire [TGRD_WIDTH-1:0]           itr_tgd_o,        //read data tags            +-
 
     //Target interfaces
@@ -88,8 +90,8 @@ module WbXbc_distributor
     output wire [TGT_CNT-1:0]              tgt_we_o,         //write enable              |
     output wire [TGT_CNT-1:0]              tgt_lock_o,       //uninterruptable bus cycle | initiator
     output wire [(TGT_CNT*SEL_WIDTH)-1:0]  tgt_sel_o,        //write data selects        | to
-    output wire [(TGT_CNT*ADDR_WIDTH)-1:0] tgt_adr_o,        //address bus               | target
-    output wire [(TGT_CNT*DATA_WIDTH)-1:0] tgt_dat_o,        //write data bus            |
+    output wire [(TGT_CNT*ADR_WIDTH)-1:0]  tgt_adr_o,        //address bus               | target
+    output wire [(TGT_CNT*DAT_WIDTH)-1:0]  tgt_dat_o,        //write data bus            |
     output wire [(TGT_CNT*TGA_WIDTH)-1:0]  tgt_tga_o,        //propagated address tags   |
     output wire [(TGT_CNT*TGC_WIDTH)-1:0]  tgt_tgc_o,        //bus cycle tags            |
     output wire [(TGT_CNT*TGWD_WIDTH)-1:0] tgt_tgd_o,        //write data tags           +-
@@ -97,7 +99,7 @@ module WbXbc_distributor
     input  wire [TGT_CNT-1:0]              tgt_err_i,        //error indicator           | target
     input  wire [TGT_CNT-1:0]              tgt_rty_i,        //retry request             | to
     input  wire [TGT_CNT-1:0]              tgt_stall_i,      //access delay              | initiator
-    input  wire [(TGT_CNT*DATA_WIDTH)-1:0] tgt_dat_i,        //read data bus             |
+    input  wire [(TGT_CNT*DAT_WIDTH)-1:0]  tgt_dat_i,        //read data bus             |
     input  wire [(TGT_CNT*TGRD_WIDTH)-1:0] tgt_tgd_i);       //read data tags            +-
 
    //     initiator
@@ -132,8 +134,8 @@ module WbXbc_distributor
    wire                                    adec_we;             //write enable              |
    wire                                    adec_lock;           //uninterruptable bus cycle |
    wire [SEL_WIDTH-1:0]                    adec_sel;            //write data selects        | initiator
-   wire [ADDR_WIDTH-1:0]                   adec_adr;            //address bus               | to
-   wire [DATA_WIDTH-1:0]                   adec_wdat;           //write data bus            | target
+   wire [ADR_WIDTH-1:0]                    adec_adr;            //address bus               | to
+   wire [DAT_WIDTH-1:0]                    adec_wdat;           //write data bus            | target
    wire [TGT_CNT-1:0]                      adec_tga_tgtsel;     //access priorities         |
    wire [TGA_WIDTH-1:0]                    adec_tga;            //generic address tags      |
    wire [TGC_WIDTH-1:0]                    adec_tgc;            //bus cycle tags            |
@@ -142,7 +144,7 @@ module WbXbc_distributor
    wire                                    adec_err;            //error indicator           | target
    wire                                    adec_rty;            //retry request             | to
    wire                                    adec_stall;          //access delay              | initiator
-   wire [DATA_WIDTH-1:0]                   adec_rdat;           //read data bus             |
+   wire [DAT_WIDTH-1:0]                    adec_rdat;           //read data bus             |
    wire [TGRD_WIDTH-1:0]                   adec_tgrd;           //read data tags            +-
 
    //Error generator busses
@@ -151,8 +153,8 @@ module WbXbc_distributor
    wire                                    errgen_we;           //write enable              |
    wire                                    errgen_lock;         //uninterruptable bus cycle |
    wire [SEL_WIDTH-1:0]                    errgen_sel;          //write data selects        | initiator
-   wire [ADDR_WIDTH-1:0]                   errgen_adr;          //address bus               | to
-   wire [DATA_WIDTH-1:0]                   errgen_wdat;         //write data bus            | target
+   wire [ADR_WIDTH-1:0]                    errgen_adr;          //address bus               | to
+   wire [DAT_WIDTH-1:0]                    errgen_wdat;         //write data bus            | target
    wire [TGT_CNT-1:0]                      errgen_tga_tgtsel;   //access priorities         |
    wire [TGA_WIDTH-1:0]                    errgen_tga;          //generic address tags      |
    wire [TGC_WIDTH-1:0]                    errgen_tgc;          //bus cycle tags            |
@@ -161,24 +163,23 @@ module WbXbc_distributor
    wire                                    errgen_err;          //error indicator           | target
    wire                                    errgen_rty;          //retry request             | to
    wire                                    errgen_stall;        //access delay              | initiator
-   wire [DATA_WIDTH-1:0]                   errgen_rdat;         //read data bus             |
+   wire [DAT_WIDTH-1:0]                    errgen_rdat;         //read data bus             |
    wire [TGRD_WIDTH-1:0]                   errgen_tgrd;         //read data tags            +-
 
    //Address decoder
    WbXbc_address_decoder #(.TGT_CNT    (TGT_CNT),               //number of target addresses to decode
-                           .ADDR_WIDTH (ADDR_WIDTH),            //width of the address bus
-                           .DATA_WIDTH (DATA_WIDTH),            //width of each data bus
+                           .ADR_WIDTH  (ADR_WIDTH),             //width of the address bus
+                           .DAT_WIDTH  (DAT_WIDTH),             //width of each data bus
                            .SEL_WIDTH  (SEL_WIDTH),             //number of write data select lines
                            .TGA_WIDTH  (TGA_WIDTH),             //number of propagated address tags
                            .TGC_WIDTH  (TGC_WIDTH),             //number of propagated cycle tags
                            .TGRD_WIDTH (TGRD_WIDTH),            //number of propagated read data tags
                            .TGWD_WIDTH (TGWD_WIDTH))            //number of propagated write data tags
    adec
-   
            (//Target address regions
             //----------------------
-            .region_addr        (region_addr),                  //target address
-            .region_mask        (region_mask),                  //selects relevant address bits
+            .region_adr_i       (region_adr_i),                 //target address
+            .region_msk_i       (region_msk_i),                 //selects relevant address bits
 
             //Initiator interface
             //-------------------
@@ -222,15 +223,14 @@ module WbXbc_distributor
 
    //Error generator
    WbXbc_error_generator #(.TGT_CNT    (TGT_CNT),               //number of target addresses to decode
-                           .ADDR_WIDTH (ADDR_WIDTH),            //width of the address bus
-                           .DATA_WIDTH (DATA_WIDTH),            //width of each data bus
+                           .ADR_WIDTH  (ADR_WIDTH),             //width of the address bus
+                           .DAT_WIDTH  (DAT_WIDTH),             //width of each data bus
                            .SEL_WIDTH  (SEL_WIDTH),             //number of write data select lines
                            .TGA_WIDTH  (TGA_WIDTH),             //number of propagated address tags
                            .TGC_WIDTH  (TGC_WIDTH),             //number of propagated cycle tags
                            .TGRD_WIDTH (TGRD_WIDTH),            //number of propagated read data tags
                            .TGWD_WIDTH( TGWD_WIDTH))            //number of propagated write data tags
    errgen 
-   
            (//Clock and reset
             //---------------
             .clk_i               (clk_i),                       //module clock
@@ -280,15 +280,14 @@ module WbXbc_distributor
 
    //Bus splitter
    WbXbc_splitter #(.TGT_CNT    (TGT_CNT),                      //number of target addresses to decode
-                    .ADDR_WIDTH (ADDR_WIDTH),                   //width of the address bus
-                    .DATA_WIDTH (DATA_WIDTH),                   //width of each data bus
+                    .ADR_WIDTH  (ADR_WIDTH),                    //width of the address bus
+                    .DAT_WIDTH  (DAT_WIDTH),                    //width of each data bus
                     .SEL_WIDTH  (SEL_WIDTH),                    //number of write data select lines
                     .TGA_WIDTH  (TGA_WIDTH),                    //number of propagated address tags
                     .TGC_WIDTH  (TGC_WIDTH),                    //number of propagated cycle tags
                     .TGRD_WIDTH (TGRD_WIDTH),                   //number of propagated read data tags
                     .TGWD_WIDTH (TGWD_WIDTH))                   //number of propagated write data tags
    split
-
            (//Clock and reset
             //---------------
             .clk_i               (clk_i),                       //module clock

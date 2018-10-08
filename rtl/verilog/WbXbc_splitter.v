@@ -37,13 +37,15 @@
 //# Version History:                                                            #
 //#   July 18, 2018                                                             #
 //#      - Initial release                                                      #
+//#   October 8, 2018                                                           #
+//#      - Updated parameter and signal naming                                  #
 //###############################################################################
 `default_nettype none
 
 module WbXbc_splitter
   #(parameter TGT_CNT     = 4,   //number of target busses
-    parameter ADDR_WIDTH  = 16,  //width of the address bus
-    parameter DATA_WIDTH  = 16,  //width of each data bus
+    parameter ADR_WIDTH   = 16,  //width of the address bus
+    parameter DAT_WIDTH   = 16,  //width of each data bus
     parameter SEL_WIDTH   = 2,   //number of data select lines
     parameter TGA_WIDTH   = 1,   //number of propagated address tags
     parameter TGC_WIDTH   = 1,   //number of propagated cycle tags
@@ -63,8 +65,8 @@ module WbXbc_splitter
     input  wire                            itr_we_i,         //write enable              |
     input  wire                            itr_lock_i,       //uninterruptable bus cycle |
     input  wire [SEL_WIDTH-1:0]            itr_sel_i,        //write data selects        | initiator
-    input  wire [ADDR_WIDTH-1:0]           itr_adr_i,        //address bus               | to
-    input  wire [DATA_WIDTH-1:0]           itr_dat_i,        //write data bus            | target
+    input  wire [ADR_WIDTH-1:0]            itr_adr_i,        //address bus               | to
+    input  wire [DAT_WIDTH-1:0]            itr_dat_i,        //write data bus            | target
     input  wire [TGA_WIDTH-1:0]            itr_tga_i,        //generic address tags      |
     input  wire [TGT_CNT-1:0]              itr_tga_tgtsel_i, //tags from address decoder |
     input  wire [TGC_WIDTH-1:0]            itr_tgc_i,        //bus cycle tags            |
@@ -73,7 +75,7 @@ module WbXbc_splitter
     output wire                            itr_err_o,        //error indicator           | target
     output wire                            itr_rty_o,        //retry request             | to
     output wire                            itr_stall_o,      //access delay              | initiator
-    output reg  [DATA_WIDTH-1:0]           itr_dat_o,        //read data bus             |
+    output reg  [DAT_WIDTH-1:0]            itr_dat_o,        //read data bus             |
     output reg  [TGRD_WIDTH-1:0]           itr_tgd_o,        //read data tags            +-
 
     //Target interfaces
@@ -83,8 +85,8 @@ module WbXbc_splitter
     output wire [TGT_CNT-1:0]              tgt_we_o,         //write enable              |
     output wire [TGT_CNT-1:0]              tgt_lock_o,       //uninterruptable bus cycle | initiator
     output wire [(TGT_CNT*SEL_WIDTH)-1:0]  tgt_sel_o,        //write data selects        | to
-    output wire [(TGT_CNT*ADDR_WIDTH)-1:0] tgt_adr_o,        //address bus               | target
-    output wire [(TGT_CNT*DATA_WIDTH)-1:0] tgt_dat_o,        //write data bus            |
+    output wire [(TGT_CNT*ADR_WIDTH)-1:0]  tgt_adr_o,        //address bus               | target
+    output wire [(TGT_CNT*DAT_WIDTH)-1:0]  tgt_dat_o,        //write data bus            |
     output wire [(TGT_CNT*TGA_WIDTH)-1:0]  tgt_tga_o,        //propagated address tags   |
     output wire [(TGT_CNT*TGC_WIDTH)-1:0]  tgt_tgc_o,        //bus cycle tags            |
     output wire [(TGT_CNT*TGWD_WIDTH)-1:0] tgt_tgd_o,        //write data tags           +-
@@ -92,7 +94,7 @@ module WbXbc_splitter
     input  wire [TGT_CNT-1:0]              tgt_err_i,        //error indicator           | target
     input  wire [TGT_CNT-1:0]              tgt_rty_i,        //retry request             | to
     input  wire [TGT_CNT-1:0]              tgt_stall_i,      //access delay              | initiator
-    input  wire [(TGT_CNT*DATA_WIDTH)-1:0] tgt_dat_i,        //read data bus             |
+    input  wire [(TGT_CNT*DAT_WIDTH)-1:0]  tgt_dat_i,        //read data bus             |
     input  wire [(TGT_CNT*TGRD_WIDTH)-1:0] tgt_tgd_i);       //read data tags            +-
 
    //Internal signals
@@ -136,8 +138,8 @@ module WbXbc_splitter
    always @*                                                 //read data bus
    //always @(cur_tgt_reg or tgt_dat_i)                      //read data bus
      begin
-        itr_dat_o = {DATA_WIDTH{1'b0}};
-        for (i=0; i<(DATA_WIDTH*TGT_CNT); i=i+1)
+        itr_dat_o = {DAT_WIDTH{1'b0}};
+        for (i=0; i<(DAT_WIDTH*TGT_CNT); i=i+1)
           itr_dat_o[i%TGT_CNT] = itr_dat_o[i%TGT_CNT] |
                                  (cur_tgt_reg[i%TGT_CNT] & tgt_dat_i[i]);
      end
