@@ -1,0 +1,138 @@
+//###############################################################################
+//# WbXbc - Wishbone Target Monitor Assertions (Pipelined)                      #
+//###############################################################################
+//#    Copyright 2018 Dirk Heisswolf                                            #
+//#    This file is part of the WbXbc project.                                  #
+//#                                                                             #
+//#    WbXbc is free software: you can redistribute it and/or modify            #
+//#    it under the terms of the GNU General Public License as published by     #
+//#    the Free Software Foundation, either version 3 of the License, or        #
+//#    (at your option) any later version.                                      #
+//#                                                                             #
+//#    WbXbc is distributed in the hope that it will be useful,                 #
+//#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+//#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+//#    GNU General Public License for more details.                             #
+//#                                                                             #
+//#    You should have received a copy of the GNU General Public License        #
+//#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
+//###############################################################################
+//# Description:                                                                #
+//#    This set of assertion monitors a pipelined Wishbone target for protocol  #
+//#    violations.                                                              #
+//#                                                                             #
+//###############################################################################
+//# Version History:                                                            #
+//#   October 9, 2018                                                           #
+//#      - Initial release                                                      #
+//###############################################################################
+`default_nettype none
+
+module wb_itr_mon
+  #(parameter ADR_WIDTH   = 16,  //width of the address bus
+    parameter DAT_WIDTH   = 16,  //width of each data bus
+    parameter SEL_WIDTH   = 2,   //number of data select lines
+    parameter TGA_WIDTH   = 1,   //number of address tags
+    parameter TGC_WIDTH   = 1,   //number of cycle tags
+    parameter TGRD_WIDTH  = 1,   //number of read data tags
+    parameter TGWD_WIDTH  = 1)   //number of write data tags
+
+   (//Clock and reset
+    //---------------
+    input wire                             clk_i,            //module clock
+    input wire                             async_rst_i,      //asynchronous reset
+    input wire                             sync_rst_i,       //synchronous reset
+
+    //Target interfaces
+    //-----------------
+    input  wire                            tgt_cyc_o,        //bus cycle indicator       +-
+    input  wire                            tgt_stb_o,        //access request            |
+    input  wire                            tgt_we_o,         //write enable              |
+    input  wire                            tgt_lock_o,       //uninterruptable bus cycle | initiator
+    input  wire [SEL_WIDTH-1:0]            tgt_sel_o,        //write data selects        | to
+    input  wire [ADR_WIDTH-1:0]            tgt_adr_o,        //address bus               | target
+    input  wire [DAT_WIDTH-1:0]            tgt_dat_o,        //write data bus            |
+    input  wire [TGA_WIDTH-1:0]            tgt_tga_o,        //propagated address tags   |
+    input  wire [TGC_WIDTH-1:0]            tgt_tgc_o,        //bus cycle tags            |
+    input  wire [TGWD_WIDTH-1:0]           tgt_tgd_o,        //write data tags           +-
+    input  wire                            tgt_ack_i,        //bus cycle acknowledge     +-
+    input  wire                            tgt_err_i,        //error indicator           | target
+    input  wire                            tgt_rty_i,        //retry request             | to
+    input  wire                            tgt_stall_i,      //access delay              | initiator
+    input  wire [DAT_WIDTH-1:0]            tgt_dat_i,        //read data bus             |
+    input  wire [TGRD_WIDTH-1:0]           tgt_tgd_i);       //read data tags            +-
+
+   //Abbreviations
+   wire 				   req = &{~tgt_stall_o, tgt_cyc_o, tgt_stb_o};
+   wire 				   ack = |{tgt_ack_i, tgt_err_i, tgt_rty_i};
+
+   //Stable conditions
+   //=================
+   //tgt_we_i
+   property p_tgt_mon_we_stable;
+      @(posedge clk_i) disable iff (async_rst_i|sync_rst_i)
+	req |=> (~ack & $stable(tgt_we_o))[*0:$] ##1 ack;
+   endproperty // p_tgt_mon_we_stable
+   a_tgt_mon_we_stable: assert property (p_tgt_mon_we_stable);
+     
+   //tgt_sel_i
+   property p_tgt_mon_sel_stable;
+      @(posedge clk_i) disable iff (async_rst_i|sync_rst_i)
+	req |=> (~ack & $stable(tgt_sel_o))[*0:$] ##1 ack;
+   endproperty // p_tgt_mon_sel_stable
+   a_tgt_mon_sel_stable: assert property (p_tgt_mon_sel_stable);
+   
+   //tgt_adr_i
+   property p_tgt_mon_adr_stable;
+      @(posedge clk_i) disable iff (async_rst_i|sync_rst_i)
+	req |=> (~ack & $stable(tgt_adr_o))[*0:$] ##1 ack;
+   endproperty // p_tgt_mon_adr_stable
+   a_tgt_mon_adr_stable: assert property (p_tgt_mon_adr_stable);
+
+   //tgt_dat_i (write data)
+   property p_tgt_mon_dat_stable;
+      @(posedge clk_i) disable iff (async_rst_i|sync_rst_i)
+	req |=> (~ack & $stable(tgt_dat_o))[*0:$] ##1 ack;
+   endproperty // p_tgt_mon_dat_stable
+   a_tgt_mon_dat_stable: assert property (p_tgt_mon_dat_stable);
+
+   //tgt_tga_i
+   property p_tgt_mon_tga_stable;
+      @(posedge clk_i) disable iff (async_rst_i|sync_rst_i)
+	req |=> (~ack & $stable(tgt_tga_o))[*0:$] ##1 ack;
+   endproperty // p_tgt_mon_tga_stable
+   a_tgt_mon_tga_stable: assert property (p_tgt_mon_tga_stable);
+
+   //tgt_tgc_i
+   property p_tgt_mon_tgc_stable;
+      @(posedge clk_i) disable iff (async_rst_i|sync_rst_i)
+	req |=> (~ack & $stable(tgt_tgc_o))[*0:$] ##1 ack;
+   endproperty // p_tgt_mon_tgc_stable
+   a_tgt_mon_tgc_stable: assert property (p_tgt_mon_tgc_stable);
+
+   //tgt_tgd_i (write data tags) 
+   property p_tgt_mon_tgd_stable;
+      @(posedge clk_i) disable iff (async_rst_i|sync_rst_i)
+	req |=> (~ack & $stable(tgt_tgc_o))[*0:$] ##1 ack;
+   endproperty // p_tgt_mon_tgd_stable
+   a_tgt_mon_tgd_stable: assert property (p_tgt_mon_tgd_stable);
+
+   //Target response conditions
+   //==========================
+   property p_tgt_mon_ack_onehot;
+      @(posedge clk_i) disable iff (async_rst_i|sync_rst_i)
+	req |=> (~ack)[*0:$] ##1 $onehot({tgt_ack_i, tgt_err_i, tgt_rty_i});
+   endproperty // p_tgt_mon_ack_onehot   
+   a_tgt_mon_ack_onehot: assume property (p_tgt_mon_ack_onehot);
+ 
+   //Liveness conditions
+   //===================
+   a_tgt_mon_stall_ack:  assume property (eventually ack);
+   a_tgt_mon_stall_fair: assume property (eventually ~tgt_stall_i);
+
+   //Fairness conditions
+   //===================
+   a_tgt_mon_req_live: assert property (eventually req);
+
+endmodule // wb_tgt_mon
+
