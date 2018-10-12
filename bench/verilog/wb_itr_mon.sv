@@ -147,6 +147,17 @@ module wb_itr_mon
              assert property (|{~|{itr_ack_o, itr_err_o           }, //onehot0
                                 ~|{itr_ack_o,            itr_rty_o},
                                 ~|{           itr_err_o, itr_rty_o}});
+	     //Keep bus signals stable after bus request has been accepted
+	     if (~ack)
+	       begin
+	   	  assume property ($stable(itr_lock_i)); //uninterruptable bus cycle
+		  assume property ($stable(itr_sel_i));  //write data selects       
+		  assume property ($stable(itr_adr_i));  //address bus              
+		  assume property ($stable(itr_dat_i));  //write data bus           
+		  assume property ($stable(itr_tga_i));  //address tags             
+		  assume property ($stable(itr_tgc_i));  //bus cycle tags           
+		  assume property ($stable(itr_tgd_i));  //write data tags          
+	       end		  
           end // if (state_reg == STATE_BUSY)
      end
 

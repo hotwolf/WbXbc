@@ -358,7 +358,7 @@ module ftb_WbXbc_error_generator
             end
           STATE_BUSY:
             begin
-               if (req & ack)
+               if (~req & ack)
                  state_next = STATE_IDLE;
                if (inval_req & ack)
                  state_next = STATE_ERROR;
@@ -367,7 +367,7 @@ module ftb_WbXbc_error_generator
             end
           STATE_ERROR:
             begin
-               if (req & ack)
+               if (~req & ack)
                  state_next = STATE_IDLE;
                if (val_req & ack)
                  state_next = STATE_BUSY;

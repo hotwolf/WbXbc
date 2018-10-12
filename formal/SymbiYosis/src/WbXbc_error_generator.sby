@@ -1,11 +1,10 @@
 [tasks]
 
 [options]
-mode bmc
-depth 100
+mode prove
 
 [engines]
-smtbmc
+aiger aigbmc
 
 [script]
 read -sv     WbXbc_error_generator.v

@@ -139,7 +139,7 @@ module wb_tgt_mon
           begin
  	     //CYC_I must be is asserted throughout the bus cycle
 	     assert property (tgt_cyc_o);
-            //Fairness -> each bus cycle must be terminated
+             //Fairness -> each bus cycle must be terminated
              //(Rule 3.35)
              assume property (s_eventually ack);
              //Only one termination signal may be asserted at a time
@@ -147,6 +147,17 @@ module wb_tgt_mon
              assume property (|{~|{tgt_ack_i, tgt_err_i           }, //onehot0
                                 ~|{tgt_ack_i,            tgt_rty_i},
                                 ~|{           tgt_err_i, tgt_rty_i}});
+	     //Keep bus signals stable after bus request has been accepted
+	     if (~ack)
+	       begin
+	   	  assert property ($stable(tgt_lock_o)); //uninterruptable bus cycle
+		  assert property ($stable(tgt_sel_o));  //write data selects       
+		  assert property ($stable(tgt_adr_o));  //address bus              
+		  assert property ($stable(tgt_dat_o));  //write data bus           
+		  assert property ($stable(tgt_tga_o));  //address tags             
+		  assert property ($stable(tgt_tgc_o));  //bus cycle tags           
+		  assert property ($stable(tgt_tgd_o));  //write data tags          
+	       end		  
           end // if (state_reg == STATE_BUSY)
      end
 
