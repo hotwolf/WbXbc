@@ -43,7 +43,7 @@ module wb_pass_through
 
     //Clock and reset
     //---------------
-    input wire                             clk_i,            //module clock
+    input wire                             clk_i,            //module clock	
     input wire                             async_rst_i,      //asynchronous reset
     input wire                             sync_rst_i,       //synchronous reset
 
@@ -64,7 +64,7 @@ module wb_pass_through
     input  wire                            itr_rty_o,        //retry request             | to
     input  wire                            itr_stall_o,      //access delay              | initiator
     input  wire [DAT_WIDTH-1:0]            itr_dat_o,        //read data bus             |
-    input  wire [TGRD_WIDTH-1:0]           itr_tgd_o);       //read data tags            +-
+    input  wire [TGRD_WIDTH-1:0]           itr_tgd_o,        //read data tags            +-
 
     //Target interfaces
     //-----------------
@@ -90,7 +90,7 @@ module wb_pass_through
    wire                                    req  = &{~itr_stall_o, itr_cyc_i, itr_stb_i, //request
                                                      pass_through_en};                  //monitor enable
    wire                                    wreq = &{itr_we_i, req};                     //write request
-   wire                                    wreq = &{itr_we_i, req};                     //read request
+   wire                                    rreq = &{itr_we_i, req};                     //read request
    wire                                    ack  = |{itr_ack_o, itr_err_o, itr_rty_o};   //acknowledge
 
    //State Machine
@@ -156,7 +156,8 @@ module wb_pass_through
                if (wreq & ack)
                  state_next = STATE_WRITE;
             end
-        end // always @ *
+	endcase // case (state_reg)
+     end // always @ *
 
    //Pass-through rules
    //==================

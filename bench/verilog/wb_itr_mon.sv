@@ -112,7 +112,8 @@ module wb_itr_mon
             begin
                state_next = STATE_RESET;
             end
-        end // always @ *
+	endcase // case (state_reg)
+     end // always @ *
 
    //Protocol rules
    //==============
@@ -136,6 +137,8 @@ module wb_itr_mon
 
         if (state_reg == STATE_BUSY)
           begin
+	     //CYC_I must be is asserted throughout the bus cycle
+	     assume property (itr_cyc_i);
              //Fairness -> each bus cycle must be terminated
              //(Rule 3.35)
              assert property (s_eventually ack);

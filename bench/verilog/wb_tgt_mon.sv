@@ -112,7 +112,8 @@ module wb_tgt_mon
             begin
                state_next = STATE_RESET;
             end
-        end // always @ *
+	endcase // case (state_reg)	
+     end // always @ *
 
    //Protocol rules
    //==============
@@ -136,7 +137,9 @@ module wb_tgt_mon
 
         if (state_reg == STATE_BUSY)
           begin
-             //Fairness -> each bus cycle must be terminated
+ 	     //CYC_I must be is asserted throughout the bus cycle
+	     assert property (tgt_cyc_o);
+            //Fairness -> each bus cycle must be terminated
              //(Rule 3.35)
              assume property (s_eventually ack);
              //Only one termination signal may be asserted at a time

@@ -40,6 +40,8 @@
 //#      - Initial release                                                      #
 //#   October 8, 2018                                                           #
 //#      - Updated parameter and signal naming                                  #
+//#   October 15, 2018                                                          #
+//#      - redesigned FSM                                                       #
 //###############################################################################
 `default_nettype none
 
@@ -72,16 +74,16 @@ module WbXbc_error_generator
     input  wire [TGT_CNT-1:0]    itr_tga_tgtsel_i, //target select tags        |
     input  wire [TGC_WIDTH-1:0]  itr_tgc_i,        //bus cycle tags            |
     input  wire [TGWD_WIDTH-1:0] itr_tgd_i,        //write data tags           +-
-    output wire                  itr_ack_o,        //bus cycle acknowledge     +-
-    output wire                  itr_err_o,        //error indicator           | target
-    output wire                  itr_rty_o,        //retry request             | to
+    output reg                   itr_ack_o,        //bus cycle acknowledge     +-
+    output reg                   itr_err_o,        //error indicator           | target
+    output reg                   itr_rty_o,        //retry request             | to
     output wire                  itr_stall_o,      //access delay              | initiator
     output wire [DAT_WIDTH-1:0]  itr_dat_o,        //read data bus             |
     output wire [TGRD_WIDTH-1:0] itr_tgd_o,        //read data tags            +-
 
     //Target interface
     //----------------
-    output wire                  tgt_cyc_o,        //bus cycle indicator       +-
+    output reg                   tgt_cyc_o,        //bus cycle indicator       +-
     output wire                  tgt_stb_o,        //access request            |
     output wire                  tgt_we_o,         //write enable              |
     output wire                  tgt_lock_o,       //uninterruptable bus cycle |
@@ -100,43 +102,108 @@ module WbXbc_error_generator
     input  wire [TGRD_WIDTH-1:0] tgt_tgd_i);       //read data tags            +-
 
    //Internal signals
-   wire                          any_tgtsel = |itr_tga_tgtsel_i; //any target select asserted
+   wire                          any_tgtsel = |itr_tga_tgtsel_i;                   //any target select asserted
+   wire                          req        = &{itr_cyc_i, itr_stb_i};             //request from initiator
+   wire                          no_req     = |{&{any_tgtsel, tgt_stall_i}, ~req}; //no bus request
+   wire                          val_req    = &{ any_tgtsel, ~tgt_stall_i,   req}; //valid request
+   wire                          inval_req  = &{~any_tgtsel,                 req}; //invalid request
+   wire                          ack        = |{tgt_ack_i, tgt_err_i, tgt_rty_i};  //acknowledge from target
+   reg          [1:0]            state_next;                                       //next state
 
    //Internal registers
-   reg                           dummy_access_reg;         //indicates a dummy access
+   reg          [1:0]            state_reg;                                        //state variable
 
-   //Response to dummy access
+   //Finite state machine
+   //====================
+   //                 inval_req     _______
+   //         +------------------->/       \
+   //         |                    | ERROR |
+   //         |  +-----------------\_______/
+   //         |  |      no_req       ^  |
+   //        _|__v_                  |  |
+   // rst   /      \        inval_req|  |
+   //  O--->| IDLE |               & |  |val_req
+   //       \______/              ack|  |
+   //         ^  |                   |  |
+   //         |  |     val_req      _|__v_
+   //         |  +---------------->/      \
+   //         |                    | BUSY |
+   //         +--------------------\______/
+   //               no_req & ack
+   //State encoding
+   parameter STATE_IDLE       = 2'b00;                     //awaiting bus request (reset state)
+   parameter STATE_BUSY       = 2'b01;                     //awaiting bus acknowledge
+   parameter STATE_ERROR      = 2'b10;                     //generate error response
+   parameter STATE_UNREACH    = 2'b11;                     //unreachable state
+   always @*
+     begin
+        //Default outputs
+        itr_ack_o             = tgt_ack_i;                 //propagate bus cycle acknowledge
+        itr_err_o             = tgt_err_i;                 //propagate error indicator
+        itr_rty_o             = tgt_rty_i;                 //propagate retry request        `
+        tgt_cyc_o             = itr_cyc_i & any_tgtsel;    //propagate cycle indicator on valid request
+        //Default transition
+        state_next            = state_reg;                 //remain in current state
+        case (state_reg)
+          STATE_IDLE:
+            begin
+               if (val_req)
+                 state_next = STATE_BUSY;
+               if (inval_req)
+                 state_next = STATE_ERROR;
+            end
+          STATE_BUSY:
+            begin
+               if (no_req & ack)
+                 state_next = STATE_IDLE;
+               if (inval_req & ack)
+                 state_next = STATE_ERROR;
+               //Outputs
+	       tgt_cyc_o             = 1'b1;              //indicate ongoung bus cycle
+            end
+          STATE_ERROR,
+          STATE_UNREACH:
+            begin
+               if (no_req)
+                 state_next = STATE_IDLE;
+               if (val_req)
+                 state_next = STATE_BUSY;
+               //Outputs
+               itr_ack_o             = 1'b0;               //terminate bus cycle with error
+               itr_err_o             = 1'b1;               //
+               itr_rty_o             = 1'b0;               //        `
+            end
+        endcase // case (state_reg)
+     end // always @ *
+
+   //State variable
    always @(posedge async_rst_i or posedge clk_i)
      if (async_rst_i)                                      //asynchronous reset
-       dummy_access_reg <= 1'b0;
+       state_reg <= STATE_IDLE;
      else if (sync_rst_i)                                  //synchronous reset
-       dummy_access_reg <= 1'b0;                           //reset indicator
-     else if (~any_tgtsel | itr_cyc_i | itr_stb_i)         //access w/out target
-       dummy_access_reg <= 1'b1;                           //set indicator
+       state_reg <= STATE_IDLE;
+     else if(1)
+       state_reg <= state_next;                            //state transition
 
    //Plain signal propagation to the target bus
    assign tgt_lock_o       = itr_lock_i;                   //uninterruptible bus cycle indicators
    assign tgt_we_o         = itr_we_i;                     //write enable
    assign tgt_sel_o        = itr_sel_i;                    //write data selects
    assign tgt_adr_o        = itr_adr_i;                    //address busses
-   assign tgt_dat_o        = itr_adr_i;                    //write data busses
+   assign tgt_dat_o        = itr_dat_i;                    //write data busses
    assign tgt_tga_o        = itr_tga_i;                    //address tags
    assign tgt_tga_tgtsel_o = itr_tga_tgtsel_i;             //address tags
    assign tgt_tgc_o        = itr_tgc_i;                    //bus cycle tags
    assign tgt_tgd_o        = itr_tgd_i;                    //write data tags
 
    //Interceptable signal propagation to the target bus
-   assign tgt_cyc_o        = itr_cyc_i & any_tgtsel;       //bus cycle indicator
    assign tgt_stb_o        = itr_stb_i & any_tgtsel;       //access request
 
    //Plain signal propagation to the initiator bus
-   assign itr_ack_o        = tgt_ack_i;                    //bus cycle acknowledge
-   assign itr_rty_o        = tgt_rty_i;                    //retry request
-   assign itr_stall_o      = tgt_stall_i;                  //access delay
    assign itr_dat_o        = tgt_dat_i;                    //read data bus
    assign itr_tgd_o        = tgt_tgd_i;                    //read data tags
 
    //Interceptable signal propagation to the initiator bus
-   assign itr_err_o        = tgt_err_i | dummy_access_reg; //error indicator
+   assign itr_stall_o      = tgt_stall_i & any_tgtsel;     //access delay
 
 endmodule // WbXbc_error_generator

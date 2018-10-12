@@ -202,8 +202,8 @@ module WbXbc_arbiter
      end
 
    //Finite state machine
-   parameter STATE_READY       = 1'b0;  //awaiting bus request (reset state)
-   parameter STATE_ACK_PENDING = 1'b1;  //awaiting bus acknowledge
+   parameter STATE_IDLE       = 1'b0;  //awaiting bus request (reset state)
+   parameter STATE_BUSY       = 1'b1;  //awaiting bus acknowledge
    always @*
      begin
         //Default outputs
@@ -213,11 +213,11 @@ module WbXbc_arbiter
         cyc_sel     = arb_req;                                        //propagate signals of arbitrated initiator
         capture_req = 1'b0;                                           //don't capture arbitrated request
         case (state_reg)
-          STATE_READY:
+          STATE_IDLE:
             begin
                if (any_req & ~tgt_stall_i & ~locked)                  //new bus request, no stall, not locked
                  begin
-                    state_next  = STATE_ACK_PENDING;                  //wait for acknowledge
+                    state_next  = STATE_BUSY;                         //wait for acknowledge
                     tgt_stb_o   = 1'b1;                               //request target bus
                     itr_stall_o = ~arb_req;                           //stall all other initiators
                     cyc_sel     =  arb_req;                           //propagate signals of arbitrated initiator
@@ -226,13 +226,13 @@ module WbXbc_arbiter
                else
                if (any_req & ~tgt_stall_i &  locked)                  //new bus request, no stall, locked
                  begin
-                    state_next  = STATE_ACK_PENDING;                  //wait for acknowledge
+                    state_next  = STATE_BUSY;                         //wait for acknowledge
                     tgt_stb_o   = 1'b1;                               //request target bus
                     itr_stall_o = ~cur_itr_reg;                       //stall all other initiators
                     cyc_sel     =  cur_itr_reg;                       //propagate signals of arbitrated initiator
                  end
-            end // case: STATE_READY
-          STATE_ACK_PENDING:
+            end // case: STATE_IDLE
+          STATE_BUSY:
             begin
                if (tgt_ack_i)                                         //request acknowleged
                  if ( any_req & ~tgt_stall_i & ~locked)               //new bus request, no stall, not locked
@@ -251,17 +251,17 @@ module WbXbc_arbiter
                    end
                  else
                    begin
-                      state_next  = STATE_READY;                      //remain in current state
+                      state_next  = STATE_IDLE;                      //remain in current state
                    end // else: !if( any_req & ~tgt_stall_i)
                else
                  begin
                     itr_stall_o = ~cyc_sel;                           //stall all other initiators
                     cyc_sel     =  cur_itr_reg;                       //propagate signals of captured initiator
                  end // else: !if( any_req & ~tgt_stall_i)
-            end // case: STATE_ACK_PENDING
+            end // case: STATE_BUSY
           //default:
           //  begin
-          //     state_next = STATE_READY;                            //catch runawy state machine
+          //     state_next = STATE_IDLE;                            //catch runawy state machine
           //  end
         endcase // case (state_reg)
      end // always @ (state            or...
@@ -269,9 +269,9 @@ module WbXbc_arbiter
    //State variable
    always @(posedge async_rst_i or posedge clk_i)
      if (async_rst_i)                                                 //asynchronous reset
-       state_reg <= STATE_READY;
+       state_reg <= STATE_IDLE;
      else if (sync_rst_i)                                             //synchronous reset
-       state_reg <= STATE_READY;
+       state_reg <= STATE_IDLE;
      else if(1)
        state_reg <= state_next;                                       //state transition
 
