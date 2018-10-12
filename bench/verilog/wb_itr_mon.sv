@@ -150,15 +150,19 @@ module wb_itr_mon
 	     //Keep bus signals stable after bus request has been accepted
 	     if (~ack)
 	       begin
+	   	  assume property ($stable(itr_we_i));   //write enable
 	   	  assume property ($stable(itr_lock_i)); //uninterruptable bus cycle
 		  assume property ($stable(itr_sel_i));  //write data selects       
 		  assume property ($stable(itr_adr_i));  //address bus              
-		  assume property ($stable(itr_dat_i));  //write data bus           
 		  assume property ($stable(itr_tga_i));  //address tags             
 		  assume property ($stable(itr_tgc_i));  //bus cycle tags           
-		  assume property ($stable(itr_tgd_i));  //write data tags          
-	       end		  
+		  if (itr_we_i)
+		    begin
+		       assume property ($stable(itr_dat_i)); //write data bus           
+		       assume property ($stable(itr_tgd_i)); //write data tags
+		    end // if (itr_we_i)
+	       end // if (~ack)
           end // if (state_reg == STATE_BUSY)
-     end
+     end // always @ (posedge clk_i)
 
 endmodule // wb_itr_mon

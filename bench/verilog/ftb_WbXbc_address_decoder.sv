@@ -1,5 +1,5 @@
 //###############################################################################
-//# WbXbc - Formal Testbench - Error Generator                                  #
+//# WbXbc - Formal Testbench - Address Decoder                                  #
 //###############################################################################
 //#    Copyright 2018 Dirk Heisswolf                                            #
 //#    This file is part of the WbXbc project.                                  #
@@ -18,32 +18,18 @@
 //#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 //###############################################################################
 //# Description:                                                                #
-//#    This is the the formal testbench for the WbXbc_error_generator           #
+//#    This is the the formal testbench for the WbXbc_address_decoder           #
 //#    component.                                                               #
 //#                                                                             #
 //###############################################################################
 //# Version History:                                                            #
-//#   October 10, 2018                                                          #
+//#   October 16, 2018                                                          #
 //#      - Initial release                                                      #
 //###############################################################################
 `default_nettype none
 
 //DUT configuration
 //=================
-//Default configuration
-//---------------------
-`ifndef CONF_DEFAULT
-`endif
-
-//32bit configuration
-//---------------------
-`ifndef CONF_32BIT
-`define ADR_WIDTH   32
-`define DAT_WIDTH   32
-`endif
-
-//Fall back
-//---------
 `ifndef TGT_CNT
 `define TGT_CNT     4
 `endif
@@ -69,13 +55,18 @@
 `define TGWD_WIDTH  1
 `endif
 
-module ftb_WbXbc_error_generator
+module ftb_WbXbc_address_decoder
    (//Clock and reset
     //---------------
     input wire                    clk_i,                 //module clock
     input wire                    async_rst_i,           //asynchronous reset
     input wire                    sync_rst_i,            //synchronous reset
                                   		
+    //Target address regions
+    //----------------------
+    input wire [(`TGT_CNT*`ADR_WIDTH)-1:0] region_adr_i, //target address
+    input wire [(`TGT_CNT*`ADR_WIDTH)-1:0] region_msk_i, //selects relevant address bits
+
     //Initiator interface         		
     //-------------------         		
     input  wire                   itr_cyc_i,             //bus cycle indicator       +-
@@ -118,7 +109,7 @@ module ftb_WbXbc_error_generator
 						
    //DUT					
    //===					
-   WbXbc_error_generator			
+   WbXbc_address_decoder			
      #(.TGT_CNT   (`TGT_CNT),                            //number of target addresses
        .ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
@@ -128,12 +119,11 @@ module ftb_WbXbc_error_generator
        .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
        .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
    DUT
-     (//Clock and reset
-      //---------------
-      .clk_i            (clk_i),                         //module clock
-      .async_rst_i      (async_rst_i),                   //asynchronous reset
-      .sync_rst_i       (sync_rst_i),                    //synchronous reset
-      					
+     (//Target address regions
+      //----------------------
+      .region_adr_i     (region_adr_i),                  //target address
+      .region_msk_i     (region_msk_i),                  //selects relevant address bits
+      
       //Initiator interface		
       //-------------------		
       .itr_cyc_i        (itr_cyc_i),                     //bus cycle indicator       +-
@@ -144,7 +134,6 @@ module ftb_WbXbc_error_generator
       .itr_adr_i        (itr_adr_i),                     //address bus               | to
       .itr_dat_i        (itr_dat_i),                     //write data bus            | target
       .itr_tga_i        (itr_tga_i),                     //address tags              |
-      .itr_tga_tgtsel_i (itr_tga_tgtsel_i),              //target select tags        |
       .itr_tgc_i        (itr_tgc_i),                     //bus cycle tags            |
       .itr_tgd_i        (itr_tgd_i),                     //write data tags           +-
       .itr_ack_o        (itr_ack_o),                     //bus cycle acknowledge     +-
@@ -187,7 +176,7 @@ module ftb_WbXbc_error_generator
      #(.ADR_WIDTH (`ADR_WIDTH),			         //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),			         //width of each data bus
        .SEL_WIDTH (`SEL_WIDTH),			         //number of data select lines
-       .TGA_WIDTH (`TGA_WIDTH + `TGT_CNT),	         //number of propagated address tags
+       .TGA_WIDTH (`TGA_WIDTH+(2*`TGT_CNT*`ADR_WIDTH)),	 //number of propagated address tags
        .TGC_WIDTH (`TGC_WIDTH),			         //number of propagated cycle tags
        .TGRD_WIDTH(`TGRD_WIDTH),		         //number of propagated read data tags
        .TGWD_WIDTH(`TGWD_WIDTH))		         //number of propagated write data tags
@@ -207,7 +196,9 @@ module ftb_WbXbc_error_generator
       .itr_sel_i        (itr_sel_i),                     //write data selects        | initiator
       .itr_adr_i        (itr_adr_i),                     //address bus               | to
       .itr_dat_i        (itr_dat_i),                     //write data bus            | target
-      .itr_tga_i        ({itr_tga_tgtsel_i, itr_tga_i}), //address tags              |
+      .itr_tga_i        ({region_adr_i,                  //region descriptors must   |
+			  region_msk_i,                  // have TGA_I timing        |
+			  itr_tga_i}),                   //address tags              |
       .itr_tgc_i        (itr_tgc_i),                     //bus cycle tags            |
       .itr_tgd_i        (itr_tgd_i),                     //write data tags           +-
       .itr_ack_o        (itr_ack_o),                     //bus cycle acknowledge     +-
@@ -257,14 +248,14 @@ module ftb_WbXbc_error_generator
      #(.ADR_WIDTH (`ADR_WIDTH),     			 //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),     			 //width of each data bus
        .SEL_WIDTH (`SEL_WIDTH),     			 //number of data select lines
-       .TGA_WIDTH (`TGA_WIDTH + `TGT_CNT),          	 //number of propagated address tags
+       .TGA_WIDTH (`TGA_WIDTH),             	         //number of propagated address tags
        .TGC_WIDTH (`TGC_WIDTH),     			 //number of propagated cycle tags
        .TGRD_WIDTH(`TGRD_WIDTH),            		 //number of propagated read data tags
        .TGWD_WIDTH(`TGWD_WIDTH))			 //number of propagated write data tags
    wb_pass_through
      (//Assertion control
       //-----------------
-      .pass_through_en (|itr_tga_tgtsel_i),
+      .pass_through_en  (1'b1),
 
       //Clock and reset
       //---------------
@@ -281,7 +272,7 @@ module ftb_WbXbc_error_generator
       .itr_sel_i        (itr_sel_i),                     //write data selects        | initiator
       .itr_adr_i        (itr_adr_i),                     //address bus               | to
       .itr_dat_i        (itr_dat_i),                     //write data bus            | target
-      .itr_tga_i        ({itr_tga_tgtsel_i, itr_tga_i}), //address tags              |
+      .itr_tga_i        (itr_tga_i),                     //address tags              |
       .itr_tgc_i        (itr_tgc_i),                     //bus cycle tags            |
       .itr_tgd_i        (itr_tgd_i),                     //write data tags           +-
       .itr_ack_o        (itr_ack_o),                     //bus cycle acknowledge     +-
@@ -300,7 +291,7 @@ module ftb_WbXbc_error_generator
       .tgt_sel_o        (tgt_sel_o),                     //write data selects        | initiator
       .tgt_adr_o        (tgt_adr_o),                     //write data selects        | to
       .tgt_dat_o        (tgt_dat_o),                     //write data bus            | target
-      .tgt_tga_o        ({tgt_tga_tgtsel_o, tgt_tga_o}), //address tags              |
+      .tgt_tga_o        (tgt_tga_o),                     //address tags              |
       .tgt_tgc_o        (tgt_tgc_o),                     //bus cycle tags            |
       .tgt_tgd_o        (tgt_tgd_o),                     //write data tags           +-
       .tgt_ack_i        (tgt_ack_i),                     //bus cycle acknowledge     +-
@@ -314,109 +305,34 @@ module ftb_WbXbc_error_generator
    //=====================
 
    //Abbreviations
-   wire                  rst       = |{async_rst_i, sync_rst_i};            //reset
-   wire                  req       = &{~itr_stall_o, itr_cyc_i, itr_stb_i}; //request
-   wire                  no_tgt    = ~|{itr_tga_tgtsel_i};                  //no target
-   wire                  inval_req = &{req, no_tgt};                        //invalid request
-   wire                  val_req   = &{req, ~no_tgt};                       //valid request
-   wire                  ack       = |{itr_ack_o, itr_err_o, itr_rty_o};    //acknowledge
+   wire                                    req = &{~itr_stall_o, itr_cyc_i, itr_stb_i}; //request
 
-   //State Machine
-   //=============
-    //                             inval_req     _______
-   //                      +------------------->/       \
-   //                      |                    | ERROR |
-   //                      |  +-----------------\_______/
-   //                      |  |   ~req & ack      ^  |
-   //        _______      _|__v_                  |  |
-   // rst   /       \    /      \        inval_req|  |val_req
-   //  O--->| RESET |--->| IDLE |               & |  | &
-   //       \_______/    \______/              ack|  |ack
-   //                      ^  |                   |  |
-   //                      |  |    val_req       _|__v_
-   //                      |  +---------------->/      \
-   //                      |                    | BUSY |
-   //                      +--------------------\______/
-   //                             ~req & ack
-   //State encoding
-   parameter STATE_RESET = 2'b00;
-   parameter STATE_IDLE  = 2'b01;
-   parameter STATE_BUSY  = 2'b10;
-   parameter STATE_ERROR = 2'b11;
-   //State variable
-   reg          [1:0]                           state_reg;
-   wire         [1:0]                           state_next;
-   always @(posedge async_rst_i or posedge clk_i)
-     if (async_rst_i)                                        //asynchronous reset
-       state_reg <= STATE_RESET;
-     else if (sync_rst_i)                                    //synchronous reset
-       state_reg <= STATE_RESET;
-     else
-       state_reg <= state_next;                              //state transition
-   //State transitions
-   always @*
-     begin
-	//Default transition
-	state_next = state_reg; //remain in current state
-	case (state_reg)
-          STATE_RESET:
-            begin
-               state_next = STATE_IDLE;
-            end
-          STATE_IDLE:
-            begin
-               if (val_req)
-                 state_next = STATE_BUSY;
-               if (inval_req)
-                 state_next = STATE_ERROR;
-            end
-          STATE_BUSY:
-            begin
-               if (~req & ack)
-                 state_next = STATE_IDLE;
-               if (inval_req & ack)
-                 state_next = STATE_ERROR;
-               if (req & ack)
-                 state_next = STATE_IDLE;
-            end
-          STATE_ERROR:
-            begin
-               if (~req & ack)
-                 state_next = STATE_IDLE;
-               if (val_req & ack)
-                 state_next = STATE_BUSY;
-            end
-	endcase // case (state_reg)	
-     end // always @ *
-
-   //Error response rules
-   //====================
+   //Address region assertions
+   //=========================
    always @(posedge clk_i)
      begin
-	//Get an error reponse one clock cycle after the request	
-	if (state_reg == STATE_ERROR)
-          begin
-	     assert property (itr_err_o);   
-	  end // if (state_reg == STATE_ERROR)
-	//Don't pass through invalid requests
-	if (inval_req)
-	  begin
-	     assert property (~&{tgt_cyc_o, tgt_stb_o});
-	  end // if (inval_req)
-     end // always @ (posedge clk_i)
+	//Address regions must not overlap
+	for (int i = 1; i < `TGT_CNT; i=i+1)
+	  for (int j = 0; j < i; j=j+1)
+	    begin
+	       assume property (|((region_adr_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH] ^
+				   region_adr_i[((j+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH]) &
+				  ~region_msk_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH]  &
+				  ~region_msk_i[((j+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH]));
+	    end // if (i != j)
 
-   //Cover valid state transitions
+	//Region select outputs must be "onehot0" encoded
+	assert property (onehot0(tgt_tga_tgtsel_o));
+	
+     end // always @ (posedge clk_i)
+ 
+   //Cover all target selects
    //=============================
    always @(posedge clk_i)
      begin
-	cover property (($past(state_reg) == STATE_IDLE)  && (state_reg == STATE_BUSY));  //IDLE  -> BUSY
-	cover property (($past(state_reg) == STATE_BUSY)  && (state_reg == STATE_IDLE));  //BUSY  -> IDLE
-	cover property (($past(state_reg) == STATE_IDLE)  && (state_reg == STATE_ERROR)); //IDLE  -> ERROR
-	cover property (($past(state_reg) == STATE_ERROR) && (state_reg == STATE_IDLE));  //ERROR -> IDLE
-	cover property (($past(state_reg) == STATE_BUSY)  && (state_reg == STATE_ERROR)); //BUSY  -> ERROR
-	cover property (($past(state_reg) == STATE_ERROR) && (state_reg == STATE_BUSY));  //ERROR -> BUSY
+	for (int k = 1; k < `TGT_CNT; k=k+1)
+	  cover property (req & tgt_tga_tgtsel_o[k]); //cover each target selection	
+	cover property (req & ~|tgt_tga_tgtsel_o);    //cover empty target selection
      end // always @ (posedge clk_i)
-      
-`endif //  `ifdef FORMAL
-
-endmodule // ftb_WbXbc_error_generator
+   
+endmodule // ftb_WbXbc_address_decoder

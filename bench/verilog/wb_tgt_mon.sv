@@ -150,15 +150,19 @@ module wb_tgt_mon
 	     //Keep bus signals stable after bus request has been accepted
 	     if (~ack)
 	       begin
+	   	  assert property ($stable(tgt_we_o));   //write enable
 	   	  assert property ($stable(tgt_lock_o)); //uninterruptable bus cycle
 		  assert property ($stable(tgt_sel_o));  //write data selects       
 		  assert property ($stable(tgt_adr_o));  //address bus              
-		  assert property ($stable(tgt_dat_o));  //write data bus           
 		  assert property ($stable(tgt_tga_o));  //address tags             
 		  assert property ($stable(tgt_tgc_o));  //bus cycle tags           
-		  assert property ($stable(tgt_tgd_o));  //write data tags          
-	       end		  
+		  if (tgt_we_o)
+		    begin
+		       assert property ($stable(tgt_dat_o)); //write data bus           
+		       assert property ($stable(tgt_tgd_o)); //write data tags          
+		    end // if (tgt_we_o)
+	       end // if (~ack)
           end // if (state_reg == STATE_BUSY)
-     end
+     end // always @ (posedge clk_i)
 
 endmodule // wb_tgt_mon
