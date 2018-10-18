@@ -30,6 +30,13 @@
 
 //DUT configuration
 //=================
+//Default configuration
+//---------------------
+`ifndef CONF_DEFAULT
+`endif
+
+//Fall back
+//---------
 `ifndef TGT_CNT
 `define TGT_CNT     4
 `endif
@@ -77,7 +84,6 @@ module ftb_WbXbc_address_decoder
     input  wire [`ADR_WIDTH-1:0]  itr_adr_i,             //address bus               | to
     input  wire [`DAT_WIDTH-1:0]  itr_dat_i,             //write data bus            | target
     input  wire [`TGA_WIDTH-1:0]  itr_tga_i,             //address tags              |
-    input  wire [`TGT_CNT-1:0]    itr_tga_tgtsel_i,      //target select tags        |
     input  wire [`TGC_WIDTH-1:0]  itr_tgc_i,             //bus cycle tags            |
     input  wire [`TGWD_WIDTH-1:0] itr_tgd_i,             //write data tags           +-
     output wire                   itr_ack_o,             //bus cycle acknowledge     +-
@@ -334,5 +340,6 @@ module ftb_WbXbc_address_decoder
 	  cover property (req & tgt_tga_tgtsel_o[k]); //cover each target selection	
 	cover property (req & ~|tgt_tga_tgtsel_o);    //cover empty target selection
      end // always @ (posedge clk_i)
+`endif //  `ifdef FORMAL
    
 endmodule // ftb_WbXbc_address_decoder
