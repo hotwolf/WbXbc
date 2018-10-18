@@ -376,8 +376,6 @@ module ftb_WbXbc_error_generator
                  state_next = STATE_IDLE;
                if (inval_req & ack)
                  state_next = STATE_ERROR;
-               if (req & ack)
-                 state_next = STATE_IDLE;
             end
           STATE_ERROR:
             begin
