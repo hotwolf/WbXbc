@@ -35,13 +35,6 @@
 `ifndef CONF_DEFAULT
 `endif
 
-//32bit configuration
-//---------------------
-`ifndef CONF_32BIT
-`define ADR_WIDTH   32
-`define DAT_WIDTH   32
-`endif
-
 //Fall back
 //---------
 `ifndef TGT_CNT

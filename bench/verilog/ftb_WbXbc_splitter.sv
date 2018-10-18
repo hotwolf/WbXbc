@@ -29,9 +29,13 @@
 
 //DUT configuration
 //=================
+//Default configuration
+//---------------------
+`ifndef CONF_DEFAULT
+`endif
 
-
-
+//Fall back
+//---------
 `ifndef TGT_CNT
 `define TGT_CNT     4
 `endif
@@ -331,8 +335,7 @@ module ftb_WbXbc_splitter
      begin
 	for (int j = 1; j < `TGT_CNT; j=j+1)
 	  cover property (tgt_req[j]);
-     end // always @ (posedge clk_i)
- 
+     end // always @ (posedge clk_i) 
 `endif //  `ifdef FORMAL
 
 endmodule // ftb_WbXbc_splitter

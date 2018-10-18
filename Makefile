@@ -40,15 +40,20 @@ DOC_DST_DIR := $(REPO_DIR)/doc
 
 #List of modules and their supported configurations <module>.<configuration>
 MODCONFS := $(sort	WbXbc_accelerator.default \
+			WbXbc_accelerator.reg_itr \
 			WbXbc_address_decoder.default \
 			WbXbc_arbiter.default \
 			WbXbc_decelerator.default \
+			WbXbc_decelerator.reg_itr \
+			WbXbc_decelerator.reg_tgt \
+			WbXbc_decelerator.reg_itrtgt \
 			WbXbc_distributor.default \
 			WbXbc_error_generator.default \
-			WbXbc_error_generator.32bit \
 			WbXbc_expander.default \
+			WbXbc_expander.little_endian \
 			WbXbc_pipeliner.default \
 			WbXbc_reducer.default \
+			WbXbc_reducer.little_endian \
 			WbXbc_splitter.default \
 			WbXbc_standardizer.default \
 			WbXbc_xbar.default)

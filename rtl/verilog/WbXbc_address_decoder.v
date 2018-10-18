@@ -86,7 +86,7 @@ module WbXbc_address_decoder
     output wire [ADR_WIDTH-1:0]            tgt_adr_o,        //write data selects        | to
     output wire [DAT_WIDTH-1:0]            tgt_dat_o,        //write data bus            | target
     output wire [TGA_WIDTH-1:0]            tgt_tga_o,        //address tags              |
-    output reg  [TGT_CNT-1:0]              itr_tga_tgtsel_o, //target select tags        |
+    output reg  [TGT_CNT-1:0]              tgt_tga_tgtsel_o, //target select tags        |
     output wire [TGC_WIDTH-1:0]            tgt_tgc_o,        //bus cycle tags            |
     output wire [TGWD_WIDTH-1:0]           tgt_tgd_o,        //write data tags           +-
     input  wire                            tgt_ack_i,        //bus cycle acknowledge     +-
@@ -103,9 +103,9 @@ module WbXbc_address_decoder
    always @*                                                 //target select tags
    //always @(itr_adr_i or region_adr_i or region_msk_i)     //target select tags
      begin
-        itr_tga_tgtsel_o = {TGT_CNT{1'b1}};
+        tgt_tga_tgtsel_o = {TGT_CNT{1'b1}};
         for (i=0; i<(TGT_CNT*ADR_WIDTH); i=i+1)
-          itr_tga_tgtsel_o[i/ADR_WIDTH] = itr_tga_tgtsel_o[i/ADR_WIDTH] &
+          tgt_tga_tgtsel_o[i/ADR_WIDTH] = tgt_tga_tgtsel_o[i/ADR_WIDTH] &
                                           ~((region_adr_i[i] ^ itr_adr_i[i%ADR_WIDTH]) & region_msk_i[i]);
      end
 
