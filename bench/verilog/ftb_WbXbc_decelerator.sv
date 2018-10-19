@@ -1,5 +1,5 @@
 //###############################################################################
-//# WbXbc - Formal Testbench - Slow to Fast Bus Gasket                          #
+//# WbXbc - Formal Testbench - Fast to Slow Bus Gasket                          #
 //###############################################################################
 //#    Copyright 2018 Dirk Heisswolf                                            #
 //#    This file is part of the WbXbc project.                                  #
@@ -18,11 +18,11 @@
 //#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 //###############################################################################
 //# Description:                                                                #
-//#    This is the the formal testbench for the WbXbc_accelerator component.    #
+//#    This is the the formal testbench for the WbXbc_decelerator component.    #
 //#                                                                             #
 //###############################################################################
 //# Version History:                                                            #
-//#   October 18, 2018                                                          #
+//#   October 19, 2018                                                          #
 //#      - Initial release                                                      #
 //###############################################################################
 `default_nettype none
@@ -36,6 +36,18 @@
 
 //Registered initiator inputs
 //---------------------------
+`ifndef CONF_REG_ITR
+ `define REG_ITR     1
+`endif
+
+//Registered target inputs
+//------------------------
+`ifndef CONF_REG_TGT
+ `define REG_TGT     1
+`endif
+
+//All inputs registered
+//---------------------
 `ifndef CONF_REG_ITR
  `define REG_ITR     1
 `endif
@@ -66,12 +78,15 @@
 `ifndef REG_ITR
 `define REG_ITR     0
 `endif
+`ifndef REG_TGT
+`define REG_TGT     0
+`endif
 
-module ftb_WbXbc_accelerator
+module ftb_WbXbc_decelerator
    (//Clock and reset
     //---------------
-    input wire                    tgt_clk_i,             //target clock
-    input wire                    tgt2itr_sync_i,        //clock sync signal
+    input wire                    itr_clk_i,             //initiator clock
+    input wire                    itr2tgt_sync_i,        //clock sync signal
     input wire                    async_rst_i,           //asynchronous reset
     input wire                    sync_rst_i,            //synchronous reset
 
@@ -115,7 +130,7 @@ module ftb_WbXbc_accelerator
 
    //DUT
    //===
-   WbXbc_accelerator
+   WbXbc_decelerator
      #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
        .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
@@ -123,12 +138,13 @@ module ftb_WbXbc_accelerator
        .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
        .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
        .TGWD_WIDTH(`TGWD_WIDTH),                         //number of propagated write data tags
-       .REG_ITR   (`REG_ITR))                            //register initiator bus inputs (request signals)
+       .REG_ITR   (`REG_ITR),                            //register initiator bus inputs (request signals)
+       .REG_ITR   (`REG_TGT))                            //register target bus inputs (response signals)
    DUT
      (//Clock and reset
       //---------------
-      .tgt_clk_i        (tgt_clk_i),                     //target clock
-      .tgt2itr_sync_i   (tgt2itr_sync_i),                //clock sync signal
+      .itr_clk_i        (itr_clk_i),                     //initiator clock
+      .itr2tgt_sync_i   (itr2tgt_sync_i),                //clock sync signal
       .async_rst_i      (async_rst_i),                   //asynchronous reset
       .sync_rst_i       (sync_rst_i),                    //synchronous reset
 
@@ -343,4 +359,4 @@ module ftb_WbXbc_accelerator
 //     end // always @ (posedge clk_i)
 `endif //  `ifdef FORMAL
 
-endmodule // ftb_WbXbc_accelerator
+endmodule // ftb_WbXbc_decelerator

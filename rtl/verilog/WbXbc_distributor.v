@@ -210,7 +210,7 @@ module WbXbc_distributor
             .tgt_adr_o          (adec_adr),                     //write data selects        | to
             .tgt_dat_o          (adec_wdat),                    //write data bus            | target
             .tgt_tga_o          (adec_tga),                     //address tags              |
-            .itr_tga_tgtsel_o   (adec_tga_tgtsel),              //target select tags        |
+            .tgt_tga_tgtsel_o   (adec_tga_tgtsel),              //target select tags        |
             .tgt_tgc_o          (adec_tgc),                     //bus cycle tags            |
             .tgt_tgd_o          (adec_tgwd),                    //write data tags           +-
             .tgt_ack_i          (adec_ack),                     //bus cycle acknowledge     +-

@@ -251,6 +251,9 @@ cover.clean:
 
 doc:
 
+#latex -interaction=nonstopmode %.tex|bibtex %.aux|latex -interaction=nonstopmode %.tex|latex -interaction=nonstopmode %.tex|xdvi %.dvi
+#pdflatex -synctex=1 -interaction=nonstopmode %.tex
+
 ############
 # Clean up #
 ############

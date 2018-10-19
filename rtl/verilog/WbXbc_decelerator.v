@@ -328,7 +328,7 @@ module WbXbc_decelerator
 	      begin
 	       //tgt_cyc_o   = 1'b1;                                          //request target bus    
 	       //tgt_stb_o   = 1'b1;                                          //         
-		 if (itr2tgt_sync_i & ~tgt_stall_o)                           //bus request before concurrent clock event
+		 if (itr2tgt_sync_i & ~tgt_stall_i)                           //bus request before concurrent clock event
 		   state_next      = STATE_RESP_PENDING;                      //target asccess initiated
 	      end
 	    else
@@ -351,7 +351,7 @@ module WbXbc_decelerator
 	           tgt_stb_o   = 1'b0;                                        //don't propagate access request         
 		   itr_stall_o = 1'b1;                                        //stall initiator
 		   if (~itr2tgt_sync_i &                                      //bus request before initiator only clock event
-		       itr_cyc_i & itr_stb_i & ~tgt_stall_o) 
+		       itr_cyc_i & itr_stb_i & ~tgt_stall_i) 
 		     begin
 			state_next      = STATE_REQ_CAPTURED;                 //handle captured initiator request
 			capture_request = 1'b1;                               //capture initiator request
@@ -383,7 +383,7 @@ module WbXbc_decelerator
 		   itr_stall_o = 1'b1;                                        //stall initiator
 		   capture_response = 1'b1;                                   //capture target response	
 		   if (~itr2tgt_sync_i &                                      //bus request before initiator only clock event
-		       itr_cyc_i & itr_stb_i & ~tgt_stall_o) 
+		       itr_cyc_i & itr_stb_i & ~tgt_stall_i) 
 		     begin
 			state_next      = STATE_REQ_CAPTURED;                 //handle captured initiator request
 			capture_request = 1'b1;                               //capture initiator request
@@ -397,7 +397,7 @@ module WbXbc_decelerator
 		begin							      
 		   if (itr2tgt_sync_i)                                        //concurrent clock event next
 		     begin						      
-			if (itr_cyc_i & itr_stb_i & ~tgt_stall_o)             //bus request before initiator only clock event 
+			if (itr_cyc_i & itr_stb_i & ~tgt_stall_i)             //bus request before initiator only clock event 
 			  state_next    = STATE_RESP_PENDING;                 //wait for bus acknowledge
 		     end
 		   else

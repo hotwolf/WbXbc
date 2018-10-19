@@ -1,5 +1,5 @@
 //###############################################################################
-//# WbXbc - Formal Testbench - Address Decoder                                  #
+//# WbXbc - Formal Testbench - Bus Splitter                                     #
 //###############################################################################
 //#    Copyright 2018 Dirk Heisswolf                                            #
 //#    This file is part of the WbXbc project.                                  #
