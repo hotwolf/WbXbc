@@ -27,8 +27,8 @@
 
 This module implements a full crossbar switch between a set of initator
 busses and a set of target busses, all using the pipelined Wishbone    
-protocol. The \nameref*{xbar} consists \hyperref{dist}{ditributor} and
-\hyperref{arb}{arbiter} components (see \figref{xbar:diag}).                                                              
+protocol. The \nameref*{xbar} consists \hyperref[dist]{ditributor} and
+\hyperref[arb]{arbiter} components (see \figref{xbar:diag}).                                                              
 %      Initiator         Initiator            Initiator   
 %          |                 |      . . .        |    
 %          V                 V                   V    
@@ -70,7 +70,7 @@ protocol. The \nameref*{xbar} consists \hyperref{dist}{ditributor} and
   \makebox[\textwidth][c]{
     \begin{tikzpicture}
       %Block boundary
-      \draw [thick, fill=white] (0,0) rectangle (15,15);
+      \draw [thick, fill=gray!3] (0,0) rectangle (15,15);
       \node at (3,2)
             {\begin{minipage}[c]{16em}
                 \begin{center}
@@ -78,10 +78,23 @@ protocol. The \nameref*{xbar} consists \hyperref{dist}{ditributor} and
                   \Large{\textbf{\nameref*{xbar}}}
                 \end{center}
             \end{minipage}};
+
+      %Connections
+      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 1.25,11.5) -- ( 1.25,10.25) -- (11.5,10.25);
+      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 1.75,11.5) -- ( 1.75, 9.75) -- (11.5, 9.75);
+      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 2.75,11.5) -- ( 2.75, 8.75) -- (11.5, 8.75);
+             
+      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 4.75,11.5) -- ( 4.75, 6.75) -- (11.5, 6.75);
+      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 5.25,11.5) -- ( 5.25, 6.25) -- (11.5, 6.25);
+      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 6.25,11.5) -- ( 6.25, 5.25) -- (11.5, 5.25);
+             
+      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 8.75,11.5) -- ( 8.75, 2.75) -- (11.5, 2.75);
+      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 9.25,11.5) -- ( 9.25, 2.25) -- (11.5, 2.25);
+      \draw [preaction={draw, line width=3pt, white}, thick, ->] (10.25,11.5) -- (10.25, 1.25) -- (11.5, 1.25);
       %Distributors
       \newsavebox{\distbox}
       \savebox{\distbox}{
-        \draw [thick, fill=white] (0,0) rectangle (3,3);
+        \draw [thick, fill=gray!6] (0,0) rectangle (3,3);
         \node at (1.5,1.5)
               {\begin{minipage}[c]{8em}
                   \begin{center}
@@ -106,7 +119,7 @@ protocol. The \nameref*{xbar} consists \hyperref{dist}{ditributor} and
       %Arbiters
       \newsavebox{\arbbox}
       \savebox{\arbbox}{
-        \draw [thick, fill=white] (0,0) rectangle (3,3);
+        \draw [thick, fill=gray!6] (0,0) rectangle (3,3);
         \node at (1.5,1.5)
               {\begin{minipage}[c]{8em}
                   \begin{center}
@@ -128,18 +141,6 @@ protocol. The \nameref*{xbar} consists \hyperref{dist}{ditributor} and
       \node [rotate=90] at (13,4) {\small{\texttt{...}}};
       \node [rotate=90] at (16,4) {\small{\texttt{...}}};
       \node at (11.5,0.5)   {\usebox{\arbbox}};
-      %Connections
-      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 1.25,11.5) -- ( 1.25,10.25) -- (11.5,10.25);
-      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 1.75,11.5) -- ( 1.75, 9.75) -- (11.5, 9.75);
-      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 2.75,11.5) -- ( 2.75, 8.75) -- (11.5, 8.75);
-             
-      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 4.75,11.5) -- ( 4.75, 6.75) -- (11.5, 6.75);
-      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 5.25,11.5) -- ( 5.25, 6.25) -- (11.5, 6.25);
-      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 6.25,11.5) -- ( 6.25, 5.25) -- (11.5, 5.25);
-             
-      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 8.75,11.5) -- ( 8.75, 2.75) -- (11.5, 2.75);
-      \draw [preaction={draw, line width=3pt, white}, thick, ->] ( 9.25,11.5) -- ( 9.25, 2.25) -- (11.5, 2.25);
-      \draw [preaction={draw, line width=3pt, white}, thick, ->] (10.25,11.5) -- (10.25, 1.25) -- (11.5, 1.25);
              
     \end{tikzpicture}
     }

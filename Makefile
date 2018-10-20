@@ -18,7 +18,7 @@
 #    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 ###############################################################################
 # Description:                                                                #
-#    This is the project Makefile to run all verifcation and documentation    #
+#    This is the project makefile to run all verifcation and documentation    #
 #    tasks. A description of all supported rules is given in the help text.   #
 #                                                                             #
 ###############################################################################

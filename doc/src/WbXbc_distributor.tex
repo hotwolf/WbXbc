@@ -25,8 +25,8 @@
 \subsection[WbXbc Distributor]{WbXbc Distributor (\texttt{WbXbc\_distributor})}
 \label{dist}
 
-This module combines an \hyperref{adec}{address decoder}, an \hyperref{errgen}{error generator},
-and a \hyperref{split}{bus splitter} for the pipelined Wishbone protocol (see \figref{dist:diag}). 
+This module combines an \hyperref[adec]{address decoder}, an \hyperref[errgen]{error generator},
+and a \hyperref[split]{bus splitter} for the pipelined Wishbone protocol (see \figref{dist:diag}). 
 %             +-------------------------------------------------------------------------------+         
 %             |                                                                               |
 %             |                               WbXbc Distributor                               |
@@ -48,7 +48,7 @@ and a \hyperref{split}{bus splitter} for the pipelined Wishbone protocol (see \f
   \makebox[\textwidth][c]{
     \begin{tikzpicture}
       %Block
-      \draw [thick, fill=white] (4,0) rectangle (15,4.5);
+      \draw [thick, fill=gray!3] (4,0) rectangle (15,4.5);
       \node at (9.5,4)
             {\begin{minipage}[c]{16em}
                 \begin{center}
@@ -86,7 +86,7 @@ and a \hyperref{split}{bus splitter} for the pipelined Wishbone protocol (see \f
       \node [rotate=90] at (15.25,1.75) {\small{\texttt{...}}};
       \draw [ultra thick, ->] (14.5,1.25) -- (15.5,1.25);
       %Address decoder block  
-      \draw [thick, fill=white] (4.5,0.5) rectangle (7.5,3.5);
+      \draw [thick, fill=gray!6] (4.5,0.5) rectangle (7.5,3.5);
       \node at (6,2)
             {\begin{minipage}[c]{8em}
                 \begin{center}
@@ -96,7 +96,7 @@ and a \hyperref{split}{bus splitter} for the pipelined Wishbone protocol (see \f
              \end{minipage}};
       \draw [ultra thick, ->] (7.5,2) -- (8,2);
       %Error generator block  
-      \draw [thick, fill=white] (8,0.5) rectangle (11,3.5);
+      \draw [thick, fill=gray!6] (8,0.5) rectangle (11,3.5);
       \node at (9.5,2)
             {\begin{minipage}[c]{8em}
                 \begin{center}
@@ -105,7 +105,7 @@ and a \hyperref{split}{bus splitter} for the pipelined Wishbone protocol (see \f
                 \end{center}
              \end{minipage}};
       %Splitter block  
-      \draw [thick, fill=white] (11.5,0.5) rectangle (14.5,3.5);
+      \draw [thick, fill=gray!6] (11.5,0.5) rectangle (14.5,3.5);
       \node at (13,2)
             {\begin{minipage}[c]{8em}
                 \begin{center}

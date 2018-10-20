@@ -46,7 +46,7 @@ described in \secref{comp}.
       %Top level interfaces
       \newsavebox{\topif}
       \savebox{\topif}{
-        \draw [thick, fill=white] (0,1) rectangle (8,6.5);
+        \draw [thick, fill=gray!3] (0,1) rectangle (8,6.5);
         \foreach \xpos in {1, 3, 5, 7} {
           \node [above] at (\xpos,7)  {\small{Initiator}};
           \node [below] at (\xpos,0.5){\small{Target}};
@@ -57,7 +57,7 @@ described in \secref{comp}.
       %4x4 crossbar
       \node at (0,8) {\usebox{\topif}};
       %Xbar 
-      \draw [thick, fill=white] (.5,9.5) rectangle (7.5,14);
+      \draw [thick, fill=gray!6] (.5,9.5) rectangle (7.5,14);
       \node at (4,11.75)
             {\begin{minipage}[c]{10em}
                 \begin{center}
@@ -69,8 +69,8 @@ described in \secref{comp}.
       %2x4 crossbar
       \node at (9,8) {\usebox{\topif}};
       %Arbiters
-      \draw [thick, fill=white] (9.5,12) rectangle (12.5,14);
-      \draw [thick, fill=white] (13.5,12) rectangle (16.5,14);
+      \draw [thick, fill=gray!6] (9.5,12) rectangle (12.5,14);
+      \draw [thick, fill=gray!6] (13.5,12) rectangle (16.5,14);
       \draw [thick, ->] (11,12) -- (11,11.5);
       \draw [thick, ->] (15,12) -- (15,11.5);
       \node at (11,13)
@@ -90,7 +90,7 @@ described in \secref{comp}.
                 \end{center}
             \end{minipage}};       
       %Xbar 
-      \draw [thick, fill=white] (9.5,9.5) rectangle (16.5,11.5);
+      \draw [thick, fill=gray!6] (9.5,9.5) rectangle (16.5,11.5);
       \node at (13,10.5)
             {\begin{minipage}[c]{10em}
                 \begin{center}
@@ -102,7 +102,7 @@ described in \secref{comp}.
       %4x2 crossbar
       \node at (0,0) {\usebox{\topif}};
       %Xbar 
-      \draw [thick, fill=white] (0.5,4) rectangle (7.5,6);
+      \draw [thick, fill=gray!6] (0.5,4) rectangle (7.5,6);
       \draw [thick, ->] (2,4) -- (2,3.5);
       \draw [thick, ->] (6,4) -- (6,3.5);
       \node at (4,5)
@@ -114,8 +114,8 @@ described in \secref{comp}.
                 \end{center}
             \end{minipage}};                   
       %Distributors
-      \draw [thick, fill=white] (0.5,1.5) rectangle (3.5,3.5);
-      \draw [thick, fill=white] (4.5,1.5) rectangle (7.5,3.5);
+      \draw [thick, fill=gray!6] (0.5,1.5) rectangle (3.5,3.5);
+      \draw [thick, fill=gray!6] (4.5,1.5) rectangle (7.5,3.5);
       \node at (2,2.5)
             {\begin{minipage}[c]{8em}
                 \begin{center}
@@ -135,7 +135,7 @@ described in \secref{comp}.
       %no crossbar
       \node at (9,0) {\usebox{\topif}};
       %Arbiter
-      \draw [thick, fill=white] (9.5,4) rectangle (16.5,6);
+      \draw [thick, fill=gray!6] (9.5,4) rectangle (16.5,6);
       \draw [thick, ->] (13,4) -- (13,3.5);
       \node at (13,5)
             {\begin{minipage}[c]{8em}
@@ -146,7 +146,7 @@ described in \secref{comp}.
                 \end{center}
             \end{minipage}};       
       %Distributor
-      \draw [thick, fill=white] (9.5,1.5) rectangle (16.5,3.5);
+      \draw [thick, fill=gray!6] (9.5,1.5) rectangle (16.5,3.5);
       \node at (13,2.5)
             {\begin{minipage}[c]{8em}
                 \begin{center}
