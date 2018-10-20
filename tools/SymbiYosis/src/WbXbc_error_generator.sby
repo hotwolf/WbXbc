@@ -19,7 +19,7 @@ multiclock on
 [engines]
 bmc:   smtbmc
 prove: abc pdr
-live:  aiger suprove
+live:  aiger aigbmc
 cover: smtbmc
 
 [script]

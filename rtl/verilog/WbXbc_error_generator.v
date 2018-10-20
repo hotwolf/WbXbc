@@ -182,7 +182,7 @@ module WbXbc_error_generator
        state_reg <= STATE_IDLE;
      else if (sync_rst_i)                                  //synchronous reset
        state_reg <= STATE_IDLE;
-     else if(1)
+     else
        state_reg <= state_next;                            //state transition
 
    //Plain signal propagation to the target bus

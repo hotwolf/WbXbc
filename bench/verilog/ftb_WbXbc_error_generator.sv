@@ -338,7 +338,7 @@ module ftb_WbXbc_error_generator
    parameter STATE_ERROR = 2'b11;
    //State variable
    reg          [1:0]                           state_reg;
-   wire         [1:0]                           state_next;
+   reg          [1:0]                           state_next;
    always @(posedge async_rst_i or posedge clk_i)
      if (async_rst_i)                                        //asynchronous reset
        state_reg <= STATE_RESET;
