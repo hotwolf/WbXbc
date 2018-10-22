@@ -121,7 +121,8 @@ $(LINT_MODCONFS):
 	$(eval conf    := $(lastword $(subst ., ,$@)))
 	$(eval confdef := CONF_$(shell echo $(conf) | tr '[:lower:]' '[:upper:]'))
 	@echo "...Linting $(mod) in $(conf) configuration"
-	@iverilog -t null -D $(confdef) -s ftb_$(mod) -y $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v  
+	@verilator -sv --lint-only  -D$(confdef) --top-module ftb_$(mod) -y $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v 
+	@iverilog -t null -D$(confdef) -s ftb_$(mod) -y $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v  
 	@yosys -q -p "read_verilog -sv -D $(confdef) -I $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v"
 
 $(LINT_MODS): $$(filter $$@.%,$(LINT_MODCONFS))
