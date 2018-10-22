@@ -29,6 +29,7 @@ read -sv     WbXbc_error_generator.v
 read -formal wb_itr_mon.sv
 read -formal wb_tgt_mon.sv
 read -formal wb_pass_through.sv
+read -formal wb_syscon.sv
 prep -top ftb_WbXbc_error_generator
 
 [files]
@@ -37,3 +38,4 @@ rtl/verilog/WbXbc_error_generator.v
 bench/verilog/wb_itr_mon.sv
 bench/verilog/wb_tgt_mon.sv
 bench/verilog/wb_pass_through.sv
+bench/verilog/wb_syscon.sv

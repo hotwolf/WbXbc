@@ -18,8 +18,8 @@
 //#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 //###############################################################################
 //# Description:                                                                #
-//#    This set of assertion monitors a pipelined Wishbone initiator for        #
-//#    protocol violations.                                                     #
+//#    This module contains contraints and assertions to monitor a pipelined    #
+//#    Wishbone initiator for protocol violations.                              #
 //#                                                                             #
 //###############################################################################
 //# Version History:                                                            #
@@ -67,6 +67,23 @@ module wb_itr_mon
    wire                                    req = &{~itr_stall_o, itr_cyc_i, itr_stb_i}; //request
    wire                                    ack = |{itr_ack_o, itr_err_o, itr_rty_o};    //acknowledge
 
+   //Simplify counter examples (only toggle at clock events)
+   //=======================================================
+   always @($global_clock)
+     if (!$rose(clk_i))
+       begin
+          assume property ($stable(itr_cyc_i));              //bus cycle indicator
+          assume property ($stable(itr_stb_i));              //access request
+          assume property ($stable(itr_we_i));               //write enable
+          assume property ($stable(itr_lock_i));             //uninterruptable bus cycle
+          assume property ($stable(itr_sel_i));              //write data selects
+          assume property ($stable(itr_adr_i));              //address bus
+          assume property ($stable(itr_dat_i));              //write data bus
+          assume property ($stable(itr_tga_i));              //address tags
+          assume property ($stable(itr_tgc_i));              //bus cycle tags
+          assume property ($stable(itr_tgd_i));              //write data tags
+       end // if (!$rose(clk_i))
+
    //State Machine
    //=============
    //        _______     ______      req       ______
@@ -91,9 +108,9 @@ module wb_itr_mon
    //State transitions
    always @*
      begin
-	//Default transition
-	state_next = state_reg; //remain in current state
-	case (state_reg)
+        //Default transition
+        state_next = state_reg; //remain in current state
+        case (state_reg)
           STATE_RESET:
             begin
                state_next = STATE_IDLE;
@@ -112,7 +129,7 @@ module wb_itr_mon
             begin
                state_next = STATE_RESET;
             end
-	endcase // case (state_reg)
+        endcase // case (state_reg)
      end // always @ *
 
    //Protocol rules
@@ -131,37 +148,37 @@ module wb_itr_mon
           begin
              //Fairness -> a request must occur eventually
              assume property (s_eventually &{itr_cyc_i, itr_stb_i});
-	     if (&{itr_cyc_i, itr_stb_i})
-	       assert property (s_eventually ~itr_stall_o); 
+             if (&{itr_cyc_i, itr_stb_i})
+               assert property (s_eventually (~itr_stall_o & ~rst));
           end // if (state_reg == STATE_IDLE)
 
         if (state_reg == STATE_BUSY)
           begin
-	     //CYC_I must be is asserted throughout the bus cycle
-	     assume property (itr_cyc_i);
+             //CYC_I must be is asserted throughout the bus cycle
+             assume property (itr_cyc_i);
              //Fairness -> each bus cycle must be terminated
              //(Rule 3.35)
-             assert property (s_eventually ack);
+             assert property (s_eventually (ack & ~rst));
              //Only one termination signal may be asserted at a time
              //(Rule 3.45)
              assert property (|{~|{itr_ack_o, itr_err_o           }, //onehot0
                                 ~|{itr_ack_o,            itr_rty_o},
                                 ~|{           itr_err_o, itr_rty_o}});
-	     //Keep bus signals stable after bus request has been accepted
-	     if (~ack)
-	       begin
-	   	  assume property ($stable(itr_we_i));   //write enable
-	   	  assume property ($stable(itr_lock_i)); //uninterruptable bus cycle
-		  assume property ($stable(itr_sel_i));  //write data selects       
-		  assume property ($stable(itr_adr_i));  //address bus              
-		  assume property ($stable(itr_tga_i));  //address tags             
-		  assume property ($stable(itr_tgc_i));  //bus cycle tags           
-		  if (itr_we_i)
-		    begin
-		       assume property ($stable(itr_dat_i)); //write data bus           
-		       assume property ($stable(itr_tgd_i)); //write data tags
-		    end // if (itr_we_i)
-	       end // if (~ack)
+             //Keep bus signals stable after bus request has been accepted
+             if (~ack)
+               begin
+                  assume property ($stable(itr_we_i));   //write enable
+                  assume property ($stable(itr_lock_i)); //uninterruptable bus cycle
+                  assume property ($stable(itr_sel_i));  //write data selects
+                  assume property ($stable(itr_adr_i));  //address bus
+                  assume property ($stable(itr_tga_i));  //address tags
+                  assume property ($stable(itr_tgc_i));  //bus cycle tags
+                  if (itr_we_i)
+                    begin
+                       assume property ($stable(itr_dat_i)); //write data bus
+                       assume property ($stable(itr_tgd_i)); //write data tags
+                    end // if (itr_we_i)
+               end // if (~ack)
           end // if (state_reg == STATE_BUSY)
      end // always @ (posedge clk_i)
 

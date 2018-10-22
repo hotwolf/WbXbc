@@ -68,9 +68,9 @@ module ftb_WbXbc_error_generator
     input wire                    clk_i,                 //module clock
     input wire                    async_rst_i,           //asynchronous reset
     input wire                    sync_rst_i,            //synchronous reset
-                                  		
-    //Initiator interface         		
-    //-------------------         		
+
+    //Initiator interface
+    //-------------------
     input  wire                   itr_cyc_i,             //bus cycle indicator       +-
     input  wire                   itr_stb_i,             //access request            |
     input  wire                   itr_we_i,              //write enable              |
@@ -108,10 +108,10 @@ module ftb_WbXbc_error_generator
     input  wire                   tgt_stall_i,           //access delay              | initiator
     input  wire [`DAT_WIDTH-1:0]  tgt_dat_i,             //read data bus             |
     input  wire [`TGRD_WIDTH-1:0] tgt_tgd_i);            //read data tags            +-
-						
-   //DUT					
-   //===					
-   WbXbc_error_generator			
+
+   //DUT
+   //===
+   WbXbc_error_generator
      #(.TGT_CNT   (`TGT_CNT),                            //number of target addresses
        .ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
@@ -126,9 +126,9 @@ module ftb_WbXbc_error_generator
       .clk_i            (clk_i),                         //module clock
       .async_rst_i      (async_rst_i),                   //asynchronous reset
       .sync_rst_i       (sync_rst_i),                    //synchronous reset
-      					
-      //Initiator interface		
-      //-------------------		
+
+      //Initiator interface
+      //-------------------
       .itr_cyc_i        (itr_cyc_i),                     //bus cycle indicator       +-
       .itr_stb_i        (itr_stb_i),                     //access request            |
       .itr_we_i         (itr_we_i),                      //write enable              |
@@ -168,22 +168,25 @@ module ftb_WbXbc_error_generator
       .tgt_tgd_i        (tgt_tgd_i));                    //read data tags            +-
 
 `ifdef FORMAL
-   //Reset condition
-   //===============
-   initial assume property (~clk_i);                     //module clock	
-   initial assume property (async_rst_i);  		 //asynchronous rese
-   initial assume property (sync_rst_i);		 //synchronous reset
-   
+   //SYSCON constraints
+   //===================
+   wb_syscon wb_syscon
+     (//Clock and reset
+      //---------------
+      .clk_i            (clk_i),                         //module clock
+      .async_rst_i      (async_rst_i),                   //asynchronous reset
+      .sync_rst_i       (sync_rst_i));                   //synchronous reset
+
    //Protocol assertions
    //===================
    wb_itr_mon
-     #(.ADR_WIDTH (`ADR_WIDTH),			         //width of the address bus
-       .DAT_WIDTH (`DAT_WIDTH),			         //width of each data bus
-       .SEL_WIDTH (`SEL_WIDTH),			         //number of data select lines
-       .TGA_WIDTH (`TGA_WIDTH + `TGT_CNT),	         //number of propagated address tags
-       .TGC_WIDTH (`TGC_WIDTH),			         //number of propagated cycle tags
-       .TGRD_WIDTH(`TGRD_WIDTH),		         //number of propagated read data tags
-       .TGWD_WIDTH(`TGWD_WIDTH))		         //number of propagated write data tags
+     #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
+       .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
+       .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
+       .TGA_WIDTH (`TGA_WIDTH + `TGT_CNT),               //number of propagated address tags
+       .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
+       .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
+       .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
    wb_itr_mon
      (//Clock and reset
       //---------------
@@ -211,13 +214,13 @@ module ftb_WbXbc_error_generator
       .itr_tgd_o        (itr_tgd_o));                    //read data tags            +-
 
    wb_tgt_mon
-     #(.ADR_WIDTH (`ADR_WIDTH),     			 //width of the address bus
-       .DAT_WIDTH (`DAT_WIDTH),     			 //width of each data bus
-       .SEL_WIDTH (`SEL_WIDTH),     			 //number of data select lines
-       .TGA_WIDTH (`TGA_WIDTH + `TGT_CNT),           	 //number of propagated address tags
-       .TGC_WIDTH (`TGC_WIDTH),     			 //number of propagated cycle tags
-       .TGRD_WIDTH(`TGRD_WIDTH),            		 //number of propagated read data tags
-       .TGWD_WIDTH(`TGWD_WIDTH))			 //number of propagated write data tags
+     #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
+       .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
+       .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
+       .TGA_WIDTH (`TGA_WIDTH + `TGT_CNT),               //number of propagated address tags
+       .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
+       .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
+       .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
    wb_tgt_mon
      (//Clock and reset
       //---------------
@@ -247,13 +250,13 @@ module ftb_WbXbc_error_generator
    //Pass-through assertions
    //=======================
    wb_pass_through
-     #(.ADR_WIDTH (`ADR_WIDTH),     			 //width of the address bus
-       .DAT_WIDTH (`DAT_WIDTH),     			 //width of each data bus
-       .SEL_WIDTH (`SEL_WIDTH),     			 //number of data select lines
-       .TGA_WIDTH (`TGA_WIDTH + `TGT_CNT),          	 //number of propagated address tags
-       .TGC_WIDTH (`TGC_WIDTH),     			 //number of propagated cycle tags
-       .TGRD_WIDTH(`TGRD_WIDTH),            		 //number of propagated read data tags
-       .TGWD_WIDTH(`TGWD_WIDTH))			 //number of propagated write data tags
+     #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
+       .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
+       .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
+       .TGA_WIDTH (`TGA_WIDTH + `TGT_CNT),               //number of propagated address tags
+       .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
+       .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
+       .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
    wb_pass_through
      (//Assertion control
       //-----------------
@@ -349,9 +352,9 @@ module ftb_WbXbc_error_generator
    //State transitions
    always @*
      begin
-	//Default transition
-	state_next = state_reg; //remain in current state
-	case (state_reg)
+        //Default transition
+        state_next = state_reg; //remain in current state
+        case (state_reg)
           STATE_RESET:
             begin
                state_next = STATE_IDLE;
@@ -377,37 +380,37 @@ module ftb_WbXbc_error_generator
                if (val_req & ack)
                  state_next = STATE_BUSY;
             end
-	endcase // case (state_reg)	
+        endcase // case (state_reg)
      end // always @ *
 
    //Error response rules
    //====================
    always @(posedge clk_i)
      begin
-	//Get an error reponse one clock cycle after the request	
-	if (state_reg == STATE_ERROR)
+        //Get an error reponse one clock cycle after the request
+        if (state_reg == STATE_ERROR)
           begin
-	     assert property (itr_err_o);   
-	  end // if (state_reg == STATE_ERROR)
-	//Don't pass through invalid requests
-	if (inval_req)
-	  begin
-	     assert property (~&{tgt_cyc_o, tgt_stb_o});
-	  end // if (inval_req)
+             assert property (itr_err_o);
+          end // if (state_reg == STATE_ERROR)
+        //Don't pass through invalid requests
+        if (inval_req)
+          begin
+             assert property (~&{tgt_cyc_o, tgt_stb_o});
+          end // if (inval_req)
      end // always @ (posedge clk_i)
 
    //Cover valid state transitions
    //=============================
    always @(posedge clk_i)
      begin
-	cover property (($past(state_reg) == STATE_IDLE)  && (state_reg == STATE_BUSY));  //IDLE  -> BUSY
-	cover property (($past(state_reg) == STATE_BUSY)  && (state_reg == STATE_IDLE));  //BUSY  -> IDLE
-	cover property (($past(state_reg) == STATE_IDLE)  && (state_reg == STATE_ERROR)); //IDLE  -> ERROR
-	cover property (($past(state_reg) == STATE_ERROR) && (state_reg == STATE_IDLE));  //ERROR -> IDLE
-	cover property (($past(state_reg) == STATE_BUSY)  && (state_reg == STATE_ERROR)); //BUSY  -> ERROR
-	cover property (($past(state_reg) == STATE_ERROR) && (state_reg == STATE_BUSY));  //ERROR -> BUSY
+        cover property (($past(state_reg) == STATE_IDLE)  && (state_reg == STATE_BUSY));  //IDLE  -> BUSY
+        cover property (($past(state_reg) == STATE_BUSY)  && (state_reg == STATE_IDLE));  //BUSY  -> IDLE
+        cover property (($past(state_reg) == STATE_IDLE)  && (state_reg == STATE_ERROR)); //IDLE  -> ERROR
+        cover property (($past(state_reg) == STATE_ERROR) && (state_reg == STATE_IDLE));  //ERROR -> IDLE
+        cover property (($past(state_reg) == STATE_BUSY)  && (state_reg == STATE_ERROR)); //BUSY  -> ERROR
+        cover property (($past(state_reg) == STATE_ERROR) && (state_reg == STATE_BUSY));  //ERROR -> BUSY
      end // always @ (posedge clk_i)
-      
+
 `endif //  `ifdef FORMAL
 
 endmodule // ftb_WbXbc_error_generator

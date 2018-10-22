@@ -122,7 +122,7 @@ See \secref{sig} for a detailed description of all interface signals.
 \setlength{\LTright}{\LTleft}
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
-  \begin{longtable}{|l|r|l|l|}
+  \begin{longtable}{|l|r|l|p{10em}|}
     \rowcolor{white}
     \caption{Interface Signals of the \nameref*{expand}}
     \label{expand:sig:tab} \\
@@ -145,11 +145,11 @@ See \secref{sig} for a detailed description of all interface signals.
     %Section 'Target Address Regions'
     %\hline
     \rowcolor{gray!20}
-    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Target Address Regions}} \global\rownum=1\relax                   \\*  
+    \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Target Address Regions}} \global\rownum=1\relax                  \\*  
     \nobreakhline                                    
     \texttt{region\_addr\_i} & \texttt{(TGT\_CNT*ADR\_WIDTH)\-1:0} & input & target address                             \\*
-    \texttt{region\_mask\_i} & \texttt{(TGT\_CNT*ADR\_WIDTH)\-1:0} & input & \makecell[l]{selects relevant address bits \\*
-                                                                                           (1: relevant, 0: ignored)}    \\
+    \texttt{region\_mask\_i} & \texttt{(TGT\_CNT*ADR\_WIDTH)\-1:0} & input & \makecell[{{p{10em}}}]{selects relevant address bits \\
+                                                                                                   (1: relevant, 0: ignored)}   \\
     %Section 'Clock and Reset'
     %\hline
     \rowcolor{gray!20}

@@ -35,8 +35,8 @@ BENCH_DIR   := $(REPO_DIR)/bench/verilog
 SBY_DIR     := $(REPO_DIR)/tools/SymbiYosis
 SBY_SRC_DIR := $(REPO_DIR)/tools/SymbiYosis/src
 SBY_WRK_DIR := $(REPO_DIR)/tools/SymbiYosis/run
-DOC_SRC_DIR := $(REPO_DIR)/doc/src
-DOC_DST_DIR := $(REPO_DIR)/doc
+DOC_DIR     := $(REPO_DIR)/doc
+DOC_SRC_DIR := $(DOC_DIR)/src
 
 #List of modules and their supported configurations <module>.<configuration>
 MODCONFS := $(sort	WbXbc_accelerator.default \
@@ -208,8 +208,8 @@ $(LIVE_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
 	@echo "...Proving liveness of $(mod) in $(conf) configuration"
-#	@ln -sf $@ $(SBY_WRK_DIR)/live.latest
-#	@sby -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby live.$(conf)
+	@ln -sf $@ $(SBY_WRK_DIR)/live.latest
+	@sby -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby live.$(conf)
 
 $(LIVE_MODS): $$(filter $$@.%,$(LIVE_MODCONFS))
 
@@ -250,6 +250,7 @@ cover.clean:
 #################
 
 doc:
+	$(MAKE) -C $(DOC_SRC_DIR)
 
 #latex -interaction=nonstopmode %.tex|bibtex %.aux|latex -interaction=nonstopmode %.tex|latex -interaction=nonstopmode %.tex|xdvi %.dvi
 #pdflatex -synctex=1 -interaction=nonstopmode %.tex

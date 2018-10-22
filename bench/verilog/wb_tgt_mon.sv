@@ -18,8 +18,8 @@
 //#    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 //###############################################################################
 //# Description:                                                                #
-//#    This set of assertion monitors a pipelined Wishbone initiator for        #
-//#    protocol violations.                                                     #
+//#    This module contains contraints and assertions to monitor a pipelined    #
+//#    Wishbone target for protocol violations.                                 #
 //#                                                                             #
 //###############################################################################
 //# Version History:                                                            #
@@ -67,6 +67,19 @@ module wb_tgt_mon
    wire                                    req = &{~tgt_stall_i, tgt_cyc_o, tgt_stb_o}; //request
    wire                                    ack = |{tgt_ack_i, tgt_err_i, tgt_rty_i};    //acknowledge
 
+   //Simplify counter examples (only toggle at clock events)
+   //=======================================================
+   always @($global_clock)
+     if (!$rose(clk_i))
+       begin
+          assume property ($stable(tgt_ack_i));        //bus cycle acknowledge
+          assume property ($stable(tgt_err_i));        //error indicator
+          assume property ($stable(tgt_rty_i));        //retry request
+          assume property ($stable(tgt_stall_i));      //access delay
+          assume property ($stable(tgt_dat_i));        //read data bus
+          assume property ($stable(tgt_tgd_i));        //read data tags
+       end // if (!$rose(clk_i))
+
    //State Machine
    //=============
    //        _______     ______      req       ______
@@ -91,8 +104,8 @@ module wb_tgt_mon
    //State transitions
    always @*
      begin
-	//Default transition
-	state_next = state_reg; //remain in current state
+        //Default transition
+        state_next = state_reg; //remain in current state
         case (state_reg)
           STATE_RESET:
             begin
@@ -112,7 +125,7 @@ module wb_tgt_mon
             begin
                state_next = STATE_RESET;
             end
-	endcase // case (state_reg)	
+        endcase // case (state_reg)
      end // always @ *
 
    //Protocol rules
@@ -131,37 +144,37 @@ module wb_tgt_mon
           begin
              //Fairness -> a request must occur eventually
              assert property (s_eventually &{tgt_cyc_o, tgt_stb_o});
-	     if (&{tgt_cyc_o, tgt_stb_o})
-	       assume property (s_eventually ~tgt_stall_i); 
+             if (&{tgt_cyc_o, tgt_stb_o})
+               assume property (s_eventually (~tgt_stall_i & ~rst));
           end // if (state_reg == STATE_IDLE)
 
         if (state_reg == STATE_BUSY)
           begin
- 	     //CYC_I must be is asserted throughout the bus cycle
-	     assert property (tgt_cyc_o);
+             //CYC_I must be is asserted throughout the bus cycle
+             assert property (tgt_cyc_o);
              //Fairness -> each bus cycle must be terminated
              //(Rule 3.35)
-             assume property (s_eventually ack);
+             assume property (s_eventually (ack & ~rst));
              //Only one termination signal may be asserted at a time
              //(Rule 3.45)
              assume property (|{~|{tgt_ack_i, tgt_err_i           }, //onehot0
                                 ~|{tgt_ack_i,            tgt_rty_i},
                                 ~|{           tgt_err_i, tgt_rty_i}});
-	     //Keep bus signals stable after bus request has been accepted
-	     if (~ack)
-	       begin
-	   	  assert property ($stable(tgt_we_o));   //write enable
-	   	  assert property ($stable(tgt_lock_o)); //uninterruptable bus cycle
-		  assert property ($stable(tgt_sel_o));  //write data selects       
-		  assert property ($stable(tgt_adr_o));  //address bus              
-		  assert property ($stable(tgt_tga_o));  //address tags             
-		  assert property ($stable(tgt_tgc_o));  //bus cycle tags           
-		  if (tgt_we_o)
-		    begin
-		       assert property ($stable(tgt_dat_o)); //write data bus           
-		       assert property ($stable(tgt_tgd_o)); //write data tags          
-		    end // if (tgt_we_o)
-	       end // if (~ack)
+             //Keep bus signals stable after bus request has been accepted
+             if (~ack)
+               begin
+                  assert property ($stable(tgt_we_o));   //write enable
+                  assert property ($stable(tgt_lock_o)); //uninterruptable bus cycle
+                  assert property ($stable(tgt_sel_o));  //write data selects
+                  assert property ($stable(tgt_adr_o));  //address bus
+                  assert property ($stable(tgt_tga_o));  //address tags
+                  assert property ($stable(tgt_tgc_o));  //bus cycle tags
+                  if (tgt_we_o)
+                    begin
+                       assert property ($stable(tgt_dat_o)); //write data bus
+                       assert property ($stable(tgt_tgd_o)); //write data tags
+                    end // if (tgt_we_o)
+               end // if (~ack)
           end // if (state_reg == STATE_BUSY)
      end // always @ (posedge clk_i)
 
