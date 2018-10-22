@@ -28,15 +28,16 @@
 ###############################################################################
 
 #Directories
-REPO_DIR    := .
-#REPO_DIR   := $(CURDIR)
-RTL_DIR     := $(REPO_DIR)/rtl/verilog
-BENCH_DIR   := $(REPO_DIR)/bench/verilog
-SBY_DIR     := $(REPO_DIR)/tools/SymbiYosis
-SBY_SRC_DIR := $(REPO_DIR)/tools/SymbiYosis/src
-SBY_WRK_DIR := $(REPO_DIR)/tools/SymbiYosis/run
-DOC_DIR     := $(REPO_DIR)/doc
-DOC_SRC_DIR := $(DOC_DIR)/src
+REPO_DIR     := .
+#REPO_DIR    := $(CURDIR)
+RTL_DIR      := $(REPO_DIR)/rtl/verilog
+BENCH_DIR    := $(REPO_DIR)/bench/verilog
+SBY_DIR      := $(REPO_DIR)/tools/SymbiYosis
+SBY_SRC_DIR  := $(SBY_DIR)/src
+SBY_WRK_DIR  := $(SBY_DIR)/run
+GTKW_DIR     := $(REPO_DIR)/tools/gtkwave
+GTKW_SRC_DIR := $(GTKW_DIR)/src
+GTKW_WRK_DIR := $(GTKW_DIR)/run
 
 #List of modules and their supported configurations <module>.<configuration>
 MODCONFS := $(sort	WbXbc_accelerator.default \
@@ -246,15 +247,28 @@ cover.clean:
 	@echo "...Cleaning up cover targets"
 	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%) $(SBY_WRK_DIR)/cover.latest 
 
+#########
+# Debug #
+#########
+#STEMS_FILES := $(MODS:%=$(GTKW_WRK_DIR)%.stems)
+#GTKW_FILES  := $(MODCONFS:%=$(GTKW_WRK_DIR)%.gtkw)
+#
+#$(STEM_FILES): $(BENCH_DIR)/ftb_$$(lastword $$(subst ., ,$$(word 2,$$(subst ., ,$$@)))).sv \
+#               $(RTL_DIR)/$$(lastword $$(subst ., ,$$(word 2,$$(subst ., ,$$@)))).v 
+#	vermin $^ -emitstems -emitvars > $@
+#
+# 
+#
+#
+#
+##STEMS files
+#$(MODCONFS:%=%.stems): ftb_$(lastword $(subst ., ,$@))).sv
+
 #################
 # Documentation #
 #################
-
 doc:
 	$(MAKE) -C $(DOC_SRC_DIR)
-
-#latex -interaction=nonstopmode %.tex|bibtex %.aux|latex -interaction=nonstopmode %.tex|latex -interaction=nonstopmode %.tex|xdvi %.dvi
-#pdflatex -synctex=1 -interaction=nonstopmode %.tex
 
 ############
 # Clean up #

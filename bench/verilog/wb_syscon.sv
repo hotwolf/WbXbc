@@ -34,21 +34,29 @@ module wb_syscon
     input wire                             async_rst_i,      //asynchronous reset
     input wire                             sync_rst_i);      //synchronous reset
 
+   //Internal signals
+   //================
+   reg                                     prev_clk_i;       //previous clock phase
+
    //Reset condition
    //===============
-   initial assume property (~clk_i);                         //module clock
-   initial assume property (async_rst_i);                    //asynchronous rese
-   initial assume property (sync_rst_i);                     //synchronous reset
+   initial
+     begin
+        prev_clk_i = 1'b1;                                   //initialize prev. clock state
+        assume (~clk_i);                                     //module clock
+        assume (async_rst_i);                                //asynchronous reset
+        assume (sync_rst_i);                                 //synchronous reset
+        @($global_clock);
+        assume (async_rst_i);                                //asynchronous reset
+        assume (sync_rst_i);                                 //synchronous reset
+     end
 
    //Expect free-running clock
    //=========================
-   reg                                     prev_clk_i;
-   initial prev_clk_i = 1'b1;
-
    always @($global_clock)
      begin
-        assume property (clk_i ^ prev_clk_i);
-        prev_clk_i = clk_i;
+        assume (clk_i ^ prev_clk_i);
+        prev_clk_i <= clk_i;
      end
 
 endmodule // wb_syscon
