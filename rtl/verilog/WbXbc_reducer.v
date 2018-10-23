@@ -137,7 +137,7 @@ module WbXbc_reducer
      else if (sync_rst_i)                                                          //synchronous reset
        tgt_dat_reg <= {ITR_DAT_WIDTH/2{1'b0}};
      else if (capture_dat)                                                         //capture read data
-       tgt_dat_reg <= itr_dat_i;
+       tgt_dat_reg <= itr_dat_i[ITR_DAT_WIDTH-1:ITR_DAT_WIDTH/2];
 
    //Finite state machine
    parameter STATE_FIRST_STB  = 2'b00;                                             //first bus request (reset state)

@@ -57,7 +57,8 @@ MODCONFS := $(sort	WbXbc_accelerator.default \
 			WbXbc_reducer.little_endian \
 			WbXbc_splitter.default \
 			WbXbc_standardizer.default \
-			WbXbc_xbar.default)
+			)
+#			WbXbc_xbar.default \) #fix combinational loop in arbiter
 
 MODS  := $(sort $(foreach mod,$(MODCONFS),$(firstword $(subst ., ,$(mod)))))
 CONFS := $(sort $(foreach mod,$(MODCONFS),$(lastword  $(subst ., ,$(mod)))))
@@ -68,47 +69,53 @@ CONFS := $(sort $(foreach mod,$(MODCONFS),$(lastword  $(subst ., ,$(mod)))))
 # Help text #
 #############
 help:
-	@echo "This makefile supports the following targets:"
-	@echo " "
-	@echo "lint:                            Lint all modules in all supported configurations"
-	@echo "lint.<module>.<configuration>:   Lint a module in one particular configuration"
-	@echo "lint.<module>:                   Lint a module in all supported cinfigurations"
-	@echo "lint.<configuration>:            Lint all modules which support the given configuration"
-	@echo "lint.clean:                      Clean up lint targets"
-	@echo " "
-	@echo "verify:                          Verify all modules in all supported configurations"
-	@echo "verify.<module>.<configuration>: Verify a module in one particular configuration"
-	@echo "verify.<module>:                 Verify a module in all supported cinfigurations"
-	@echo "verify.<configuration>:          Verify all modules which support the given configuration"
-	@echo "verify.clean:                    Clean up verify targets"
-	@echo " "
-	@echo "bmc:                             Generate bounded proofs for all modules in all support configurations"
-	@echo "bmc.<module>.<configuration>:    Generate bounded proofs for a module in one particular configuration"
-	@echo "bmc.<module>:                    Generate bounded proofs for a module in all supported cinfigurations"
-	@echo "bmc.<configuration>:             Generate bounded proofs for all modules which support the given configuration"
-	@echo "bmc.clean:                       Clean up bounded proof targets"
-	@echo " "
-	@echo "prove:                           Generate unboundeds proof for all modules in all supported configurations"
-	@echo "prove.<module>.<configuration>:  Generate unboundeds proof for a module in one particular configuration"
-	@echo "prove.<module>:                  Generate unboundeds proof for a module in all supported cinfigurations"
-	@echo "prove.<configuration>:           Generate unboundeds proof for all modules which support the given configuration"
-	@echo "prove.clean:                     Clean up unbounded proof targets"
-	@echo " "
-	@echo "live:                            Prove liveness of all modules in all supported configurations"
-	@echo "live.<module>.<configuration>:   Prove liveness of a module in one particular configuration"
-	@echo "live.<module>:                   Prove liveness of a module in all supported cinfigurations"
-	@echo "live.<configuration>:            Prove liveness of all modules which support the given configuration"
-	@echo "live.clean:                      Clean up liveness targets"
-	@echo " "
-	@echo "cover:                           Generate cover traces for all modules in all supported configurations"
-	@echo "cover.<module>.<configuration>:  Generate cover traces for a module in one particular configuration"
-	@echo "cover.<module>:                  Generate cover traces for a module in all supported cinfigurations"
-	@echo "cover.<configuration>:           Generate cover traces for all modules which support the given configuration"
-	@echo "cover.clean:                     Clean up cover targets"
-	@echo " "
-	@echo "clean:                           Clean up all targets"
-	@echo " "
-	@echo "doc:                             Build the user manual"
+	$(info This makefile supports the following targets:)
+	$(info )
+	$(info lint:                            Lint all modules in all supported configurations)
+	$(info lint.<module>.<configuration>:   Lint a module in one particular configuration)
+	$(info lint.<module>:                   Lint a module in all supported cinfigurations)
+	$(info lint.<configuration>:            Lint all modules which support the given configuration)
+	$(info lint.clean:                      Clean up lint targets)
+	$(info )
+	$(info verify:                          Verify all modules in all supported configurations)
+	$(info verify.<module>.<configuration>: Verify a module in one particular configuration)
+	$(info verify.<module>:                 Verify a module in all supported cinfigurations)
+	$(info verify.<configuration>:          Verify all modules which support the given configuration)
+	$(info verify.clean:                    Clean up verify targets)
+	$(info )
+	$(info bmc:                             Generate bounded proofs for all modules in all support configurations)
+	$(info bmc.<module>.<configuration>:    Generate bounded proofs for a module in one particular configuration)
+	$(info bmc.<module>:                    Generate bounded proofs for a module in all supported cinfigurations)
+	$(info bmc.<configuration>:             Generate bounded proofs for all modules which support the given configuration)
+	$(info bmc.clean:                       Clean up bounded proof targets)
+	$(info )
+	$(info prove:                           Generate unboundeds proof for all modules in all supported configurations)
+	$(info prove.<module>.<configuration>:  Generate unboundeds proof for a module in one particular configuration)
+	$(info prove.<module>:                  Generate unboundeds proof for a module in all supported cinfigurations)
+	$(info prove.<configuration>:           Generate unboundeds proof for all modules which support the given configuration)
+	$(info prove.clean:                     Clean up unbounded proof targets)
+	$(info )
+	$(info live:                            Prove liveness of all modules in all supported configurations)
+	$(info live.<module>.<configuration>:   Prove liveness of a module in one particular configuration)
+	$(info live.<module>:                   Prove liveness of a module in all supported cinfigurations)
+	$(info live.<configuration>:            Prove liveness of all modules which support the given configuration)
+	$(info live.clean:                      Clean up liveness targets)
+	$(info )
+	$(info cover:                           Generate cover traces for all modules in all supported configurations)
+	$(info cover.<module>.<configuration>:  Generate cover traces for a module in one particular configuration)
+	$(info cover.<module>:                  Generate cover traces for a module in all supported cinfigurations)
+	$(info cover.<configuration>:           Generate cover traces for all modules which support the given configuration)
+	$(info cover.clean:                     Clean up cover targets)
+	$(info )
+	$(info debug.list:                      List all available VCD dump files)
+	$(info debug:                           View the most recent VCD dump file)
+	$(info debug.prev:                      View the previous VCD dump file)
+	$(info debug<n>:                        View a VCD dump file from the selection given by 'debug.list')
+	$(info )
+	$(info clean:                           Clean up all targets)
+	$(info )
+	$(info doc:                             Build the user manual)
+	@echo "" > /dev/null
 
 ###########
 # Linting #
@@ -121,7 +128,7 @@ $(LINT_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
 	$(eval confdef := CONF_$(shell echo $(conf) | tr '[:lower:]' '[:upper:]'))
-	@echo "...Linting $(mod) in $(conf) configuration"
+	$(info ...Linting $(mod) in $(conf) configuration)
 	@verilator -sv --lint-only  -D$(confdef) --top-module ftb_$(mod) -y $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v 
 	@iverilog -t null -D$(confdef) -s ftb_$(mod) -y $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v  
 	@yosys -q -p "read_verilog -sv -D $(confdef) -I $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v"
@@ -149,7 +156,7 @@ $(VERIFY_CONFS): $$(filter verify.%.$$(lastword $$(subst ., ,$$@)),$(VERIFY_MODC
 
 verify:	$(VERIFY_MODCONFS) 
 
-verify.clean: prove.clean cover.clean live.clean
+verify.clean: bmc.clean prove.clean cover.clean live.clean
 
 ##################
 # Bounded proofs #
@@ -161,8 +168,7 @@ BMC_CONFS    := $(CONFS:%=bmc.%)
 $(BMC_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
-	@echo "...Generating bounded proofs for $(mod) in $(conf) configuration"
-	@ln -sf $@ $(SBY_WRK_DIR)/bmc.latest
+	$(info ...Generating bounded proofs for $(mod) in $(conf) configuration)
 	@sby -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby bmc.$(conf)
 
 $(BMC_MODS): $$(filter $$@.%,$(BMC_MODCONFS))
@@ -172,8 +178,8 @@ $(BMC_CONFS): $$(filter bmc.%.$$(lastword $$(subst ., ,$$@)),$(BMC_MODCONFS))
 bmc: $(BMC_MODCONFS) 
 
 bmc.clean:
-	@echo "...Cleaning up bounded proof targets"
-	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%) $(SBY_WRK_DIR)/bmc.latest 
+	$(info...Cleaning up bounded proof targets)
+	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%)
 
 ###################
 # Unounded proofs #
@@ -185,8 +191,7 @@ PROVE_CONFS    := $(CONFS:%=prove.%)
 $(PROVE_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
-	@echo "...Generating unbounded proofs $(mod) in $(conf) configuration"
-	@ln -sf $@ $(SBY_WRK_DIR)/prove.latest
+	$(info ...Generating unbounded proofs $(mod) in $(conf) configuration)
 	@sby -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby prove.$(conf)
 
 $(PROVE_MODS): $$(filter $$@.%,$(PROVE_MODCONFS))
@@ -196,8 +201,8 @@ $(PROVE_CONFS): $$(filter prove.%.$$(lastword $$(subst ., ,$$@)),$(PROVE_MODCONF
 prove:	$(PROVE_MODCONFS) 
 
 prove.clean:
-	@echo "...Cleaning up unbounded proof targets"
-	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%) $(SBY_WRK_DIR)/prove.latest 
+	$(info ...Cleaning up unbounded proof targets)
+	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%)
 
 ############
 # Liveness #
@@ -209,8 +214,7 @@ LIVE_CONFS    := $(CONFS:%=live.%)
 $(LIVE_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
-	@echo "...Proving liveness of $(mod) in $(conf) configuration"
-	@ln -sf $@ $(SBY_WRK_DIR)/live.latest
+	$(info ...Proving liveness of $(mod) in $(conf) configuration)
 	@sby -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby live.$(conf)
 
 $(LIVE_MODS): $$(filter $$@.%,$(LIVE_MODCONFS))
@@ -220,8 +224,8 @@ $(LIVE_CONFS): $$(filter live.%.$$(lastword $$(subst ., ,$$@)),$(LIVE_MODCONFS))
 live:	$(LIVE_MODCONFS) 
 
 live.clean:
-	@echo "...Cleaning up liveness targets"
-	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%) $(SBY_WRK_DIR)/prove.latest 
+	$(info ...Cleaning up liveness targets)
+	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%)
 
 ################
 # Cover traces #
@@ -233,8 +237,7 @@ COVER_CONFS    := $(CONFS:%=cover.%)
 $(COVER_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
-	@echo "...Generating cover traces for $(mod) in $(conf) configuration"
-	@ln -sf $@ $(SBY_WRK_DIR)/cover.latest
+	$(info ...Generating cover traces for $(mod) in $(conf) configuration)
 	@sby -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby cover.$(conf)
 
 $(COVER_MODS): $$(filter $$@.%,$(COVER_MODCONFS))
@@ -244,25 +247,65 @@ $(COVER_CONFS): $$(filter cover.%.$$(lastword $$(subst ., ,$$@)),$(COVER_MODCONF
 cover:	$(COVER_MODCONFS) 
 
 cover.clean:
-	@echo "...Cleaning up cover targets"
-	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%) $(SBY_WRK_DIR)/cover.latest 
+	$(info ...Cleaning up cover targets)
+	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%)
 
 #########
 # Debug #
 #########
-#STEMS_FILES := $(MODS:%=$(GTKW_WRK_DIR)%.stems)
-#GTKW_FILES  := $(MODCONFS:%=$(GTKW_WRK_DIR)%.gtkw)
-#
-#$(STEM_FILES): $(BENCH_DIR)/ftb_$$(lastword $$(subst ., ,$$(word 2,$$(subst ., ,$$@)))).sv \
-#               $(RTL_DIR)/$$(lastword $$(subst ., ,$$(word 2,$$(subst ., ,$$@)))).v 
-#	vermin $^ -emitstems -emitvars > $@
-#
-# 
-#
-#
-#
-##STEMS files
-#$(MODCONFS:%=%.stems): ftb_$(lastword $(subst ., ,$@))).sv
+VCD_FILES          := $(shell find $(SBY_WRK_DIR) -name "*.vcd" -type f -exec ls -1t "{}" +;)
+FST_FILES          := $(VCD_FILES:%.vcd=%.fst)
+GTKW_FILES         := $(VCD_FILES:%.vcd=%.gtkw)
+STEMS_FILES        := $(VCD_FILES:%.vcd=%.gtkw)
+TRACE_DIRS         := $(dir $(VCD_FILES))
+DEBUG_DIRS         := $(dir $(patsubst %/,%,$(TRACE_DIRS)))
+DEBUG_TGTS         :=
+$(foreach x,$(VCD_FILES),$(eval DEBUG_TGTS := $(DEBUG_TGTS) debug$(words $(DEBUG_TGTS) x)))
+
+$(FST_FILES): %.fst: %.vcd
+	$(info ...Converting VCD to FST)
+	@vcd2fst $< $@
+
+$(STEMS_FILES): $(RTL_DIR)/* $(BENCH_DIR)/*
+	$(eval dir_name := $(notdir $(patsubst %/,%,$(dir $(patsubst %/,%,$(dir $@))))))
+	$(eval tmk      := $(subst ., ,$(dir_name)))
+	$(eval task     := $(firstword $(tmk)))
+	$(eval mod      := $(word 2,$(tmk)))
+	$(eval conf     := $(lastword $(tmk)))
+	$(eval confdef  := CONF_$(shell echo $(conf) | tr '[:lower:]' '[:upper:]'))
+	$(info ...Generating STEMS file)
+	vermin -D$(confdef)=1 $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v -emitstems -emitvars > $@
+#	@vermin -D$(confdef) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/*.v -emitstems -emitvars > $@
+
+$(GTKW_FILES):%.gtkw: %.vcd %.fst %.stems
+	$(info ...Generating GTKW file)
+	perl tools/gtkwave/src/gtkw_gen.pl ${word 1,$^) ${word 2,$^) ${word 3,$^) $@
+
+$(DEBUG_TGTS): $$(word $$(subst debug,,$$@),$(VCD_FILES)) \
+	       $$(word $$(subst debug,,$$@),$(FST_FILES)) \
+	       $$(word $$(subst debug,,$$@),$(STEMS_FILES)) \
+	       $$(word $$(subst debug,,$$@),$(GTKW_FILES))
+	$(info ...Opening $<)
+
+debug: $(firstword $(DEBUG_TGTS))
+
+debug.prev: $(word 2,$(DEBUG_TGTS))
+
+debug.list:
+ifeq ($(DEBUG_TGTS),)
+	$(info No debug targets available)
+else
+	$(info The following $(words $(DEBUG_TGTS)) VCD files are available for viewing:)
+#	$(info )
+endif
+	@$(foreach tgt,$(DEBUG_TGTS),$(info $(tgt):     $(word $(subst debug,,$(tgt)),$(VCD_FILES))))
+ifneq ($(firstword $(DEBUG_TGTS)),)
+	$(info debug:      --> debug1 (most recent VCD dump))
+endif
+ifneq ($(word 2,$(DEBUG_TGTS)),)
+	$(info debug.prev: --> debug2 (previous VCD dump))
+endif
+	@echo "" > /dev/null
 
 #################
 # Documentation #
@@ -287,5 +330,6 @@ clean:	lint.clean bmc.clean prove.clean cover.clean
 	$(PROVE_MODCONFS)  $(PROVE_MODS)  $(PROVE_CONFS)  prove  prove.clean \
 	$(LIVE_MODCONFS)   $(LIVE_MODS)   $(LIVE_CONFS)   live   live.clean \
 	$(COVER_MODCONFS)  $(COVER_MODS)  $(COVER_CONFS)  cover  cover.clean \
+	$(DEBUG_TGTS) debug debug.prev debug.list \
 	doc \
 	clean

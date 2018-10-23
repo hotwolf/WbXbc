@@ -185,7 +185,7 @@ module WbXbc_standardizer
 
    //Finite state machine
    parameter STATE_READY         = 1'b0;  //waiting for bus request (reset state)
-   parameter STATE_REQ_CAPTURED  = 1'b0;  //initiator request captured(reset state)
+   parameter STATE_REQ_CAPTURED  = 1'b1;  //initiator request captured(reset state)
    always @*
      begin
         //Default outputs

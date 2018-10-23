@@ -129,8 +129,13 @@ module ftb_WbXbc_distributor
       .async_rst_i      (async_rst_i),                   //asynchronous reset
       .sync_rst_i       (sync_rst_i),                    //synchronous reset
       
-      //Initiator interface		
-      //-------------------		
+      //Target address regions
+      //----------------------
+      .region_adr_i      (region_adr_i),                 //target address
+      .region_msk_i      (region_msk_i),                 //selects relevant address bits
+
+     //Initiator interface              
+      //-------------------             
       .itr_cyc_i        (itr_cyc_i),                     //bus cycle indicator       +-
       .itr_stb_i        (itr_stb_i),                     //access request            |
       .itr_we_i         (itr_we_i),                      //write enable              |

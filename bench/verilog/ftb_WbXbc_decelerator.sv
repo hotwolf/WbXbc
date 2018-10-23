@@ -139,7 +139,7 @@ module ftb_WbXbc_decelerator
        .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
        .TGWD_WIDTH(`TGWD_WIDTH),                         //number of propagated write data tags
        .REG_ITR   (`REG_ITR),                            //register initiator bus inputs (request signals)
-       .REG_ITR   (`REG_TGT))                            //register target bus inputs (response signals)
+       .REG_TGT   (`REG_TGT))                            //register target bus inputs (response signals)
    DUT
      (//Clock and reset
       //---------------

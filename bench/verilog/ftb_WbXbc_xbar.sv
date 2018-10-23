@@ -71,6 +71,11 @@ module ftb_WbXbc_xbar
     input wire                               async_rst_i,      //asynchronous reset
     input wire                               sync_rst_i,       //synchronous reset
                                   		
+    //Target address regions
+    //----------------------
+    input  wire [(`TGT_CNT*`ADR_WIDTH)-1:0]  region_adr_i,     //target address
+    input  wire [(`TGT_CNT*`ADR_WIDTH)-1:0]  region_msk_i,     //selects relevant address bits
+
     //Initiator interface         		
     //-------------------         		
     input  wire [`ITR_CNT-1:0]               itr_cyc_i,        //bus cycle indicator       +-
@@ -114,7 +119,7 @@ module ftb_WbXbc_xbar
    //===					
    WbXbc_xbar			
      #(.ITR_CNT   (`ITR_CNT),                            //number of initiator addresses
-       .ITR_CNT   (`TGT_CNT),                            //number of target addresses
+       .TGT_CNT   (`TGT_CNT),                            //number of target addresses
        .ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
        .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
@@ -129,6 +134,11 @@ module ftb_WbXbc_xbar
       .async_rst_i      (async_rst_i),                   //asynchronous reset
       .sync_rst_i       (sync_rst_i),                    //synchronous reset
       
+      //Target address regions
+      //----------------------
+      .region_adr_i     (region_adr_i),                  //target address
+      .region_msk_i     (region_msk_i),                  //selects relevant address bits
+
       //Initiator interface		
       //-------------------		
       .itr_cyc_i        (itr_cyc_i),                     //bus cycle indicator       +-

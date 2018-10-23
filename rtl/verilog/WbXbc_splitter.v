@@ -127,8 +127,9 @@ module WbXbc_splitter
    //Masked signal propagation to all target busses
    assign tgt_cyc_o  =  new_tgt | cur_tgt_reg;               //bus cycle indicators
    assign tgt_stb_o  =  new_tgt;                             //access requests
-   assign tgt_lock_o = (new_tgt | cur_tgt_reg) & itr_lock_i; //uninterruptible bus cycle indicators
-
+   assign tgt_lock_o = (new_tgt | cur_tgt_reg) &             //uninterruptible bus cycle indicators
+	               {TGT_CNT{itr_lock_i}};
+	  
    //Multiplexed signal propagation to the initiator bus
    assign itr_ack_o   = |{cur_tgt_reg & tgt_ack_i};          //bus cycle acknowledge
    assign itr_err_o   = |{cur_tgt_reg & tgt_err_i};          //error indicator
@@ -140,8 +141,8 @@ module WbXbc_splitter
      begin
         itr_dat_o = {DAT_WIDTH{1'b0}};
         for (i=0; i<(DAT_WIDTH*TGT_CNT); i=i+1)
-          itr_dat_o[i%TGT_CNT] = itr_dat_o[i%TGT_CNT] |
-                                 (cur_tgt_reg[i%TGT_CNT] & tgt_dat_i[i]);
+          itr_dat_o[i%DAT_WIDTH] = itr_dat_o[i%DAT_WIDTH] |
+                                   (cur_tgt_reg[i%TGT_CNT] & tgt_dat_i[i]);
      end
 
    always @*                                                 //read data tags
@@ -149,8 +150,8 @@ module WbXbc_splitter
      begin
         itr_tgd_o = {TGRD_WIDTH{1'b0}};
         for (j=0; j<(TGRD_WIDTH*TGT_CNT); j=j+1)
-          itr_dat_o[j%TGT_CNT] = itr_dat_o[j%TGT_CNT] |
-                                 (cur_tgt_reg[j%TGT_CNT] & tgt_dat_i[j]);
+          itr_tgd_o[j%TGRD_WIDTH] = itr_tgd_o[j%TGRD_WIDTH] |
+                                    (cur_tgt_reg[j%TGT_CNT] & tgt_tgd_i[j]);
      end
 
 endmodule // WbXbc_splitter

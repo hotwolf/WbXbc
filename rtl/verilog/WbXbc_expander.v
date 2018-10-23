@@ -129,8 +129,8 @@ module WbXbc_expander
    assign itr_rty_o        = tgt_rty_i;                                       //retry request             | target
    assign itr_stall_o      = tgt_stall_i;                                     //access delay              | to
    assign itr_dat_o        = (itr_addr_0_reg ^ |BIG_ENDIAN) ?                 //                          | initiator
-                               tgt_dat_i[ITR_DAT_WIDTH-1:ITR_DAT_WIDTH/2] :   //                          |
-                               tgt_dat_i[(ITR_DAT_WIDTH/2)-1:0];              //                          |
+                               tgt_dat_i[(ITR_DAT_WIDTH*2)-1:ITR_DAT_WIDTH] : //                          |
+                               tgt_dat_i[ITR_DAT_WIDTH-1:0];                  //                          |
    assign itr_tgd_o        = tgt_tgd_i;                                       //read data tags            +-
 
 endmodule // WbXbc_expander

@@ -46,9 +46,9 @@ module wb_syscon
         assume (~clk_i);                                     //module clock
         assume (async_rst_i);                                //asynchronous reset
         assume (sync_rst_i);                                 //synchronous reset
-        @($global_clock);
-        assume (async_rst_i);                                //asynchronous reset
-        assume (sync_rst_i);                                 //synchronous reset
+        //@($global_clock);
+        //assume (async_rst_i);                                //asynchronous reset
+        //assume (sync_rst_i);                                 //synchronous reset
      end
 
    //Expect free-running clock
