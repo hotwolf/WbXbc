@@ -72,12 +72,12 @@ module wb_tgt_mon
    always @($global_clock)
      if (!$rose(clk_i))
        begin
-          assume property ($stable(tgt_ack_i));        //bus cycle acknowledge
-          assume property ($stable(tgt_err_i));        //error indicator
-          assume property ($stable(tgt_rty_i));        //retry request
-          assume property ($stable(tgt_stall_i));      //access delay
-          assume property ($stable(tgt_dat_i));        //read data bus
-          assume property ($stable(tgt_tgd_i));        //read data tags
+          assume ($stable(tgt_ack_i));        //bus cycle acknowledge
+          assume ($stable(tgt_err_i));        //error indicator
+          assume ($stable(tgt_rty_i));        //retry request
+          assume ($stable(tgt_stall_i));      //access delay
+          assume ($stable(tgt_dat_i));        //read data bus
+          assume ($stable(tgt_tgd_i));        //read data tags
        end // if (!$rose(clk_i))
 
    //State Machine
@@ -130,52 +130,62 @@ module wb_tgt_mon
 
    //Protocol rules
    //==============
-   always @(posedge clk_i)
+   //always @(posedge clk_i)
+   always @ ($global_clock)
      begin
-        if (state_reg == STATE_RESET)
+        if (state_reg === STATE_RESET)
           begin
              //Bus interface must be initialized by reset
              //(Rule 3.00, Rule 3.20)
-             assert property (~tgt_cyc_o);
-             assert property (~tgt_stb_o);
+             assert (~tgt_cyc_o);
+             assert (~tgt_stb_o);
           end // if (state_reg == STATE_RESET)
 
-        if (state_reg == STATE_IDLE)
-          begin
-             //Fairness -> a request must occur eventually
-             assert property (s_eventually &{tgt_cyc_o, tgt_stb_o});
-             if (&{tgt_cyc_o, tgt_stb_o})
-               assume property (s_eventually (~tgt_stall_i & ~rst));
-          end // if (state_reg == STATE_IDLE)
-
-        if (state_reg == STATE_BUSY)
+        if (state_reg === STATE_BUSY)
           begin
              //CYC_I must be is asserted throughout the bus cycle
-             assert property (tgt_cyc_o);
-             //Fairness -> each bus cycle must be terminated
-             //(Rule 3.35)
-             assume property (s_eventually (ack & ~rst));
+             assert (tgt_cyc_o);
              //Only one termination signal may be asserted at a time
              //(Rule 3.45)
-             assume property (|{~|{tgt_ack_i, tgt_err_i           }, //onehot0
+             assume (|{~|{tgt_ack_i, tgt_err_i           }, //onehot0
                                 ~|{tgt_ack_i,            tgt_rty_i},
                                 ~|{           tgt_err_i, tgt_rty_i}});
              //Keep bus signals stable after bus request has been accepted
              if (~ack)
                begin
-                  assert property ($stable(tgt_we_o));   //write enable
-                  assert property ($stable(tgt_lock_o)); //uninterruptable bus cycle
-                  assert property ($stable(tgt_sel_o));  //write data selects
-                  assert property ($stable(tgt_adr_o));  //address bus
-                  assert property ($stable(tgt_tga_o));  //address tags
-                  assert property ($stable(tgt_tgc_o));  //bus cycle tags
+                  assert ($stable(tgt_we_o));   //write enable
+                  assert ($stable(tgt_lock_o)); //uninterruptable bus cycle
+                  assert ($stable(tgt_sel_o));  //write data selects
+                  assert ($stable(tgt_adr_o));  //address bus
+                  assert ($stable(tgt_tga_o));  //address tags
+                  assert ($stable(tgt_tgc_o));  //bus cycle tags
                   if (tgt_we_o)
                     begin
-                       assert property ($stable(tgt_dat_o)); //write data bus
-                       assert property ($stable(tgt_tgd_o)); //write data tags
+                       assert ($stable(tgt_dat_o)); //write data bus
+                       assert ($stable(tgt_tgd_o)); //write data tags
                     end // if (tgt_we_o)
                end // if (~ack)
           end // if (state_reg == STATE_BUSY)
-     end // always @ (posedge clk_i)
+     end // always @ ($global_clock)
+   
+   //Fairness constraints
+   //====================
+   assume property (s_eventually (~tgt_stall_i));                       //STALL_I must be deasserted eventually
+   assume property (s_eventually (ack));                                //acknowledge must be given eventually
+   assume property (s_eventually (~rst && (state_reg === STATE_IDLE))); //acknowledge must be given eventually
+   //always @(posedge clk_i)
+   //  begin
+   //     assume property (s_eventually (~tgt_stall_i));                       //STALL_I must be deasserted eventually
+   //     assume property (s_eventually (ack));                                //acknowledge must be given eventually
+   //     assume property (s_eventually (~rst && (state_reg === STATE_IDLE))); //acknowledge must be given eventually
+   //  end
+
+   //Liveness Assertions
+   //===================
+   assert property (s_eventually (&{tgt_cyc_o, tgt_stb_o}));            //bus must be requested eventually
+   //always @(posedge clk_i)
+   //  begin
+   //     assert property (s_eventually (&{tgt_cyc_o, tgt_stb_o}));            //bus must be requested eventually
+   //  end
 
 endmodule // wb_tgt_mon

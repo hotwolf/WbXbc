@@ -18,23 +18,23 @@ multiclock on
 
 [engines]
 bmc:   smtbmc
-prove: abc pdr
-live:  aiger aigbmc -v 100
+prove: smtbmc
+live:  aiger aigbmc
 cover: smtbmc
 
 [script]
-default: read -formal -D CONF_DEFAULT ftb_WbXbc_error_generator.sv
-32bit:   read -formal -D CONF_32BIT ftb_WbXbc_error_generator.sv
-read -sv     WbXbc_error_generator.v
+default: read -formal -D CONF_DEFAULT ftb_WbXbc_address_decoder.sv
+32bit:   read -formal -D CONF_32BIT ftb_WbXbc_address_decoder.sv
+read -sv     WbXbc_address_decoder.v
 read -formal wb_itr_mon.sv
 read -formal wb_tgt_mon.sv
 read -formal wb_pass_through.sv
 read -formal wb_syscon.sv
-prep -top ftb_WbXbc_error_generator
+prep -top ftb_WbXbc_address_decoder
 
 [files]
-bench/verilog/ftb_WbXbc_error_generator.sv
-rtl/verilog/WbXbc_error_generator.v
+bench/verilog/ftb_WbXbc_address_decoder.sv
+rtl/verilog/WbXbc_address_decoder.v
 bench/verilog/wb_itr_mon.sv
 bench/verilog/wb_tgt_mon.sv
 bench/verilog/wb_pass_through.sv

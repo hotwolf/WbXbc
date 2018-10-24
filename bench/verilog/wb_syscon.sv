@@ -24,91 +24,77 @@
 //# Version History:                                                            #
 //#   October 22, 2018                                                          #
 //#      - Initial release                                                      #
+//#   October 30, 2018                                                          #
+//#      - Added gated clock support                                            #
 //###############################################################################
 `default_nettype none
 
 module wb_syscon
    (//Clock and reset
     //---------------
-    input wire                             fast_clk_i,       //fast input clock
-    input wire                             slow_clk_i,       //slow input clock
-    input wire                             sync_i,           //clock sync signal
-    input wire                             async_rst_i,      //asynchronous reset
-    input wire                             sync_rst_i);      //synchronous reset
-
-   //State Machine
-   //=============
-   //        ______     ______     ______     ______            
-   // init  /      \   /      \-->/      \-->/      \
-   //  O--->| RST0 |-->| RST2 |   | CLK0 |   | CLK3 |       
-   //       \______/   \______/<--\______/<--\______/                                      
-   //         |  ^                / |  ^
-   //         |  |               /  |  |
-   //        _V__|_             /  _V__|_                       
-   //       /      \           /  /      \                
-   //       | RST1 |<---------/   | CLK1 |                  
-   //       \______/              \______/                                                 
-   //                      
-   //State variable
-   reg [2:0] 				   state_reg;        //state variable
-   reg [2:0] 				   state_next        //next statr    
-
-   //State encoding
-   parameter STATE_RST0 = 3'b000;                            //reset, clocks low
-   parameter STATE_RST1 = 3'b001;                            //reset, fast clock only
-   parameter STATE_RST2 = 3'b010;                            //reset, both clocks
-   parameter STATE_CLK0 = 3'b100;                            //out oreset, clocks low
-   parameter STATE_CLK1 = 3'b101;                            //out of reset, fast clock only
-   parameter STATE_CLK2 = 3'b110;                            //out of reset, both vlocks
-
-   //State transitions
-   always *
-     case (state_reg)
-       STATE_RST0:
-	 begin
-	    assume(~fast_clk_i);
-	    assume(~slow_clk_i);
-	    
-	    
-
-	 end
-       
+    input  wire                       clk_i,              //clock input
+    input  wire                       sync_i,             //clock enable
+    input  wire                       async_rst_i,        //asynchronous reset
+    input  wire                       sync_rst_i,         //synchronous reset
+    output reg                        gated_clk_o);       //gated clock
    
+   //Reset delay
+   reg  [1:0]                         por_cnt;       //reset counter         
+                                                      
+   //Clock state                                       
+   reg                                clk_reg = 2'b00;            //past clock phase
    
-   //Reset condition
-   //===============
+   //Initialization
    initial
      begin
-        prev_clk_i       = 1'b0;                             //initialize prev. clock state
-        prev_async_rst_i = 1'b1;                             //initialize prev. clock state
-        prev_sync_rst_i  = 1'b1;                             //initialize prev. clock state
-        assume (clk_i);                                      //module clock
-        assume (async_rst_i);                                //asynchronous reset
-        assume (sync_rst_i);                                 //synchronous reset
-     end
-
-   //Expect free-running clock
-   //=========================
+        //Inputs
+        assume(~clk_i);                                   //start out in high 
+        assume(async_rst_i);                              //start out in reset
+        assume(sync_rst_i);                               //start out in reset
+        //Output
+        gated_clk_o   <= 1'b0;                            //gate clock  
+	//Internal state
+        clk_reg       = 1'b0;                            //clock state
+	por_cnt       = 2'b11;                           //start-up delay
+     end // initial begin
+   
+   //Ungated clock input
    always @($global_clock)
-     begin                                                   //toggle clock input
-        assume (clk_i ^ prev_clk_i);
-        prev_clk_i <= clk_i;
-     end
-
-   //Only toggle at clock events
-   //===========================
+     begin
+        //Input
+        assume(clk_i === clk_reg);                        //constraint clk_i
+ 	//Internal state
+	clk_reg       <= ~clk_reg;                        //toggle clock
+     end   
+   
+   //Gated clock output
    always @($global_clock)
-     if ( 
-
      begin
-	prev_async_rst_i = async_rst_i;                      //capture prev. clock state
-	prev_sync_rst_i  = sync_rst_i;                       //capture prev. clock state
+	if (sync_i)
+	  gated_clk_o <= ~clk_reg;                       //toggle gated clock
+	else
+	  gated_clk_o <= 1'b0;                           //keep gated clock stable
      end
-
-   always @(negedge clk_i)
+   
+   //Reset inputs	
+   always @($global_clock)
      begin
-	assume (~^(prev_async_rst_i, async_rst_i);           //keep reset stable at negedge
-	assume (~^(prev_sync_rst_i,  sync_rst_i);            //keep reset stable at negedge
-     end
+	//Asynchronous reset
+	if (!$rose(gated_clk_o) & async_rst_i)           //synchronous deassert
+	  assume($stable(async_rst_i));
+
+	//Synchronous reset
+	if (!$rose(gated_clk_o))                         //synchronous assert and deassert
+	  assume($stable(sync_rst_i));
+
+	//Start-up delay
+	if (por_cnt)
+	  begin
+             assume(async_rst_i);                        //start out in reset
+             assume(sync_rst_i);                         //start out in reset
+	     por_cnt <= por_cnt - 1;                     //decrement delay count
+	  end
+	
+     end // always @ ($global_clock)
    
 endmodule // wb_syscon

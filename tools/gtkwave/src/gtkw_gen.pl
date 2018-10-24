@@ -322,6 +322,29 @@ sub generate_gtkw_file {
 		   ["tgt_clk_i"]],
 		  1);
 
+	#Add address regions
+	if ((my $adr_ref         = $top_mod_ref->find_net("itr_adr_i"))    &&
+	    (my $region_adr_ref  = $top_mod_ref->find_net("region_adr_i")) &&
+	    (my $region_msk_ref  = $top_mod_ref->find_net("region_msk_i"))) {
+
+	    my $adr_width         = int((num($adr_ref->msb)        - num($adr_ref->lsb))        + 1); 
+	    my $region_adr_width  = int((num($region_adr_ref->msb) - num($region_adr_ref->lsb)) + 1);	 
+	    my $region_msk_width  = int((num($region_msk_ref->msb) - num($region_msk_ref->lsb)) + 1);	 
+
+	    my @signal_list = ();
+	    for (my $adr_lsb=0; $adr_lsb < $region_adr_width; $adr_lsb += $adr_width) {
+		unshift(@signal_list, ["region_msk_i", ($adr_width+$adr_lsb-1), $adr_lsb]);
+		unshift(@signal_list, ["region_adr_i", ($adr_width+$adr_lsb-1), $adr_lsb]);
+	    }
+
+	    add_group($out_handle,
+		      "REGIONS",
+		      $top_mod_ref,
+		      $top_mod_name,
+		      [@signal_list],
+		      1);  
+	}
+	
 	#Add initiator busses
 	if ((my $stb_ref  = $top_mod_ref->find_net("itr_stb_i")) &&
 	    (my $sel_ref  = $top_mod_ref->find_net("itr_sel_i")) &&
@@ -414,7 +437,7 @@ sub generate_gtkw_file {
 			   ["tgt_stall_i", $tgt, $tgt],
 			   ["tgt_dat_i",  ((($tgt+1)*$rdat_width)-1), ($tgt*$rdat_width)],
 			   ["tgt_tgd_i",  ((($tgt+1)*$tgrd_width)-1), ($tgt*$tgrd_width)]],
-			  0);
+			  $tgt ? 0 : 1);
 	    }
 	}
 
@@ -452,7 +475,7 @@ sub add_block_signals {
     foreach my $cell_ref (@cell_refs) {	
 	my $inst_name = $cell_ref->name;
 	my $mod_ref   = $cell_ref->submod;
-	printf("%s: %s\n", $inst_name, $inst_path);
+	#printf("%s: %s\n", $inst_name, $inst_path);
 	add_block_signals($out_handle, $mod_ref, sprintf("%s.%s", $inst_path, $inst_name));
     }
 }

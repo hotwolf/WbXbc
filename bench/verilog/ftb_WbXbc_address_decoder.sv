@@ -170,12 +170,17 @@ module ftb_WbXbc_address_decoder
       .tgt_tgd_i        (tgt_tgd_i));                    //read data tags            +-
 
 `ifdef FORMAL
-   //Reset condition
-   //===============
-   initial assume property (~clk_i);                     //module clock	
-   initial assume property (async_rst_i);  		 //asynchronous rese
-   initial assume property (sync_rst_i);		 //synchronous reset
-   
+   //SYSCON constraints
+   //===================
+   wb_syscon wb_syscon
+     (//Clock and reset
+      //---------------
+      .clk_i            (clk_i),                         //module clock
+      .sync_i           (1'b1),                          //clock enable
+      .async_rst_i      (async_rst_i),                   //asynchronous reset
+      .sync_rst_i       (sync_rst_i),                    //synchronous reset
+      .gated_clk_o      ());                             //gated clock
+
    //Protocol assertions
    //===================
    wb_itr_mon
@@ -315,30 +320,48 @@ module ftb_WbXbc_address_decoder
 
    //Address region assertions
    //=========================
-   always @(posedge clk_i)
+   //Only toggle inputs at clock events
+  //always @($global_clock)
+  //  if (!$rose(clk_i))
+  //    begin
+  //	  assume ($stable(region_adr_i));
+  //	  assume ($stable(region_msk_i));
+  //    end
+   
+   integer         i, j;
+   reg     [1:0]   onehot_sum;
+   always @*
      begin
 	//Address regions must not overlap
-	for (int i = 1; i < `TGT_CNT; i=i+1)
-	  for (int j = 0; j < i; j=j+1)
+	for (i=1; i<`TGT_CNT; i=i+1)
+	  for (j=0; j<i; j=j+1)
 	    begin
-	       assume property (|((region_adr_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH] ^
-				   region_adr_i[((j+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH]) &
-				  ~region_msk_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH]  &
-				  ~region_msk_i[((j+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH]));
+	       assume (|((region_adr_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH] ^
+		      	  region_adr_i[((j+1)*`ADR_WIDTH)-1:j*`ADR_WIDTH]) &
+		         (region_msk_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH]  &
+		     	  region_msk_i[((j+1)*`ADR_WIDTH)-1:j*`ADR_WIDTH])));
 	    end // if (i != j)
 
 	//Region select outputs must be "onehot0" encoded
-	assert property (onehot0(tgt_tga_tgtsel_o));
+	//assert ($onehot0(tgt_tga_tgtsel_o))
+	onehot_sum = 2'b00;
+	for (k=0; k<`TGT_CNT; k=k+1)
+	  begin
+	     onehot_sum[1] <= onehot_sum[1] | (onehot_sum[0] & tgt_tga_tgtsel_o[k]);
+	     onehot_sum[0] <= onehot_sum[0] | tgt_tga_tgtsel_o[k];
+	  end
+	assert (~onehot_sum[1]);
 	
-     end // always @ (posedge clk_i)
- 
+     end // always @ *
+   
    //Cover all target selects
    //=============================
+   integer   k;
    always @(posedge clk_i)
      begin
-	for (int k = 1; k < `TGT_CNT; k=k+1)
-	  cover property (req & tgt_tga_tgtsel_o[k]); //cover each target selection	
-	cover property (req & ~|tgt_tga_tgtsel_o);    //cover empty target selection
+	for (k=0; k<`TGT_CNT; k=k+1)
+	  cover (req & tgt_tga_tgtsel_o[k]); //cover each target selection	
+	cover (req & ~|tgt_tga_tgtsel_o);    //cover empty target selection
      end // always @ (posedge clk_i)
 `endif //  `ifdef FORMAL
    

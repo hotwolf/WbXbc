@@ -72,16 +72,16 @@ module wb_itr_mon
    always @($global_clock)
      if (!$rose(clk_i))
        begin
-          assume property ($stable(itr_cyc_i));              //bus cycle indicator
-          assume property ($stable(itr_stb_i));              //access request
-          assume property ($stable(itr_we_i));               //write enable
-          assume property ($stable(itr_lock_i));             //uninterruptable bus cycle
-          assume property ($stable(itr_sel_i));              //write data selects
-          assume property ($stable(itr_adr_i));              //address bus
-          assume property ($stable(itr_dat_i));              //write data bus
-          assume property ($stable(itr_tga_i));              //address tags
-          assume property ($stable(itr_tgc_i));              //bus cycle tags
-          assume property ($stable(itr_tgd_i));              //write data tags
+          assume ($stable(itr_cyc_i));              //bus cycle indicator
+          assume ($stable(itr_stb_i));              //access request
+          assume ($stable(itr_we_i));               //write enable
+          assume ($stable(itr_lock_i));             //uninterruptable bus cycle
+          assume ($stable(itr_sel_i));              //write data selects
+          assume ($stable(itr_adr_i));              //address bus
+          assume ($stable(itr_dat_i));              //write data bus
+          assume ($stable(itr_tga_i));              //address tags
+          assume ($stable(itr_tgc_i));              //bus cycle tags
+          assume ($stable(itr_tgd_i));              //write data tags
        end // if (!$rose(clk_i))
 
    //State Machine
@@ -131,55 +131,65 @@ module wb_itr_mon
             end
         endcase // case (state_reg)
      end // always @ *
-
+   
    //Protocol rules
    //==============
-   always @(posedge clk_i)
+   //always @(posedge clk_i)
+   always @($global_clock)
      begin
         if (state_reg == STATE_RESET)
           begin
              //Bus interface must be initialized by reset
              //(Rule 3.00, Rule 3.20)
-             assume property (~itr_cyc_i);
-             assume property (~itr_stb_i);
+             assume (~itr_cyc_i);
+             assume (~itr_stb_i);
           end // if (state_reg == STATE_RESET)
-
-        if (state_reg == STATE_IDLE)
-          begin
-             //Fairness -> a request must occur eventually
-             assume property (s_eventually &{itr_cyc_i, itr_stb_i});
-             if (&{itr_cyc_i, itr_stb_i})
-               assert property (s_eventually (~itr_stall_o & ~rst));
-          end // if (state_reg == STATE_IDLE)
 
         if (state_reg == STATE_BUSY)
           begin
              //CYC_I must be is asserted throughout the bus cycle
-             assume property (itr_cyc_i);
-             //Fairness -> each bus cycle must be terminated
-             //(Rule 3.35)
-             assert property (s_eventually (ack & ~rst));
+             assume (itr_cyc_i);
              //Only one termination signal may be asserted at a time
              //(Rule 3.45)
-             assert property (|{~|{itr_ack_o, itr_err_o           }, //onehot0
+             assert (|{~|{itr_ack_o, itr_err_o           }, //onehot0
                                 ~|{itr_ack_o,            itr_rty_o},
                                 ~|{           itr_err_o, itr_rty_o}});
              //Keep bus signals stable after bus request has been accepted
              if (~ack)
                begin
-                  assume property ($stable(itr_we_i));   //write enable
-                  assume property ($stable(itr_lock_i)); //uninterruptable bus cycle
-                  assume property ($stable(itr_sel_i));  //write data selects
-                  assume property ($stable(itr_adr_i));  //address bus
-                  assume property ($stable(itr_tga_i));  //address tags
-                  assume property ($stable(itr_tgc_i));  //bus cycle tags
+                  assume ($stable(itr_we_i));   //write enable
+                  assume ($stable(itr_lock_i)); //uninterruptable bus cycle
+                  assume ($stable(itr_sel_i));  //write data selects
+                  assume ($stable(itr_adr_i));  //address bus
+                  assume ($stable(itr_tga_i));  //address tags
+                  assume ($stable(itr_tgc_i));  //bus cycle tags
                   if (itr_we_i)
                     begin
-                       assume property ($stable(itr_dat_i)); //write data bus
-                       assume property ($stable(itr_tgd_i)); //write data tags
+                       assume ($stable(itr_dat_i)); //write data bus
+                       assume ($stable(itr_tgd_i)); //write data tags
                     end // if (itr_we_i)
                end // if (~ack)
           end // if (state_reg == STATE_BUSY)
-     end // always @ (posedge clk_i)
+     end // always @ ($global_clock)
+   
+   //Fairness constraints
+   //====================
+   assume property (s_eventually (&{itr_cyc_i, itr_stb_i}));            //bus must be requested eventually
+   assume property (s_eventually (~rst && (state_reg === STATE_IDLE))); //acknowledge must be given eventually
+   //always @(posedge clk_i)
+   //  begin
+   //     assume property (s_eventually (&{itr_cyc_i, itr_stb_i}));            //bus must be requested eventually
+   //     assume property (s_eventually (~rst && (state_reg === STATE_IDLE))); //acknowledge must be given eventually
+   //  end
+
+   //Liveness Assertions
+   //===================
+   assert property (s_eventually (~itr_stall_o));                       //STALL_I must be deasserted eventually
+   assert property (s_eventually (ack));                                //acknowledge must be given eventually
+   //always @(posedge clk_i)
+   //  begin
+   //     assert property (s_eventually (~itr_stall_o));                       //STALL_I must be deasserted eventually
+   //     assert property (s_eventually (ack));                                //acknowledge must be given eventually
+   //  end
 
 endmodule // wb_itr_mon

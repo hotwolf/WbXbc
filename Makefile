@@ -163,7 +163,7 @@ VERIFY_MODCONFS := $(MODCONFS:%=verify.%)
 VERIFY_MODS     := $(MODS:%=verify.%)
 VERIFY_CONFS    := $(CONFS:%=verify.%)
 
-$(VERIFY_MODCONFS): $$(subst verify.,prove.,$$@) $$(subst verify.,cover.,$$@) $$(subst verify.,live.,$$@)
+$(VERIFY_MODCONFS): $$(subst verify.,prove.,$$@) $$(subst verify.,cover.,$$@) #$$(subst verify.,live.,$$@)
 
 $(VERIFY_MODS): $$(filter $$@.%,$(VERIFY_MODCONFS))
 
@@ -230,7 +230,7 @@ $(LIVE_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
 	$(info ...Proving liveness of $(mod) in $(conf) configuration)
-	@$(SBY) -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby live.$(conf)
+	@$(SBY) -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby live.$(conf)
 
 $(LIVE_MODS): $$(filter $$@.%,$(LIVE_MODCONFS))
 
@@ -291,7 +291,7 @@ $(STEMS_FILES): %.stems: %.fst $(BENCH_DIR)/*.sv $(RTL_DIR)/*.v
 	$(info conf:     $(conf))
 	$(info confdef:  $(confdef))
 	$(info ...Generating STEMS file)
-	$(PERL) tools/gtkwave/src/gtkw_gen.pl \
+	@$(PERL) tools/gtkwave/src/gtkw_gen.pl \
 		-top   ftb_$(mod) \
 		-trace $< \
 		-gtkw  $(subst .stems,.gtkw,$@) \
@@ -313,7 +313,7 @@ $(GTKW_FILES): %.gtkw: %.fst $(BENCH_DIR)/*.sv $(RTL_DIR)/*.v
 	$(info conf:     $(conf))
 	$(info confdef:  $(confdef))
 	$(info ...Generating GTKW file)
-	$(PERL) tools/gtkwave/src/gtkw_gen.pl \
+	@$(PERL) tools/gtkwave/src/gtkw_gen.pl \
 		-top   ftb_$(mod) \
 		-trace $< \
 		-gtkw  $@ \
@@ -331,7 +331,7 @@ $(DEBUG_TGTS): $$(word $$(subst debug,,$$@),$(STEMS_FILES)) \
 	$(info ...Opening GTKWave)
 	@$(GTKWAVE) -t $< $(word 2,$^) $(word 3,$^) &
 	$(info ...Opening log file)
-	$(eval logs = $(shell find $(dir $(word 2,$^)).. -name "logfile*.txt" -type f -exec ls -1t "{}" +;)
+	$(eval logs = $(shell find $(dir $(word 2,$^)).. -name "logfile*.txt" -type f -exec ls -1t "{}" +;))
 	@echo $(logs)
 #	@$(EDITOR) $(firstword $(logs)) &
 

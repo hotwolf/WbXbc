@@ -161,7 +161,7 @@ module wb_pass_through
 
    //Pass-through rules
    //==================
-   always @(posedge clk_i)
+   always @*
      begin
 
         //Pass through bus request
@@ -171,23 +171,23 @@ module wb_pass_through
           begin
              if (pass_through_en)
                begin
-                  assert property (tgt_cyc_o   == itr_cyc_i);   //bus cycle indicator
-                  assert property (tgt_stb_o   == itr_stb_i);   //access request
-                  assert property (itr_stall_o == tgt_stall_i); //access delay
+                  assert (tgt_cyc_o   == itr_cyc_i);   //bus cycle indicator
+                  assert (tgt_stb_o   == itr_stb_i);   //access request
+                  assert (itr_stall_o == tgt_stall_i); //access delay
                end // if (pass_through_en)
              if (req)
                begin
-                  assert property (tgt_we_o   == itr_we_i);     //write enable
-                  assert property (tgt_lock_o == itr_lock_i);   //uninterruptable bus cycle
-                  assert property (tgt_sel_o  == itr_sel_i);    //data selects
-                  assert property (tgt_adr_o  == itr_adr_i);    //address bus
-                  assert property (tgt_tga_o  == itr_tga_i);    //address tags
-                  assert property (tgt_tgc_o  == itr_tgc_i);    //bus cycle tags
+                  assert (tgt_we_o   == itr_we_i);     //write enable
+                  assert (tgt_lock_o == itr_lock_i);   //uninterruptable bus cycle
+                  assert (tgt_sel_o  == itr_sel_i);    //data selects
+                  assert (tgt_adr_o  == itr_adr_i);    //address bus
+                  assert (tgt_tga_o  == itr_tga_i);    //address tags
+                  assert (tgt_tgc_o  == itr_tgc_i);    //bus cycle tags
                end // if (req)
              if (wreq)
                begin
-                  assert property (tgt_dat_o  == itr_dat_i);    //write data bus
-                  assert property (tgt_tgd_o  == itr_tgd_i);    //write data tags
+                  assert (tgt_dat_o  == itr_dat_i);    //write data bus
+                  assert (tgt_tgd_o  == itr_tgd_i);    //write data tags
                end // if (wreq)
           end // if ((state_reg == STATE_IDLE)  ||...
 
@@ -195,18 +195,18 @@ module wb_pass_through
         if ((state_reg == STATE_WRITE) ||
             (state_reg == STATE_READ))
           begin
-             assert property (itr_ack_o == tgt_ack_i);          //bus cycle acknowledge
-             assert property (itr_err_o == tgt_err_i);          //error indicator
-             assert property (itr_rty_o == tgt_rty_i);          //retry request
+             assert (itr_ack_o == tgt_ack_i);          //bus cycle acknowledge
+             assert (itr_err_o == tgt_err_i);          //error indicator
+             assert (itr_rty_o == tgt_rty_i);          //retry request
           end // if ((state_reg == STATE_WRITE) ||...
 
         //Pass through read data
         if (state_reg == STATE_READ)
           begin
-             assert property (itr_dat_o == tgt_dat_i);          //read data bus
-             assert property (itr_tgd_o == tgt_tgd_i);          //read data tags
+             assert (itr_dat_o == tgt_dat_i);          //read data bus
+             assert (itr_tgd_o == tgt_tgd_i);          //read data tags
           end // if (state_reg == STATE_READ)
 
-     end // always @ (posedge clk_i)
-
+     end // always @ *
+   
 endmodule // wb_pass_through
