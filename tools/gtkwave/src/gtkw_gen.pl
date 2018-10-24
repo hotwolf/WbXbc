@@ -13,8 +13,7 @@
 #    WbXbc is distributed in the hope that it will be useful,                 #
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
+#    GNU General Public License for more details.                             ##                                                                             #
 #    You should have received a copy of the GNU General Public License        #
 #    along with WbXbc.  If not, see <http://www.gnu.org/licenses/>.           #
 ###############################################################################
@@ -344,16 +343,6 @@ sub generate_gtkw_file {
 	    my $rdat_width = int(((num($rdat_ref->msb) - num($rdat_ref->lsb)) + 1) / $itr_cnt);	 
 	    my $tgrd_width = int(((num($tgrd_ref->msb) - num($tgrd_ref->lsb)) + 1) / $itr_cnt);	 
 
-	    #printf("itr_cnt    = %d [%s:%s]\n", $itr_cnt   , num($stb_ref->msb),  num($stb_ref->lsb)); 
-	    #printf("sel_width  = %d [%s:%s]\n", $sel_width , num($sel_ref->msb),  num($sel_ref->lsb));	 
-	    #printf("adr_width  = %d [%s:%s]\n", $adr_width , num($adr_ref->msb),  num($adr_ref->lsb));	 
-	    #printf("wdat_width = %d [%s:%s]\n", $wdat_width, num($wdat_ref->msb), num($wdat_ref->lsb));	 
-	    #printf("tga_width  = %d [%s:%s]\n", $tga_width , num($tga_ref->msb),  num($tga_ref->lsb));	 
-	    #printf("tgc_width  = %d [%s:%s]\n", $tgc_width , num($tgc_ref->msb),  num($tgc_ref->lsb));	 
-	    #printf("tgwd_width = %d [%s:%s]\n", $tgwd_width, num($tgwd_ref->msb), num($tgwd_ref->lsb));	 
-	    #printf("rdat_width = %d [%s:%s]\n", $rdat_width, num($rdat_ref->msb), num($rdat_ref->lsb));	 
-	    #printf("tgrd_width = %d [%s:%s]\n", $tgrd_width, num($tgrd_ref->msb), num($tgrd_ref->lsb));	 
-
 	    for (my $itr=0; $itr<$itr_cnt; $itr++) {
 		add_group($out_handle,
 			  (($itr_cnt == 1) ? "ITR" : sprintf("ITR%d", $itr)),
@@ -382,33 +371,57 @@ sub generate_gtkw_file {
 	}
 	
 	#Add target busses
+	if ((my $stb_ref  = $top_mod_ref->find_net("tgt_stb_o")) &&
+	    (my $sel_ref  = $top_mod_ref->find_net("tgt_sel_o")) &&
+	    (my $adr_ref  = $top_mod_ref->find_net("tgt_adr_o")) &&
+	    (my $wdat_ref = $top_mod_ref->find_net("tgt_dat_o")) &&
+	    (my $tga_ref  = $top_mod_ref->find_net("tgt_tga_o")) &&
+	    (my $tgc_ref  = $top_mod_ref->find_net("tgt_tgc_o")) &&
+	    (my $tgwd_ref = $top_mod_ref->find_net("tgt_tgd_o")) &&
+	    (my $rdat_ref = $top_mod_ref->find_net("tgt_dat_i")) &&
+	    (my $tgrd_ref = $top_mod_ref->find_net("tgt_tgd_i"))) {
 
+	    my $tgt_cnt    =      (num($stb_ref->msb)  - num($stb_ref->lsb))  + 1;	    
+	    my $sel_width  = int(((num($sel_ref->msb)  - num($sel_ref->lsb))  + 1) / $tgt_cnt);	 
+	    my $adr_width  = int(((num($adr_ref->msb)  - num($adr_ref->lsb))  + 1) / $tgt_cnt);	 
+	    my $wdat_width = int(((num($wdat_ref->msb) - num($wdat_ref->lsb)) + 1) / $tgt_cnt);	 
+	    my $tga_width  = int(((num($tga_ref->msb)  - num($tga_ref->lsb))  + 1) / $tgt_cnt);	 
+	    my $tgc_width  = int(((num($tgc_ref->msb)  - num($tgc_ref->lsb))  + 1) / $tgt_cnt);	 
+	    my $tgwd_width = int(((num($tgwd_ref->msb) - num($tgwd_ref->lsb)) + 1) / $tgt_cnt);	 
+	    my $rdat_width = int(((num($rdat_ref->msb) - num($rdat_ref->lsb)) + 1) / $tgt_cnt);	 
+	    my $tgrd_width = int(((num($tgrd_ref->msb) - num($tgrd_ref->lsb)) + 1) / $tgt_cnt);	 
 
-	#test
-	add_group($out_handle,
-		  "TEST",
-		  $top_mod_ref,
-		  $top_mod_name,
-		  [["itr_adr_i",  5,  2],
-		   ["itr_sel_i",  2,  2],
-		   ["itr_dat_i", 16, 12],
-		   ["itr_adr_i",  0,  0],
-		   ["itr_dat_o",  3,  0],
-		   ["itr_sel_i",  1,  1]],
-		  1);
+	    for (my $tgt=0; $tgt<$tgt_cnt; $tgt++) {
+		add_group($out_handle,
+			  (($tgt_cnt == 1) ? "TGT" : sprintf("TGT%d", $tgt)),
+			  $top_mod_ref,
+			  $top_mod_name,
+			  [["tgt_cyc_o",   $tgt, $tgt],
+			   ["tgt_stb_o",   $tgt, $tgt],
+			   ["tgt_we_o",    $tgt, $tgt],
+			   ["tgt_lock_o",  $tgt, $tgt],
+			   ["tgt_sel_o",   ((($tgt+1)*$sel_width) -1), ($tgt*$sel_width)],
+			   ["tgt_adr_o",   ((($tgt+1)*$adr_width) -1), ($tgt*$adr_width)],
+			   ["tgt_dat_o",   ((($tgt+1)*$wdat_width)-1), ($tgt*$wdat_width)],
+			   ["tgt_tga_o",   ((($tgt+1)*$tga_width) -1), ($tgt*$tga_width)],
+			   ["tgt_tga_prio_o"],
+			   ["tgt_tga_tgtsel_o"],
+			   ["tgt_tgc_o",   ((($tgt+1)*$tgc_width) -1), ($tgt*$tgc_width)],
+			   ["tgt_tgd_o",   ((($tgt+1)*$tgwd_width)-1), ($tgt*$tgwd_width)],
+			   ["tgt_ack_i",   $tgt, $tgt],
+			   ["tgt_err_i",   $tgt, $tgt],
+			   ["tgt_rty_i",   $tgt, $tgt],
+			   ["tgt_stall_i", $tgt, $tgt],
+			   ["tgt_dat_i",  ((($tgt+1)*$rdat_width)-1), ($tgt*$rdat_width)],
+			   ["tgt_tgd_i",  ((($tgt+1)*$tgrd_width)-1), ($tgt*$tgrd_width)]],
+			  0);
+	    }
+	}
 
-
-	
-
-	
-	#Add state machines    
-	add_group($out_handle,
-		  "FSM",
-		  $top_mod_ref,
-		  $top_mod_name,
-		  [["state_reg", "STATE"],
-		   ["state_next", "STATE"]],
-		  1);
+	#Add block specific signals
+	add_block_signals($out_handle,
+			  $top_mod_ref,
+			  $top_mod_name);
 	    
 #========================================================================================================================
 
@@ -417,6 +430,30 @@ sub generate_gtkw_file {
         $out_handle->printf("[pattern_trace] 0\n");
 	    
 	$out_handle->close();
+    }
+}
+
+sub add_block_signals {
+    my $out_handle     = shift;
+    my $parent_mod_ref = shift;
+    my $inst_path      = shift;
+ 
+    #Add signal group
+    my $parent_name    = $parent_mod_ref->name;    
+    add_group($out_handle,
+	      $parent_name,
+	      $parent_mod_ref,
+	      $inst_path,
+	      [["state_reg", "STATE"]],
+	      0);
+
+    #Parse child blocks
+    my @cell_refs = $parent_mod_ref->cells_sorted();
+    foreach my $cell_ref (@cell_refs) {	
+	my $inst_name = $cell_ref->name;
+	my $mod_ref   = $cell_ref->submod;
+	printf("%s: %s\n", $inst_name, $inst_path);
+	add_block_signals($out_handle, $mod_ref, sprintf("%s.%s", $inst_path, $inst_name));
     }
 }
 
@@ -487,7 +524,7 @@ sub add_group {
 			$filter_name = $filters{$id};
 		    } else {
 			#Create filter
-			my $filter_name = sprintf("%s_%.2d.txt", $filter_basename, $filter_cnt++);
+			$filter_name = sprintf("%s_%.2d.txt", $filter_basename, $filter_cnt++);
 			my $filter_handle  = IO::File->new;
 			$filter_handle->open(">$filter_name") or die "Can't open $filter_name\n";
 			foreach my $value (sort keys %filter_aliases) {
@@ -536,28 +573,35 @@ sub add_group {
 	    #Multi-bit signals without offtset
 	    if (($net_width >  1) &&
 		($net_lsb   == 0)) {
-		if (($entry_msb >= $net_msb) &&
-		    ($entry_lsb == 0)) {		    
-		    #Plain signal 
+		if ($entry_msb == $entry_lsb) { 
+		    if ($net_disp ne "\@28") {
+			$net_disp = "\@28";
+			push(@net_out, $net_disp);
+		    }
+		} else {		    
 		    if ($net_disp ne "\@22") {
 			$net_disp = "\@22";
 			push(@net_out, $net_disp);
 		    }
+		}
+		
+		if (($entry_msb >= $net_msb) &&
+		    ($entry_lsb == 0)) {		    
+		    #Plain signal 
 		    push(@net_out, sprintf("%s.%s[%d:0]", $inst_name, $entry_name, $net_msb));
 		} else {
 		    #Compound signal
-		    push(@net_out, "\@c00022");   
 		    my $long_line = sprintf("#{%s.%s[%d", $inst_name, $entry_name, $entry_msb);
 		    if ($entry_msb != $entry_lsb) {
 			$long_line .= sprintf(":%d", $entry_lsb);
 		    }
-		    $long_line .= "]";
+		    $long_line .= "]}";
 		    for (my $i=$entry_msb; $i>=$entry_lsb; $i--) {
-			$long_line .= sprintf(" (%d) %s.%s[%d:%d]", ($net_width - $i - 1),
-					                             $inst_name,
-					                             $entry_name,
-					                             $net_msb,
-					                             $net_lsb);
+			$long_line .= sprintf(" (%d)%s.%s[%d:%d]", ($net_width - $i - 1),
+					                            $inst_name,
+					                            $entry_name,
+					                            $net_msb,
+					                            $net_lsb);
 		    }
 		    push(@net_out, $long_line);
 		    #push(@net_out, "\@28");
@@ -569,15 +613,26 @@ sub add_group {
 		    #			                             $net_lsb));
 		    #}
                     #push(@net_out, "@1401200");
-                    push(@net_out, "-group_end");
+                    #push(@net_out, "-group_end");
 		}
 		$net_cnt++;
 		next;
 	    }
 	    #Multi-bit signals with offtset
-	    if ($net_width >  1) {
+	    if ($net_width >  1) {		
 		#Compound signal
-		push(@net_out, "\@c00022");   
+		if ($entry_msb == $entry_lsb) { 
+		    if ($net_disp ne "\@28") {
+			$net_disp = "\@28";
+			push(@net_out, $net_disp);
+		    }
+		} else {		    
+		    if ($net_disp ne "\@22") {
+			$net_disp = "\@22";
+			push(@net_out, $net_disp);
+		    }
+		}
+		
 		my $long_line = sprintf("#{%s.%s[%d", $inst_name, $entry_name, $entry_msb);
 		if ($entry_msb != $entry_lsb) {
 		    $long_line .= sprintf(":%d", $entry_lsb);
@@ -599,14 +654,14 @@ sub add_group {
     if ($net_cnt > 0) {
 	#printf("net_cnt: %d\n", $net_cnt);
 	#Add grout header
-	$out_handle->printf("\@%s\n", $is_open ? "800200" : "");
+	$out_handle->printf("\@%s\n", $is_open ? "800200" : "c00200");
 	$out_handle->printf("-%s\n", $group_name);
 	#Add signals
 	foreach my $line (@net_out) {
 	    $out_handle->print($line . "\n");
 	}
 	#Add grout footer
-	$out_handle->printf("\@%s\n", $is_open ? "1000200" : "");
+	$out_handle->printf("\@%s\n", $is_open ? "1000200" : "1401200");
 	$out_handle->printf("-%s\n", $group_name);
     }
 }

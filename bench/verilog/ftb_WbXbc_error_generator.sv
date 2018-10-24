@@ -69,8 +69,6 @@ module ftb_WbXbc_error_generator
     input wire 			  async_rst_i, //asynchronous reset
     input wire 			  sync_rst_i, //synchronous reset
 
-    input wire [15:8]             test_wire,
-    
     //Initiator interface
     //-------------------
     input wire 			  itr_cyc_i, //bus cycle indicator       +-

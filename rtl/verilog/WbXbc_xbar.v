@@ -146,37 +146,34 @@ module WbXbc_xbar
    wire [(ITR_CNT*TGT_CNT*(TGA_WIDTH+1))-1:0] distributor_tga_o;   //address tags              |
    wire [(ITR_CNT*TGT_CNT*TGC_WIDTH)-1:0]     distributor_tgc_o;   //bus cycle tags            |
    wire [(ITR_CNT*TGT_CNT*TGWD_WIDTH)-1:0]    distributor_tgd_o;   //write data tags           +-
-   reg  [(ITR_CNT*TGT_CNT)-1:0]               distributor_ack_i;   //bus cycle acknowledge     +-
-   reg  [(ITR_CNT*TGT_CNT)-1:0]               distributor_err_i;   //error indicator           | target
-   reg  [(ITR_CNT*TGT_CNT)-1:0]               distributor_rty_i;   //retry request             | to
-   reg  [(ITR_CNT*TGT_CNT)-1:0]               distributor_stall_i; //access delay              | initiator
-   reg  [(ITR_CNT*TGT_CNT*DAT_WIDTH)-1:0]     distributor_dat_i;   //read data bus             |
-   reg  [(ITR_CNT*TGT_CNT*TGRD_WIDTH)-1:0]    distributor_tgd_i;   //read data tags            +-
+   wire [(ITR_CNT*TGT_CNT)-1:0]               distributor_ack_i;   //bus cycle acknowledge     +-
+   wire [(ITR_CNT*TGT_CNT)-1:0]               distributor_err_i;   //error indicator           | target
+   wire [(ITR_CNT*TGT_CNT)-1:0]               distributor_rty_i;   //retry request             | to
+   wire [(ITR_CNT*TGT_CNT)-1:0]               distributor_stall_i; //access delay              | initiator
+   wire [(ITR_CNT*TGT_CNT*DAT_WIDTH)-1:0]     distributor_dat_i;   //read data bus             |
+   wire [(ITR_CNT*TGT_CNT*TGRD_WIDTH)-1:0]    distributor_tgd_i;   //read data tags            +-
 
    //Arbiter busses:
    // MSB                                                                            LSB
    // [[         TGT n          ]...[         TGT 1          ][         TGT 0         ]]
    // [[[ITR n]...[ITR 1][ITR 0]]...[[ITR n]...[ITR 1][ITR 0]][[ITR n]...[ITR 1][ITR 0]]
-   reg  [(ITR_CNT*TGT_CNT)-1:0]               arbiter_cyc_i;       //bus cycle indicator       +-
-   reg  [(ITR_CNT*TGT_CNT)-1:0]               arbiter_stb_i;       //access request            |
-   reg  [(ITR_CNT*TGT_CNT)-1:0]               arbiter_we_i;        //write enable              |
-   reg  [(ITR_CNT*TGT_CNT)-1:0]               arbiter_lock_i;      //uninterruptable bus cycle |
-   reg  [(ITR_CNT*TGT_CNT*SEL_WIDTH)-1:0]     arbiter_sel_i;       //write data selects        | initiator
-   reg  [(ITR_CNT*TGT_CNT*ADR_WIDTH)-1:0]     arbiter_adr_i;       //address bus               | to
-   reg  [(ITR_CNT*TGT_CNT*DAT_WIDTH)-1:0]     arbiter_dat_i;       //write data bus            | target
-   reg  [(ITR_CNT*TGT_CNT)-1:0]               arbiter_tga_prio_i;  //access priorities         |
-   reg  [(ITR_CNT*TGT_CNT*TGA_WIDTH)-1:0]     arbiter_tga_i;       //address tags              |
-   reg  [(ITR_CNT*TGT_CNT*TGC_WIDTH)-1:0]     arbiter_tgc_i;       //bus cycle tags            |
-   reg  [(ITR_CNT*TGT_CNT*TGWD_WIDTH)-1:0]    arbiter_tgd_i;       //write data tags           +-
+   wire [(ITR_CNT*TGT_CNT)-1:0]               arbiter_cyc_i;       //bus cycle indicator       +-
+   wire [(ITR_CNT*TGT_CNT)-1:0]               arbiter_stb_i;       //access request            |
+   wire [(ITR_CNT*TGT_CNT)-1:0]               arbiter_we_i;        //write enable              |
+   wire [(ITR_CNT*TGT_CNT)-1:0]               arbiter_lock_i;      //uninterruptable bus cycle |
+   wire [(ITR_CNT*TGT_CNT*SEL_WIDTH)-1:0]     arbiter_sel_i;       //write data selects        | initiator
+   wire [(ITR_CNT*TGT_CNT*ADR_WIDTH)-1:0]     arbiter_adr_i;       //address bus               | to
+   wire [(ITR_CNT*TGT_CNT*DAT_WIDTH)-1:0]     arbiter_dat_i;       //write data bus            | target
+   wire [(ITR_CNT*TGT_CNT)-1:0]               arbiter_tga_prio_i;  //access priorities         |
+   wire [(ITR_CNT*TGT_CNT*TGA_WIDTH)-1:0]     arbiter_tga_i;       //address tags              |
+   wire [(ITR_CNT*TGT_CNT*TGC_WIDTH)-1:0]     arbiter_tgc_i;       //bus cycle tags            |
+   wire [(ITR_CNT*TGT_CNT*TGWD_WIDTH)-1:0]    arbiter_tgd_i;       //write data tags           +-
    wire [(ITR_CNT*TGT_CNT)-1:0]               arbiter_ack_o;       //bus cycle acknowledge     +-
    wire [(ITR_CNT*TGT_CNT)-1:0]               arbiter_err_o;       //error indicator           | target
    wire [(ITR_CNT*TGT_CNT)-1:0]               arbiter_rty_o;       //retry request             | to
    wire [(ITR_CNT*TGT_CNT)-1:0]               arbiter_stall_o;     //access delay              | initiator
    wire [(ITR_CNT*TGT_CNT*DAT_WIDTH)-1:0]     arbiter_dat_o;       //read data bus             |
    wire [(ITR_CNT*TGT_CNT*TGRD_WIDTH)-1:0]    arbiter_tgd_o;       //read data tags            +-
-
-   //Counters
-   integer                                    k, l, m;
 
    //Instantiate distributors
    generate
@@ -306,40 +303,41 @@ module WbXbc_xbar
             .tgt_dat_i          (tgt_dat_i[(DAT_WIDTH*(j+1))-1:(DAT_WIDTH*j)]),                       //read data bus             |
             .tgt_tgd_i          (tgt_tgd_i[(TGRD_WIDTH*(j+1))-1:(TGRD_WIDTH*j)]));                    //read data tags            +-
 
-        end
+        end // for (j=0; j<ITR_CNT; j=j+1)
    endgenerate
 
    //Crossbar connections
-   always @*
-     for (k=0; k<ITR_CNT; k=k+1)
-     for (l=0; l<TGT_CNT; l=l+1)
-       begin
-          arbiter_cyc_i[(ITR_CNT*l)+k]         = distributor_cyc_o[(TGT_CNT*k)+l];                    //bus cycle indicator       +-
-          arbiter_stb_i[(ITR_CNT*l)+k]         = distributor_stb_o[(TGT_CNT*k)+l];                    //access request            |
-          arbiter_we_i[(ITR_CNT*l)+k]          = distributor_we_o[(TGT_CNT*k)+l];                     //write enable              |
-          arbiter_lock_i[(ITR_CNT*l)+k]        = distributor_lock_o[(TGT_CNT*k)+l];                   //uninterruptable bus cycle |
-          for (m=0; m<SEL_WIDTH; m=m+1)                                                               //write data selects        |
-            arbiter_sel_i[(ITR_CNT*l)+k+m]     = distributor_sel_o[(TGT_CNT*k)+l+m];                  //                          |
-          for (m=0; m<ADR_WIDTH; m=m+1)                                                               //address bus               | initiator
-            arbiter_adr_i[(ITR_CNT*l)+k+m]     = distributor_adr_o[(TGT_CNT*k)+l+m];                  //                          | to
-          for (m=0; m<DAT_WIDTH; m=m+1)                                                               //write data bus            | target
-            arbiter_dat_i[(ITR_CNT*l)+k+m]     = distributor_dat_o[(TGT_CNT*k)+l+m];                  //                          |
-          for (m=0; m<TGA_WIDTH; m=m+1)                                                               //address tags              |
-            arbiter_tga_i[(ITR_CNT*l)+k+m]     = distributor_tga_o[(TGT_CNT*k)+l+m];                  //                          |
-          for (m=0; m<TGC_WIDTH; m=m+1)                                                               //bus cycle tags            |
-            arbiter_tgc_i[(ITR_CNT*l)+k+m]     = distributor_tgc_o[(TGT_CNT*k)+l+m];                  //                          |
-          for (m=0; m<TGWD_WIDTH; m=m+1)                                                              //write data tags           |
-            arbiter_tgd_i[(ITR_CNT*l)+k+m]     = distributor_tgd_o[(TGT_CNT*k)+l+m];                  //                          +-
+   generate
+      genvar                               k, l, m;
+      for (k=0; k<ITR_CNT; k=k+1)
+      for (l=0; l<TGT_CNT; l=l+1)
+        begin
+          assign arbiter_cyc_i[(ITR_CNT*l)+k]         = distributor_cyc_o[(TGT_CNT*k)+l];               //bus cycle indicator       +-
+          assign arbiter_stb_i[(ITR_CNT*l)+k]         = distributor_stb_o[(TGT_CNT*k)+l];               //access request            |
+          assign arbiter_we_i[(ITR_CNT*l)+k]          = distributor_we_o[(TGT_CNT*k)+l];                //write enable              |
+          assign arbiter_lock_i[(ITR_CNT*l)+k]        = distributor_lock_o[(TGT_CNT*k)+l];              //uninterruptable bus cycle |
+          for (m=0; m<SEL_WIDTH; m=m+1)                                                                 //write data selects        |
+            assign arbiter_sel_i[(ITR_CNT*l)+k+m]     = distributor_sel_o[(TGT_CNT*k)+l+m];             //                          |
+          for (m=0; m<ADR_WIDTH; m=m+1)                                                                 //address bus               | initiator
+            assign arbiter_adr_i[(ITR_CNT*l)+k+m]     = distributor_adr_o[(TGT_CNT*k)+l+m];             //                          | to
+          for (m=0; m<DAT_WIDTH; m=m+1)                                                                 //write data bus            | target
+            assign arbiter_dat_i[(ITR_CNT*l)+k+m]     = distributor_dat_o[(TGT_CNT*k)+l+m];             //                          |
+          for (m=0; m<TGA_WIDTH; m=m+1)                                                                 //address tags              |
+            assign arbiter_tga_i[(ITR_CNT*l)+k+m]     = distributor_tga_o[(TGT_CNT*k)+l+m];             //                          |
+          for (m=0; m<TGC_WIDTH; m=m+1)                                                                 //bus cycle tags            |
+            assign arbiter_tgc_i[(ITR_CNT*l)+k+m]     = distributor_tgc_o[(TGT_CNT*k)+l+m];             //                          |
+          for (m=0; m<TGWD_WIDTH; m=m+1)                                                                //write data tags           |
+            assign arbiter_tgd_i[(ITR_CNT*l)+k+m]     = distributor_tgd_o[(TGT_CNT*k)+l+m];             //                          +-
 
-          distributor_ack_i[(TGT_CNT*k)+l]     = arbiter_ack_o[(ITR_CNT*l)+k];                        //bus cycle acknowledge     +-
-          distributor_err_i[(TGT_CNT*k)+l]     = arbiter_err_o[(ITR_CNT*l)+k];                        //error indicator           |
-          distributor_rty_i[(TGT_CNT*k)+l]     = arbiter_rty_o[(ITR_CNT*l)+k];                        //retry request             | target
-          distributor_stall_i[(TGT_CNT*k)+l]   = arbiter_stall_o[(ITR_CNT*l)+k];                      //access delay              | to
-          for (m=0; m<DAT_WIDTH; m=m+1)                                                               //read data bus             | initiator
-            distributor_dat_i[(TGT_CNT*k)+l+m] = arbiter_dat_o[(ITR_CNT*l)+k+m];                      //                          |
-          for (m=0; m<TGRD_WIDTH; m=m+1)                                                              //read data tags            |
-            distributor_tgd_i[(TGT_CNT*k)+l+m] = arbiter_tgd_o[(ITR_CNT*l)+k+m];                      //                          +-
-
-       end // for (l=0; l<TGT_CNT; l=l+1)
+          assign distributor_ack_i[(TGT_CNT*k)+l]     = arbiter_ack_o[(ITR_CNT*l)+k];                   //bus cycle acknowledge     +-
+          assign distributor_err_i[(TGT_CNT*k)+l]     = arbiter_err_o[(ITR_CNT*l)+k];                   //error indicator           |
+          assign distributor_rty_i[(TGT_CNT*k)+l]     = arbiter_rty_o[(ITR_CNT*l)+k];                   //retry request             | target
+          assign distributor_stall_i[(TGT_CNT*k)+l]   = arbiter_stall_o[(ITR_CNT*l)+k];                 //access delay              | to
+          for (m=0; m<DAT_WIDTH; m=m+1)                                                                 //read data bus             | initiator
+            assign distributor_dat_i[(TGT_CNT*k)+l+m] = arbiter_dat_o[(ITR_CNT*l)+k+m];                 //                          |
+          for (m=0; m<TGRD_WIDTH; m=m+1)                                                                //read data tags            |
+            assign distributor_tgd_i[(TGT_CNT*k)+l+m] = arbiter_tgd_o[(ITR_CNT*l)+k+m];                 //                          +-
+        end // for (l=0; l<TGT_CNT; l=l+1)
+      endgenerate
 
 endmodule // WbXbc_xbar

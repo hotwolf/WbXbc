@@ -1,0 +1,83 @@
+%###############################################################################
+%# WbXbc - Manual - Tool Summary                                               #
+%###############################################################################
+%#    Copyright 2018 Dirk Heisswolf                                            #
+%#    This file is part of the WbXbc project.                                  #
+%#                                                                             #
+%#    WbXbc is free software: you can redistribute it and/or modify            #
+%#    it under the terms of the GNU General Public License as published by     #
+%#    the Free Software Foundation, either version 3 of the License, or        #
+%#    (at your option) any later version.                                      #
+%#                                                                             #
+%#    WbXbc is distributed in the hope that it will be useful,                 #
+%#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+%#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+%#    GNU General Public License for more details.                             #
+%#                                                                             #
+%#    You should have received a copy of the GNU General Public License        #
+%#    along with WbXbc.  If not, see <http:%www.gnu.org/licenses/>.            #
+%###############################################################################
+%# Version History:                                                            #
+%#   October29, 2018                                                           #
+%#      - Initial release                                                      #
+%###############################################################################
+
+\section{Tools}
+\label{tools}
+
+One of the main goals of the WbXbc project is to use a design and verification flow,
+based on open source EDA tools. \tabref{tools:tab} summarizes the tools, used for
+this project. 
+
+\begingroup
+\setlength{\LTleft}{-20cm plus -1fill}
+\setlength{\LTright}{\LTleft}
+\begin{center}
+  \rowcolors{1}{white}{gray!12}          %set alternating row color
+  %\begin{longtable}{|r|l|}
+  \begin{longtable}{|l|r|l|}
+    \rowcolor{white}
+    \caption{Tool Summary}
+    \label{tools:tab} \\
+    %Header
+    \hline                                     
+    \rowcolor{gray!25}
+    \multicolumn{1}{|c|}{\textbf{\rule{0pt}{2.5ex} Tool}}     &  
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex} Version}}   &  
+    \multicolumn{1}{c|}{\textbf{\rule{0pt}{2.5ex} Usage}}    \\
+    \hline
+    \endhead                               
+    %Footers
+    \hline
+    \rowcolor{white}
+    \multicolumn{3}{r}{\tiny{...continued}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    %Verilator
+    Verrilator\cite{verilator}    &
+    3.874                         &
+    Linting                      \\
+    %Icarus Verilog
+    Icarus Verilog\cite{iverilog} &
+    0.9.7                         &
+    Linting                      \\
+    %Yosys
+    Yosys\cite{yosys}             &
+    0.7+627                       &
+    Linting, Formal Verification \\
+    %SymbiYosys
+    SymbiYosys\cite{sby}          &
+    Sep. 12, 2018                 &
+    Formal Verification          \\
+    %GTKWave
+    GTKWave\cite{gtkwave}         &
+    3.3.95                        &
+    Waveform Viewer              \\
+    %Verilog-Perl
+    Verilog-Perl\cite{vperl}      &
+    3.418-1                       &
+    Gerneration of design data for GTKWave\cite{gtkwave} \\
+  \end{longtable}
+\end{center}  
+\endgroup

@@ -69,8 +69,8 @@ MODCONFS := $(sort	WbXbc_accelerator.default \
 			WbXbc_reducer.little_endian \
 			WbXbc_splitter.default \
 			WbXbc_standardizer.default \
-			)
-#			WbXbc_xbar.default \) #fix combinational loop in arbiter
+			WbXbc_xbar.default \
+		)
 
 MODS  := $(sort $(foreach mod,$(MODCONFS),$(firstword $(subst ., ,$(mod)))))
 CONFS := $(sort $(foreach mod,$(MODCONFS),$(lastword  $(subst ., ,$(mod)))))
@@ -153,6 +153,9 @@ lint:	$(LINT_MODCONFS)
 
 lint.clean:
 
+test:
+	$(info $(MODCONFS))
+
 ################################
 # Complete formal verification #
 ################################
@@ -214,7 +217,7 @@ prove:	$(PROVE_MODCONFS)
 
 prove.clean:
 	$(info ...Cleaning up unbounded proof targets)
-	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%)
+	@rm -rf $(PROVE_MODCONFS:%=$(SBY_WRK_DIR)/%)
 
 ############
 # Liveness #
@@ -237,7 +240,7 @@ live:	$(LIVE_MODCONFS)
 
 live.clean:
 	$(info ...Cleaning up liveness targets)
-	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%)
+	@rm -rf $(LIVE_MODCONFS:%=$(SBY_WRK_DIR)/%)
 
 ################
 # Cover traces #
@@ -260,7 +263,7 @@ cover:	$(COVER_MODCONFS)
 
 cover.clean:
 	$(info ...Cleaning up cover targets)
-	@rm -rf $(BMC_MODCONFS:%=$(SBY_WRK_DIR)/%)
+	@rm -rf $(COVER_MODCONFS:%=$(SBY_WRK_DIR)/%)
 
 #########
 # Debug #
@@ -326,9 +329,11 @@ $(DEBUG_TGTS): $$(word $$(subst debug,,$$@),$(STEMS_FILES)) \
                $$(word $$(subst debug,,$$@),$(FST_FILES)) \
                $$(word $$(subst debug,,$$@),$(GTKW_FILES))
 	$(info ...Opening GTKWave)
-	@echo $(GTKWAVE) -t $< $(word 2,$^) $(word 3,$^) &
+	@$(GTKWAVE) -t $< $(word 2,$^) $(word 3,$^) &
 	$(info ...Opening log file)
-	@echo $(EDITOR) $(firstword $(shell ls -1t $(dir $(word 2,$^))/logfile*.txt))
+	$(eval logs = $(shell find $(dir $(word 2,$^)).. -name "logfile*.txt" -type f -exec ls -1t "{}" +;)
+	@echo $(logs)
+#	@$(EDITOR) $(firstword $(logs)) &
 
 debug: $(firstword $(DEBUG_TGTS))
 
@@ -338,8 +343,11 @@ debug.list:
 ifeq ($(words $(DEBUG_TGTS)), 0)
 	$(info No debug targets available)
 else
+ifeq ($(words $(DEBUG_TGTS)), 1)
+	$(info The following VCD file is available for viewing:)
+else
 	$(info The following $(words $(DEBUG_TGTS)) VCD files are available for viewing:)
-#	$(info )
+endif
 endif
 	@$(foreach tgt,$(DEBUG_TGTS),$(info $(tgt):     $(word $(subst debug,,$(tgt)),$(VCD_FILES))))
 ifneq ($(firstword $(DEBUG_TGTS)),)
@@ -360,7 +368,7 @@ doc:
 # Clean up #
 ############
 
-clean:	lint.clean bmc.clean prove.clean cover.clean
+clean:	lint.clean bmc.clean verify.clean
 
 ####################
 # General targetds #
