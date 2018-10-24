@@ -256,7 +256,7 @@ cover.clean:
 VCD_FILES          := $(shell find $(SBY_WRK_DIR) -name "*.vcd" -type f -exec ls -1t "{}" +;)
 FST_FILES          := $(VCD_FILES:%.vcd=%.fst)
 GTKW_FILES         := $(VCD_FILES:%.vcd=%.gtkw)
-STEMS_FILES        := $(VCD_FILES:%.vcd=%.gtkw)
+STEMS_FILES        := $(VCD_FILES:%.vcd=%.stems)
 TRACE_DIRS         := $(dir $(VCD_FILES))
 DEBUG_DIRS         := $(dir $(patsubst %/,%,$(TRACE_DIRS)))
 DEBUG_TGTS         :=
@@ -266,26 +266,55 @@ $(FST_FILES): %.fst: %.vcd
 	$(info ...Converting VCD to FST)
 	@vcd2fst $< $@
 
-$(STEMS_FILES): $(RTL_DIR)/* $(BENCH_DIR)/*
+$(STEMS_FILES): %.stems: %.fst $(BENCH_DIR)/*.sv $(RTL_DIR)/*.v
 	$(eval dir_name := $(notdir $(patsubst %/,%,$(dir $(patsubst %/,%,$(dir $@))))))
-	$(eval tmk      := $(subst ., ,$(dir_name)))
-	$(eval task     := $(firstword $(tmk)))
-	$(eval mod      := $(word 2,$(tmk)))
-	$(eval conf     := $(lastword $(tmk)))
+	$(eval mod      := $(word 2,$(subst ., ,$(dir_name))))
+	$(eval conf     := $(lastword $(subst ., ,$(dir_name))))
 	$(eval confdef  := CONF_$(shell echo $(conf) | tr '[:lower:]' '[:upper:]'))
+	$(info dir_name: $(dir_name))
+	$(info mod:      $(mod))
+	$(info conf:     $(conf))
+	$(info confdef:  $(confdef))
 	$(info ...Generating STEMS file)
-	vermin -D$(confdef)=1 $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v -emitstems -emitvars > $@
-#	@vermin -D$(confdef) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/*.v -emitstems -emitvars > $@
+	perl tools/gtkwave/src/gtkw_gen.pl \
+		-top   ftb_$(mod) \
+		-trace $< \
+		-gtkw  $(subst .stems,.gtkw,$@) \
+		-stems $@ \
+		+define+$(confdef) \
+		+define+FORMAL \
+		+libext+.v+.sv \
+		-y $(BENCH_DIR) \
+		-y $(RTL_DIR) \
+		$(BENCH_DIR)/ftb_$(mod).sv
 
-$(GTKW_FILES):%.gtkw: %.vcd %.fst %.stems
+$(GTKW_FILES): %.gtkw: %.fst $(BENCH_DIR)/*.sv $(RTL_DIR)/*.v
+	$(eval dir_name := $(notdir $(patsubst %/,%,$(dir $(patsubst %/,%,$(dir $@))))))
+	$(eval mod      := $(word 2,$(subst ., ,$(dir_name))))
+	$(eval conf     := $(lastword $(subst ., ,$(dir_name))))
+	$(eval confdef  := CONF_$(shell echo $(conf) | tr '[:lower:]' '[:upper:]'))
+	$(info dir_name: $(dir_name))
+	$(info mod:      $(mod))
+	$(info conf:     $(conf))
+	$(info confdef:  $(confdef))
 	$(info ...Generating GTKW file)
-	perl tools/gtkwave/src/gtkw_gen.pl ${word 1,$^) ${word 2,$^) ${word 3,$^) $@
+	perl tools/gtkwave/src/gtkw_gen.pl \
+		-top   ftb_$(mod) \
+		-trace $< \
+		-gtkw  $@ \
+		-stems $(subst .gtkw,.stems,$@) \
+		+define+$(confdef) \
+		+define+FORMAL \
+		+libext+.v+.sv \
+		-y $(BENCH_DIR) \
+		-y $(RTL_DIR) \
+		$(BENCH_DIR)/ftb_$(mod).sv
 
-$(DEBUG_TGTS): $$(word $$(subst debug,,$$@),$(VCD_FILES)) \
-	       $$(word $$(subst debug,,$$@),$(FST_FILES)) \
-	       $$(word $$(subst debug,,$$@),$(STEMS_FILES)) \
-	       $$(word $$(subst debug,,$$@),$(GTKW_FILES))
-	$(info ...Opening $<)
+$(DEBUG_TGTS): $$(word $$(subst debug,,$$@),$(STEMS_FILES)) \
+               $$(word $$(subst debug,,$$@),$(FST_FILES)) \
+               $$(word $$(subst debug,,$$@),$(GTKW_FILES))
+	$(info ...Opening GTKWave)
+	@echo gtkwave -t $< $(word 2,$^) $(word 3,$^) &
 
 debug: $(firstword $(DEBUG_TGTS))
 
