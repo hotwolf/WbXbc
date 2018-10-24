@@ -39,6 +39,18 @@ GTKW_DIR     := $(REPO_DIR)/tools/gtkwave
 GTKW_SRC_DIR := $(GTKW_DIR)/src
 GTKW_WRK_DIR := $(GTKW_DIR)/run
 
+#Tools
+ifndef EDITOR
+EDITOR       := $(shell which emacs || which xemacs || which nano || which vi)
+endif
+VERILATOR    := verilator -sv --lint-only 
+IVERILOG     := iverilog -t null
+YOSYS        := yosys -q
+SBY          := sby -f
+PERL         := perl
+GTKWAVE      := gtkwave      
+VCD2FST      := vcd2fst
+
 #List of modules and their supported configurations <module>.<configuration>
 MODCONFS := $(sort	WbXbc_accelerator.default \
 			WbXbc_accelerator.reg_itr \
@@ -129,9 +141,9 @@ $(LINT_MODCONFS):
 	$(eval conf    := $(lastword $(subst ., ,$@)))
 	$(eval confdef := CONF_$(shell echo $(conf) | tr '[:lower:]' '[:upper:]'))
 	$(info ...Linting $(mod) in $(conf) configuration)
-	@verilator -sv --lint-only  -D$(confdef) --top-module ftb_$(mod) -y $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v 
-	@iverilog -t null -D$(confdef) -s ftb_$(mod) -y $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v  
-	@yosys -q -p "read_verilog -sv -D $(confdef) -I $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v"
+	@$(VERILATOR) -D$(confdef) --top-module ftb_$(mod) -y $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v 
+	@$(IVERILOG) -D$(confdef) -s ftb_$(mod) -y $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v  
+	@$(YOSYS) -p "read_verilog -sv -D $(confdef) -I $(RTL_DIR) $(BENCH_DIR)/ftb_$(mod).sv $(RTL_DIR)/$(mod).v"
 
 $(LINT_MODS): $$(filter $$@.%,$(LINT_MODCONFS))
 
@@ -169,7 +181,7 @@ $(BMC_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
 	$(info ...Generating bounded proofs for $(mod) in $(conf) configuration)
-	@sby -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby bmc.$(conf)
+	@$(SBY) -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby bmc.$(conf)
 
 $(BMC_MODS): $$(filter $$@.%,$(BMC_MODCONFS))
 
@@ -192,7 +204,7 @@ $(PROVE_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
 	$(info ...Generating unbounded proofs $(mod) in $(conf) configuration)
-	@sby -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby prove.$(conf)
+	@$(SBY) -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby prove.$(conf)
 
 $(PROVE_MODS): $$(filter $$@.%,$(PROVE_MODCONFS))
 
@@ -215,7 +227,7 @@ $(LIVE_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
 	$(info ...Proving liveness of $(mod) in $(conf) configuration)
-	@sby -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby live.$(conf)
+	@$(SBY) -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby live.$(conf)
 
 $(LIVE_MODS): $$(filter $$@.%,$(LIVE_MODCONFS))
 
@@ -238,7 +250,7 @@ $(COVER_MODCONFS):
 	$(eval mod     := $(word 2,$(subst ., ,$@)))
 	$(eval conf    := $(lastword $(subst ., ,$@)))
 	$(info ...Generating cover traces for $(mod) in $(conf) configuration)
-	@sby -f -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby cover.$(conf)
+	@$(SBY) -d $(SBY_WRK_DIR)/$@ $(SBY_SRC_DIR)/$(mod).sby cover.$(conf)
 
 $(COVER_MODS): $$(filter $$@.%,$(COVER_MODCONFS))
 
@@ -264,7 +276,7 @@ $(foreach x,$(VCD_FILES),$(eval DEBUG_TGTS := $(DEBUG_TGTS) debug$(words $(DEBUG
 
 $(FST_FILES): %.fst: %.vcd
 	$(info ...Converting VCD to FST)
-	@vcd2fst $< $@
+	@$(VCD2FST) $< $@
 
 $(STEMS_FILES): %.stems: %.fst $(BENCH_DIR)/*.sv $(RTL_DIR)/*.v
 	$(eval dir_name := $(notdir $(patsubst %/,%,$(dir $(patsubst %/,%,$(dir $@))))))
@@ -276,7 +288,7 @@ $(STEMS_FILES): %.stems: %.fst $(BENCH_DIR)/*.sv $(RTL_DIR)/*.v
 	$(info conf:     $(conf))
 	$(info confdef:  $(confdef))
 	$(info ...Generating STEMS file)
-	perl tools/gtkwave/src/gtkw_gen.pl \
+	$(PERL) tools/gtkwave/src/gtkw_gen.pl \
 		-top   ftb_$(mod) \
 		-trace $< \
 		-gtkw  $(subst .stems,.gtkw,$@) \
@@ -298,7 +310,7 @@ $(GTKW_FILES): %.gtkw: %.fst $(BENCH_DIR)/*.sv $(RTL_DIR)/*.v
 	$(info conf:     $(conf))
 	$(info confdef:  $(confdef))
 	$(info ...Generating GTKW file)
-	perl tools/gtkwave/src/gtkw_gen.pl \
+	$(PERL) tools/gtkwave/src/gtkw_gen.pl \
 		-top   ftb_$(mod) \
 		-trace $< \
 		-gtkw  $@ \
@@ -314,14 +326,16 @@ $(DEBUG_TGTS): $$(word $$(subst debug,,$$@),$(STEMS_FILES)) \
                $$(word $$(subst debug,,$$@),$(FST_FILES)) \
                $$(word $$(subst debug,,$$@),$(GTKW_FILES))
 	$(info ...Opening GTKWave)
-	@echo gtkwave -t $< $(word 2,$^) $(word 3,$^) &
+	@echo $(GTKWAVE) -t $< $(word 2,$^) $(word 3,$^) &
+	$(info ...Opening log file)
+	@echo $(EDITOR) $(firstword $(shell ls -1t $(dir $(word 2,$^))/logfile*.txt))
 
 debug: $(firstword $(DEBUG_TGTS))
 
 debug.prev: $(word 2,$(DEBUG_TGTS))
 
 debug.list:
-ifeq ($(DEBUG_TGTS),)
+ifeq ($(words $(DEBUG_TGTS)), 0)
 	$(info No debug targets available)
 else
 	$(info The following $(words $(DEBUG_TGTS)) VCD files are available for viewing:)

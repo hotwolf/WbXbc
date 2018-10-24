@@ -65,49 +65,51 @@
 module ftb_WbXbc_error_generator
    (//Clock and reset
     //---------------
-    input wire                    clk_i,                 //module clock
-    input wire                    async_rst_i,           //asynchronous reset
-    input wire                    sync_rst_i,            //synchronous reset
+    input wire 			  clk_i, //module clock
+    input wire 			  async_rst_i, //asynchronous reset
+    input wire 			  sync_rst_i, //synchronous reset
 
+    input wire [15:8]             test_wire,
+    
     //Initiator interface
     //-------------------
-    input  wire                   itr_cyc_i,             //bus cycle indicator       +-
-    input  wire                   itr_stb_i,             //access request            |
-    input  wire                   itr_we_i,              //write enable              |
-    input  wire                   itr_lock_i,            //uninterruptable bus cycle |
-    input  wire [`SEL_WIDTH-1:0]  itr_sel_i,             //write data selects        | initiator
-    input  wire [`ADR_WIDTH-1:0]  itr_adr_i,             //address bus               | to
-    input  wire [`DAT_WIDTH-1:0]  itr_dat_i,             //write data bus            | target
-    input  wire [`TGA_WIDTH-1:0]  itr_tga_i,             //address tags              |
-    input  wire [`TGT_CNT-1:0]    itr_tga_tgtsel_i,      //target select tags        |
-    input  wire [`TGC_WIDTH-1:0]  itr_tgc_i,             //bus cycle tags            |
-    input  wire [`TGWD_WIDTH-1:0] itr_tgd_i,             //write data tags           +-
-    output wire                   itr_ack_o,             //bus cycle acknowledge     +-
-    output wire                   itr_err_o,             //error indicator           | target
-    output wire                   itr_rty_o,             //retry request             | to
-    output wire                   itr_stall_o,           //access delay              | initiator
-    output wire [`DAT_WIDTH-1:0]  itr_dat_o,             //read data bus             |
-    output wire [`TGRD_WIDTH-1:0] itr_tgd_o,             //read data tags            +-
+    input wire 			  itr_cyc_i, //bus cycle indicator       +-
+    input wire 			  itr_stb_i, //access request            |
+    input wire 			  itr_we_i, //write enable              |
+    input wire 			  itr_lock_i, //uninterruptable bus cycle |
+    input wire [`SEL_WIDTH-1:0]   itr_sel_i, //write data selects        | initiator
+    input wire [`ADR_WIDTH-1:0]   itr_adr_i, //address bus               | to
+    input wire [`DAT_WIDTH-1:0]   itr_dat_i, //write data bus            | target
+    input wire [`TGA_WIDTH-1:0]   itr_tga_i, //address tags              |
+    input wire [`TGT_CNT-1:0] 	  itr_tga_tgtsel_i, //target select tags        |
+    input wire [`TGC_WIDTH-1:0]   itr_tgc_i, //bus cycle tags            |
+    input wire [`TGWD_WIDTH-1:0]  itr_tgd_i, //write data tags           +-
+    output wire 		  itr_ack_o, //bus cycle acknowledge     +-
+    output wire 		  itr_err_o, //error indicator           | target
+    output wire 		  itr_rty_o, //retry request             | to
+    output wire 		  itr_stall_o, //access delay              | initiator
+    output wire [`DAT_WIDTH-1:0]  itr_dat_o, //read data bus             |
+    output wire [`TGRD_WIDTH-1:0] itr_tgd_o, //read data tags            +-
 
     //Target interface
     //----------------
-    output wire                   tgt_cyc_o,             //bus cycle indicator       +-
-    output wire                   tgt_stb_o,             //access request            |
-    output wire                   tgt_we_o,              //write enable              |
-    output wire                   tgt_lock_o,            //uninterruptable bus cycle |
-    output wire [`SEL_WIDTH-1:0]  tgt_sel_o,             //write data selects        | initiator
-    output wire [`ADR_WIDTH-1:0]  tgt_adr_o,             //write data selects        | to
-    output wire [`DAT_WIDTH-1:0]  tgt_dat_o,             //write data bus            | target
-    output wire [`TGA_WIDTH-1:0]  tgt_tga_o,             //address tags              |
-    output wire [`TGT_CNT-1:0]    tgt_tga_tgtsel_o,      //target select tags        |
-    output wire [`TGC_WIDTH-1:0]  tgt_tgc_o,             //bus cycle tags            |
-    output wire [`TGWD_WIDTH-1:0] tgt_tgd_o,             //write data tags           +-
-    input  wire                   tgt_ack_i,             //bus cycle acknowledge     +-
-    input  wire                   tgt_err_i,             //error indicator           | target
-    input  wire                   tgt_rty_i,             //retry request             | to
-    input  wire                   tgt_stall_i,           //access delay              | initiator
-    input  wire [`DAT_WIDTH-1:0]  tgt_dat_i,             //read data bus             |
-    input  wire [`TGRD_WIDTH-1:0] tgt_tgd_i);            //read data tags            +-
+    output wire 		  tgt_cyc_o, //bus cycle indicator       +-
+    output wire 		  tgt_stb_o, //access request            |
+    output wire 		  tgt_we_o, //write enable              |
+    output wire 		  tgt_lock_o, //uninterruptable bus cycle |
+    output wire [`SEL_WIDTH-1:0]  tgt_sel_o, //write data selects        | initiator
+    output wire [`ADR_WIDTH-1:0]  tgt_adr_o, //write data selects        | to
+    output wire [`DAT_WIDTH-1:0]  tgt_dat_o, //write data bus            | target
+    output wire [`TGA_WIDTH-1:0]  tgt_tga_o, //address tags              |
+    output wire [`TGT_CNT-1:0] 	  tgt_tga_tgtsel_o, //target select tags        |
+    output wire [`TGC_WIDTH-1:0]  tgt_tgc_o, //bus cycle tags            |
+    output wire [`TGWD_WIDTH-1:0] tgt_tgd_o, //write data tags           +-
+    input wire 			  tgt_ack_i, //bus cycle acknowledge     +-
+    input wire 			  tgt_err_i, //error indicator           | target
+    input wire 			  tgt_rty_i, //retry request             | to
+    input wire 			  tgt_stall_i, //access delay              | initiator
+    input wire [`DAT_WIDTH-1:0]   tgt_dat_i, //read data bus             |
+    input wire [`TGRD_WIDTH-1:0]  tgt_tgd_i);            //read data tags            +-
 
    //DUT
    //===

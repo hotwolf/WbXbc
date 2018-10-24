@@ -62,6 +62,13 @@ my $nl = new Verilog::Netlist (options => $vopt,
 ##############
 my $top_mod_ref;
 
+###########
+# Filters #
+###########
+my %filters         = ();
+my $filter_cnt      = 0;
+my $filter_basename = "./filter";
+    
 ##############################
 # Parse remaining parameters #
 ##############################
@@ -80,6 +87,19 @@ if (! $ropt->getoptions ("help"	        => \&help,
 			 "<>"		=> \&files)) {
     die sprintf("Try %s -help\n", $0);
 }  
+
+#Set filter basename
+if ($trace_name) {
+    $filter_basename = $trace_name;
+    $filter_basename =~ s/\.vcd$/_filter/;
+    $filter_basename =~ s/\.fst$/_filter/;
+} elsif ($gtkw_name) {
+    $filter_basename = $gtkw_name;
+    $filter_basename =~ s/\.gtkw$/_filter/;
+} elsif ($stems_name) {
+    $filter_basename = $stems_name;
+    $filter_basename =~ s/\.stems$/_filter/;
+}
 
 parse_verilog();
 generate_stems_file();
@@ -196,7 +216,7 @@ sub parse_stems {
 	if ($net_ref->decl_type ne "parameter") {
 	    $out_handle->printf("++ var %s module %s\n", $net_ref->name,
 	  			                         $name);
-	    #printf("%s[%d:%d]\n", $net_ref->name, $net_ref->msb, $net_ref->lsb);
+	    #printf("%s[%d:%d]\n", $net_ref->name, num($net_ref->msb), num($net_ref->lsb));
 	}
    }
 
@@ -287,24 +307,111 @@ sub generate_gtkw_file {
             $out_handle->printf("[sst_expanded] 1\n");
             $out_handle->printf("[sst_vpaned_height] 154\n");	
 
+#========================================================================================================================
+# Project specific code!!! Modify this code section when porting this script to another project!
+
+	
 	#Add SYSCON signals
 	add_group($out_handle,
 		  "SYSCON",
 		  $top_mod_ref,
 		  $top_mod_name,
-		  [["async_rst_i",0,0],
-		   ["sync_rst_i",0,0],
-		   ["clk_i",0,0],
-		   ["itr_clk_i",0,0],
-		   ["tgt_clk_i",0,0]],
+		  [["async_rst_i"],
+		   ["sync_rst_i"],
+		   ["clk_i"],
+		   ["itr_clk_i"],
+		   ["tgt_clk_i"]],
 		  1);
 
 	#Add initiator busses
+	if ((my $stb_ref  = $top_mod_ref->find_net("itr_stb_i")) &&
+	    (my $sel_ref  = $top_mod_ref->find_net("itr_sel_i")) &&
+	    (my $adr_ref  = $top_mod_ref->find_net("itr_adr_i")) &&
+	    (my $wdat_ref = $top_mod_ref->find_net("itr_dat_i")) &&
+	    (my $tga_ref  = $top_mod_ref->find_net("itr_tga_i")) &&
+	    (my $tgc_ref  = $top_mod_ref->find_net("itr_tgc_i")) &&
+	    (my $tgwd_ref = $top_mod_ref->find_net("itr_tgd_i")) &&
+	    (my $rdat_ref = $top_mod_ref->find_net("itr_dat_o")) &&
+	    (my $tgrd_ref = $top_mod_ref->find_net("itr_tgd_o"))) {
 
+	    my $itr_cnt    =      (num($stb_ref->msb)  - num($stb_ref->lsb))  + 1;	    
+	    my $sel_width  = int(((num($sel_ref->msb)  - num($sel_ref->lsb))  + 1) / $itr_cnt);	 
+	    my $adr_width  = int(((num($adr_ref->msb)  - num($adr_ref->lsb))  + 1) / $itr_cnt);	 
+	    my $wdat_width = int(((num($wdat_ref->msb) - num($wdat_ref->lsb)) + 1) / $itr_cnt);	 
+	    my $tga_width  = int(((num($tga_ref->msb)  - num($tga_ref->lsb))  + 1) / $itr_cnt);	 
+	    my $tgc_width  = int(((num($tgc_ref->msb)  - num($tgc_ref->lsb))  + 1) / $itr_cnt);	 
+	    my $tgwd_width = int(((num($tgwd_ref->msb) - num($tgwd_ref->lsb)) + 1) / $itr_cnt);	 
+	    my $rdat_width = int(((num($rdat_ref->msb) - num($rdat_ref->lsb)) + 1) / $itr_cnt);	 
+	    my $tgrd_width = int(((num($tgrd_ref->msb) - num($tgrd_ref->lsb)) + 1) / $itr_cnt);	 
+
+	    #printf("itr_cnt    = %d [%s:%s]\n", $itr_cnt   , num($stb_ref->msb),  num($stb_ref->lsb)); 
+	    #printf("sel_width  = %d [%s:%s]\n", $sel_width , num($sel_ref->msb),  num($sel_ref->lsb));	 
+	    #printf("adr_width  = %d [%s:%s]\n", $adr_width , num($adr_ref->msb),  num($adr_ref->lsb));	 
+	    #printf("wdat_width = %d [%s:%s]\n", $wdat_width, num($wdat_ref->msb), num($wdat_ref->lsb));	 
+	    #printf("tga_width  = %d [%s:%s]\n", $tga_width , num($tga_ref->msb),  num($tga_ref->lsb));	 
+	    #printf("tgc_width  = %d [%s:%s]\n", $tgc_width , num($tgc_ref->msb),  num($tgc_ref->lsb));	 
+	    #printf("tgwd_width = %d [%s:%s]\n", $tgwd_width, num($tgwd_ref->msb), num($tgwd_ref->lsb));	 
+	    #printf("rdat_width = %d [%s:%s]\n", $rdat_width, num($rdat_ref->msb), num($rdat_ref->lsb));	 
+	    #printf("tgrd_width = %d [%s:%s]\n", $tgrd_width, num($tgrd_ref->msb), num($tgrd_ref->lsb));	 
+
+	    for (my $itr=0; $itr<$itr_cnt; $itr++) {
+		add_group($out_handle,
+			  (($itr_cnt == 1) ? "ITR" : sprintf("ITR%d", $itr)),
+			  $top_mod_ref,
+			  $top_mod_name,
+			  [["itr_cyc_i",   $itr, $itr],
+			   ["itr_stb_i",   $itr, $itr],
+			   ["itr_we_i",    $itr, $itr],
+			   ["itr_lock_i",  $itr, $itr],
+			   ["itr_sel_i",   ((($itr+1)*$sel_width) -1), ($itr*$sel_width)],
+			   ["itr_adr_i",   ((($itr+1)*$adr_width) -1), ($itr*$adr_width)],
+			   ["itr_dat_i",   ((($itr+1)*$wdat_width)-1), ($itr*$wdat_width)],
+			   ["itr_tga_i",   ((($itr+1)*$tga_width) -1), ($itr*$tga_width)],
+			   ["itr_tga_prio_i"],
+			   ["itr_tga_tgtsel_i"],
+			   ["itr_tgc_i",   ((($itr+1)*$tgc_width) -1), ($itr*$tgc_width)],
+			   ["itr_tgd_i",   ((($itr+1)*$tgwd_width)-1), ($itr*$tgwd_width)],
+			   ["itr_ack_o",   $itr, $itr],
+			   ["itr_err_o",   $itr, $itr],
+			   ["itr_rty_o",   $itr, $itr],
+			   ["itr_stall_o", $itr, $itr],
+			   ["itr_dat_o",  ((($itr+1)*$rdat_width)-1), ($itr*$rdat_width)],
+			   ["itr_tgd_o",  ((($itr+1)*$tgrd_width)-1), ($itr*$tgrd_width)]],
+			  $itr ? 0 : 1);
+	    }
+	}
+	
 	#Add target busses
 
+
+	#test
+	add_group($out_handle,
+		  "TEST",
+		  $top_mod_ref,
+		  $top_mod_name,
+		  [["itr_adr_i",  5,  2],
+		   ["itr_sel_i",  2,  2],
+		   ["itr_dat_i", 16, 12],
+		   ["itr_adr_i",  0,  0],
+		   ["itr_dat_o",  3,  0],
+		   ["itr_sel_i",  1,  1]],
+		  1);
+
+
+	
+
+	
 	#Add state machines    
+	add_group($out_handle,
+		  "FSM",
+		  $top_mod_ref,
+		  $top_mod_name,
+		  [["state_reg", "STATE"],
+		   ["state_next", "STATE"]],
+		  1);
 	    
+#========================================================================================================================
+
 	#Print footer
         $out_handle->printf("[pattern_trace] 1\n");
         $out_handle->printf("[pattern_trace] 0\n");
@@ -323,62 +430,167 @@ sub add_group {
 
     my $net_cnt     = 0;
     my @net_out     = ();
-
+    
     #check signals
     my $net_disp = "none"; 
     foreach my $net_entry (@$net_list) {
-	my $net_name = $net_entry->[0];
-	my $net_msb  = $net_entry->[1];
-	my $net_lsb  = $net_entry->[2];
-	#printf("--->%s[%d:%d]\n", $net_name, $net_msb, $net_lsb);
-	#Check netnal name
-	if (my $net_ref = $mod_ref->find_net($net_name)) {
-	    #Fix out fo bound indexes
-	    if ($net_msb > $net_ref->msb) {$net_msb = $net_ref->msb;}
-	    if ($net_lsb > $net_ref->lsb) {$net_lsb = $net_ref->lsb;}
-	    #printf("--->%s[%d:%d] found!\n", $net_name, $net_msb, $net_lsb);
-	    #Include full bus range
-	    if (($net_msb == $net_ref->msb) &&
-		($net_lsb == $net_ref->lsb)) {
-		#Single bit
-		if (($net_msb == 0) &&
-		    ($net_lsb == 0)) {
-		    #Add display code
-		    if ($net_disp ne "bit") {
-			push(@net_out, "\@28");
-			$net_disp = "bit";
+	my $entry_name = $net_entry->[0];
+  	#Check net name
+	if (my $net_ref   = $mod_ref->find_net($entry_name)) {
+	    my $net_msb   = num($net_ref->msb);
+	    my $net_lsb   = num($net_ref->lsb);
+	    if ($net_msb < $net_lsb) {
+		$net_msb   = num($net_ref->lsb);
+		$net_lsb   = num($net_ref->msb);
+	    }
+	    my $net_width = abs(($net_msb - $net_lsb) + 1);
+	    my $entry_msb  = $net_msb;
+	    my $entry_lsb  = $net_lsb;
+	    if ($#$net_entry == 2) {
+		$entry_msb = $net_entry->[1];
+		$entry_lsb = $net_entry->[2];
+	    }
+	    #printf("%s[%d:%d]\n", $entry_name, $net_msb, $net_lsb);
+	    #Filtered signals
+	    my $filter_name;
+	    if ($#$net_entry == 1) {
+		my $filter_prefix  = $net_entry->[1];
+		my %filter_aliases = ();
+		#Parse parameters for aliases
+		foreach my $param_ref ($mod_ref->nets()) {
+		    if ($param_ref->decl_type eq "parameter") {
+			#printf("%s: %s (%s)\n", $param_ref->name, $param_ref->decl_type, $param_ref->value);
+			if ($param_ref->name =~ /$filter_prefix\_(.+)$/) {
+			    my $filter_alias = $1;
+			    if ($param_ref->value =~ /'b([01]+)/) {
+				my $filter_value = $1;
+				if (length($filter_value) == $net_width) {
+				    #Valid alias found 
+				    $filter_aliases{$filter_value} = $filter_alias;
+				    #printf("%s ->  %s\n", $filter_alias, $filter_value);
+				}
+			    }
+			}
 		    }
-		    push(@net_out, sprintf("%s.%s", $inst_name, $net_name));
-		    #printf("---->%s\n", join("\n", @net_out));
+		}
+		#Create uniqie ID
+		my $id = "";
+		foreach my $value (sort keys %filter_aliases) {
+		    $id .= sprintf("%s:%s.", $value, $filter_aliases{$value});
+		    #printf("%s:%s.", $value, $filter_aliases{$value});
+		}
+		#printf("id: %s\n", $id);
+		if ($id ne "") {
+		    #Check if filter already exists 
+		    if (exists $filters{$id}) {
+			#Reuse filter
+			$filter_name = $filters{$id};
+		    } else {
+			#Create filter
+			my $filter_name = sprintf("%s_%.2d.txt", $filter_basename, $filter_cnt++);
+			my $filter_handle  = IO::File->new;
+			$filter_handle->open(">$filter_name") or die "Can't open $filter_name\n";
+			foreach my $value (sort keys %filter_aliases) {
+			    $filter_handle->printf("%s %s\n", $value, $filter_aliases{$value});
+			    #printf("%s %s\n", $value, $filter_aliases{$value});
+			}
+			$filter_handle->close();
+			$filters{$id} = $filter_name;
+			$filter_name  = $filter_name;
+		    }
+		    #Add signal with filter
+		    if ($net_disp ne "\@2029") {
+			$net_disp = "\@2029";
+			push(@net_out, $net_disp);
+		    }
+		    push(@net_out, sprintf("^1 %s",$filter_name));
+		    if ($net_width == 1) {
+			push(@net_out, sprintf("%s.%s", $inst_name, $entry_name));
+		    } else {
+			push(@net_out, sprintf("%s.%s[%d:%d]", $inst_name, $entry_name, $net_msb, $net_lsb));
+		    }
 		    $net_cnt++;
+		    next;
+		}
+	    }  
+	    #Single bit signals
+	    if ($net_width == 1) {
+		if ($net_msb == 0) {
+		    #Plain signal 
+		    if ($net_disp ne "\@28") {
+			$net_disp = "\@28";
+			push(@net_out, $net_disp);
+		    }
+		    push(@net_out, sprintf("%s.%s", $inst_name, $entry_name));		    
 		} else {
-		#Bus    
-		    #Add display code
-		    if ($net_disp ne "bus") {
-			push(@net_out, "\@22");
-			$net_disp = "bus";
+		    #Aliased signal
+		    if ($net_disp ne "\@29") {
+			$net_disp = "\@29";
+			push(@net_out, $net_disp);
 		    }
-		    push(@net_out, sprintf("%s.%s[%d:%d]", $inst_name, $net_name, $net_msb, $net_lsb));
-		    $net_cnt++;
+		    push(@net_out, sprintf("+{%s.%s[%d]} %s.%s", $inst_name, $entry_name, $net_msb, $inst_name, $entry_name));
 		}
-	    } else { 
-		#Include partial bus range
-		#Add display code
-		if ($net_disp ne "bus") {
-		    push(@net_out, "\@22");
-		    $net_disp = "bus";
-		}
-		my $alias_string = sprintf("#{%s.%s[%d:%d]}", $inst_name, $net_ref->name, $net_msb, $net_lsb);
-		foreach my $i ($net_msb .. $net_lsb) {
-		    $alias_string .= sprintf(" (%d)%s.%s[%d:%d]", (($net_ref->msb - $net_ref->lsb) - $i),
-					                          $inst_name,
-					                          $net_ref->name,
-					                          $net_ref->msb,
-					                          $net_ref->lsb);
-		}
-		push(@net_out, $alias_string);
-		push(@net_out, "\@1001200");
 		$net_cnt++;
+		next;
+	    }
+	    #Multi-bit signals without offtset
+	    if (($net_width >  1) &&
+		($net_lsb   == 0)) {
+		if (($entry_msb >= $net_msb) &&
+		    ($entry_lsb == 0)) {		    
+		    #Plain signal 
+		    if ($net_disp ne "\@22") {
+			$net_disp = "\@22";
+			push(@net_out, $net_disp);
+		    }
+		    push(@net_out, sprintf("%s.%s[%d:0]", $inst_name, $entry_name, $net_msb));
+		} else {
+		    #Compound signal
+		    push(@net_out, "\@c00022");   
+		    my $long_line = sprintf("#{%s.%s[%d", $inst_name, $entry_name, $entry_msb);
+		    if ($entry_msb != $entry_lsb) {
+			$long_line .= sprintf(":%d", $entry_lsb);
+		    }
+		    $long_line .= "]";
+		    for (my $i=$entry_msb; $i>=$entry_lsb; $i--) {
+			$long_line .= sprintf(" (%d) %s.%s[%d:%d]", ($net_width - $i - 1),
+					                             $inst_name,
+					                             $entry_name,
+					                             $net_msb,
+					                             $net_lsb);
+		    }
+		    push(@net_out, $long_line);
+		    #push(@net_out, "\@28");
+		    #for (my $i=$entry_msb; $i>=$entry_lsb; $i--) {
+		    #	push(@net_out, sprintf("(%d) %s.%s[%d:%d]", ($net_width - $i - 1),
+		    #			                             $inst_name,
+		    #			                             $entry_name,
+		    #			                             $net_msb,
+		    #			                             $net_lsb));
+		    #}
+                    #push(@net_out, "@1401200");
+                    push(@net_out, "-group_end");
+		}
+		$net_cnt++;
+		next;
+	    }
+	    #Multi-bit signals with offtset
+	    if ($net_width >  1) {
+		#Compound signal
+		push(@net_out, "\@c00022");   
+		my $long_line = sprintf("#{%s.%s[%d", $inst_name, $entry_name, $entry_msb);
+		if ($entry_msb != $entry_lsb) {
+		    $long_line .= sprintf(":%d", $entry_lsb);
+		}
+		$long_line .= "]}";
+		for (my $i=$entry_msb; $i>=$entry_lsb; $i--) {
+		    $long_line .= sprintf(" (%d)%s.%s[%d:0]", (($net_width-1) - $i),
+					                      $inst_name,
+					                      $entry_name,
+					                      ($net_msb - $net_lsb));
+		}
+		$net_cnt++;
+		next;
 	    }
 	}
     }
@@ -397,6 +609,11 @@ sub add_group {
 	$out_handle->printf("\@%s\n", $is_open ? "1000200" : "");
 	$out_handle->printf("-%s\n", $group_name);
     }
+}
+
+sub num {
+    my $arg = shift;
+    return(int((eval($arg))));
 }
 
 1;
