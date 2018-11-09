@@ -1,30 +1,30 @@
 [tasks]
 bmc.default    bmc   default	
-bmc.32bit      bmc   32bit
 prove.default  prove default
-prove.32bit    prove 32bit
 live.default   live  default
-live.32bit     live  32bit
 cover.default  cover default
-cover.32bit
 
 [options]
-bmc:   mode bmc
-bmc:   depth 25
+bmc:   mode none
+bmc:   depth 30
 prove: mode prove
+prove: depth 10
 live:  mode live
 cover: mode cover
+cover: depth 10
 multiclock on
 
 [engines]
 bmc:   smtbmc
 prove: smtbmc
-live:  aiger aigbmc
+live:  aiger avy
 cover: smtbmc
 
 [script]
-default: read -formal -D CONF_DEFAULT ftb_WbXbc_address_decoder.sv
-32bit:   read -formal -D CONF_32BIT ftb_WbXbc_address_decoder.sv
+bmc.default: read -formal -D CONF_DEFAULT ftb_WbXbc_address_decoder.sv
+prove.default: read -formal -D CONF_DEFAULT -D FORMAL_K_INDUCT=10 ftb_WbXbc_address_decoder.sv
+live.default: read -formal -D CONF_DEFAULT ftb_WbXbc_address_decoder.sv
+cover.default: read -formal -D CONF_DEFAULT -D FORMAL_K_INDUCT=10 ftb_WbXbc_address_decoder.sv
 read -sv     WbXbc_address_decoder.v
 read -formal wb_itr_mon.sv
 read -formal wb_tgt_mon.sv

@@ -25,6 +25,9 @@
 //# Version History:                                                            #
 //#   October 12, 2018                                                          #
 //#      - Initial release                                                      #
+//#   November 9, 2018                                                          #
+//#      - Disableing assertions and constraints in reset                       #
+//#      - Added status signals to constraint FSM states                        #
 //###############################################################################
 `default_nettype none
 
@@ -60,7 +63,13 @@ module wb_itr_mon
     input  wire                            itr_rty_o,        //retry request             | to
     input  wire                            itr_stall_o,      //access delay              | initiator
     input  wire [DAT_WIDTH-1:0]            itr_dat_o,        //read data bus             |
-    input  wire [TGRD_WIDTH-1:0]           itr_tgd_o);       //read data tags            +-
+    input  wire [TGRD_WIDTH-1:0]           itr_tgd_o,        //read data tags            +-
+
+    //Testbench status signals
+    //------------------------
+    output wire                            tb_fsm_reset,     //FSM in RESET state
+    output wire                            tb_fsm_idle,      //FSM in IDLE state
+    output wire                            tb_fsm_busy);     //FSM in BUSY state
 
    //Abbreviations
    wire                                    rst = |{async_rst_i, sync_rst_i};            //reset
@@ -131,47 +140,48 @@ module wb_itr_mon
             end
         endcase // case (state_reg)
      end // always @ *
-   
+
    //Protocol rules
    //==============
    //always @(posedge clk_i)
    always @($global_clock)
-     begin
-        if (state_reg == STATE_RESET)
-          begin
-             //Bus interface must be initialized by reset
-             //(Rule 3.00, Rule 3.20)
-             assume (~itr_cyc_i);
-             assume (~itr_stb_i);
-          end // if (state_reg == STATE_RESET)
+     if (~rst) //disable assertions and constraints in reset
+       begin
+          if (state_reg == STATE_RESET)
+            begin
+               //Bus interface must be initialized by reset
+               //(Rule 3.00, Rule 3.20)
+               assume (~itr_cyc_i);
+               assume (~itr_stb_i);
+            end // if (state_reg == STATE_RESET)
 
-        if (state_reg == STATE_BUSY)
-          begin
-             //CYC_I must be is asserted throughout the bus cycle
-             assume (itr_cyc_i);
-             //Only one termination signal may be asserted at a time
-             //(Rule 3.45)
-             assert (|{~|{itr_ack_o, itr_err_o           }, //onehot0
-                                ~|{itr_ack_o,            itr_rty_o},
-                                ~|{           itr_err_o, itr_rty_o}});
-             //Keep bus signals stable after bus request has been accepted
-             if (~ack)
-               begin
-                  assume ($stable(itr_we_i));   //write enable
-                  assume ($stable(itr_lock_i)); //uninterruptable bus cycle
-                  assume ($stable(itr_sel_i));  //write data selects
-                  assume ($stable(itr_adr_i));  //address bus
-                  assume ($stable(itr_tga_i));  //address tags
-                  assume ($stable(itr_tgc_i));  //bus cycle tags
-                  if (itr_we_i)
-                    begin
-                       assume ($stable(itr_dat_i)); //write data bus
-                       assume ($stable(itr_tgd_i)); //write data tags
-                    end // if (itr_we_i)
-               end // if (~ack)
-          end // if (state_reg == STATE_BUSY)
-     end // always @ ($global_clock)
-   
+          if (state_reg == STATE_BUSY)
+            begin
+               //CYC_I must be is asserted throughout the bus cycle
+               assume (itr_cyc_i);
+               //Only one termination signal may be asserted at a time
+               //(Rule 3.45)
+               assert (|{~|{itr_ack_o, itr_err_o           }, //onehot0
+                         ~|{itr_ack_o,            itr_rty_o},
+                         ~|{           itr_err_o, itr_rty_o}});
+               //Keep bus signals stable after bus request has been accepted
+               if (~ack)
+                 begin
+                    assume ($stable(itr_we_i));   //write enable
+                    assume ($stable(itr_lock_i)); //uninterruptable bus cycle
+                    assume ($stable(itr_sel_i));  //write data selects
+                    assume ($stable(itr_adr_i));  //address bus
+                    assume ($stable(itr_tga_i));  //address tags
+                    assume ($stable(itr_tgc_i));  //bus cycle tags
+                    if (itr_we_i)
+                      begin
+                         assume ($stable(itr_dat_i)); //write data bus
+                         assume ($stable(itr_tgd_i)); //write data tags
+                      end // if (itr_we_i)
+                 end // if (~ack)
+            end // if (state_reg == STATE_BUSY)
+       end // if (~rst)
+
    //Fairness constraints
    //====================
    assume property (s_eventually (&{itr_cyc_i, itr_stb_i}));            //bus must be requested eventually
@@ -191,5 +201,11 @@ module wb_itr_mon
    //     assert property (s_eventually (~itr_stall_o));                       //STALL_I must be deasserted eventually
    //     assert property (s_eventually (ack));                                //acknowledge must be given eventually
    //  end
+
+   //Testbench status signals
+   //==================
+   assign tb_fsm_reset = (state_reg === STATE_RESET) ? 1'b1 : 1'b0;
+   assign tb_fsm_idle  = (state_reg === STATE_IDLE)  ? 1'b1 : 1'b0;
+   assign tb_fsm_busy  = (state_reg === STATE_BUSY)  ? 1'b1 : 1'b0;
 
 endmodule // wb_itr_mon

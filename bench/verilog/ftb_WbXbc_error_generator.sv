@@ -25,6 +25,9 @@
 //# Version History:                                                            #
 //#   October 10, 2018                                                          #
 //#      - Initial release                                                      #
+//#   November 9, 2018                                                          #
+//#      - Added define "FORMAL_K_INDUCT" to constraint reachable states for    #
+//#        k-induction proofs                                                   #
 //###############################################################################
 `default_nettype none
 
@@ -168,6 +171,17 @@ module ftb_WbXbc_error_generator
       .tgt_tgd_i        (tgt_tgd_i));                    //read data tags            +-
 
 `ifdef FORMAL
+   //Testbench signals
+   wire 		wb_itr_mon_fsm_reset;            //FSM in RESET
+   wire 		wb_itr_mon_fsm_idle;             //FSM in IDLE 
+   wire 		wb_itr_mon_fsm_busy;             //FSM in BUSY 
+   wire 		wb_tgt_mon_fsm_reset;            //FSM in RESET
+   wire 		wb_tgt_mon_fsm_idle;             //FSM in IDLE 
+   wire 		wb_tgt_mon_fsm_busy;             //FSM in BUSY 
+   wire 		wb_pass_through_fsm_reset;       //FSM in RESET
+   wire 		wb_pass_through_fsm_idle;        //FSM in IDLE 
+   wire 		wb_pass_through_fsm_busy;        //FSM in READ or WRITE
+
    //SYSCON constraints
    //===================
    wb_syscon wb_syscon
@@ -213,7 +227,13 @@ module ftb_WbXbc_error_generator
       .itr_rty_o        (itr_rty_o),                     //retry request             | to
       .itr_stall_o      (itr_stall_o),                   //access delay              | initiator
       .itr_dat_o        (itr_dat_o),                     //read data bus             |
-      .itr_tgd_o        (itr_tgd_o));                    //read data tags            +-
+      .itr_tgd_o        (itr_tgd_o),                     //read data tags            +-
+
+     //Testbench status signals
+     //------------------------
+     .tb_fsm_reset      (wb_itr_mon_fsm_reset),          //FSM in RESET state
+     .tb_fsm_idle       (wb_itr_mon_fsm_idle),           //FSM in IDLE state
+     .tb_fsm_busy       (wb_itr_mon_fsm_busy));          //FSM in BUSY state
 
    wb_tgt_mon
      #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
@@ -247,7 +267,13 @@ module ftb_WbXbc_error_generator
       .tgt_rty_i        (tgt_rty_i),                     //retry request             | to
       .tgt_stall_i      (tgt_stall_i),                   //access delay              | initiator
       .tgt_dat_i        (tgt_dat_i),                     //read data bus             |
-      .tgt_tgd_i        (tgt_tgd_i));                    //read data tags            +-
+      .tgt_tgd_i        (tgt_tgd_i),                     //read data tags            +-
+
+     //Testbench status signals
+     //------------------------
+     .tb_fsm_reset      (wb_tgt_mon_fsm_reset),          //FSM in RESET state
+     .tb_fsm_idle       (wb_tgt_mon_fsm_idle),           //FSM in IDLE state
+     .tb_fsm_busy       (wb_tgt_mon_fsm_busy));          //FSM in BUSY state
 
    //Pass-through assertions
    //=======================
@@ -306,7 +332,13 @@ module ftb_WbXbc_error_generator
       .tgt_rty_i        (tgt_rty_i),                     //retry request             | to
       .tgt_stall_i      (tgt_stall_i),                   //access delay              | initiator
       .tgt_dat_i        (tgt_dat_i),                     //read data bus             |
-      .tgt_tgd_i        (tgt_tgd_i));                    //read data tags            +-
+      .tgt_tgd_i        (tgt_tgd_i),                     //read data tags            +-
+
+     //Testbench status signals
+     //------------------------
+     .tb_fsm_reset      (wb_pass_through_fsm_reset),     //FSM in RESET state
+     .tb_fsm_idle       (wb_pass_through_fsm_idle),      //FSM in IDLE state
+     .tb_fsm_busy       (wb_pass_through_fsm_busy));     //FSM in BUSY state
 
    //Additional assertions
    //=====================

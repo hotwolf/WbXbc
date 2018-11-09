@@ -96,5 +96,5 @@ module wb_syscon
 	  end
 	
      end // always @ ($global_clock)
-   
+
 endmodule // wb_syscon
