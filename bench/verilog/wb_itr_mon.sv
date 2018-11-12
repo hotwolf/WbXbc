@@ -144,43 +144,45 @@ module wb_itr_mon
    //Protocol rules
    //==============
    //always @(posedge clk_i)
-   always @($global_clock)
-     if (~rst) //disable assertions and constraints in reset
-       begin
-          if (state_reg == STATE_RESET)
-            begin
-               //Bus interface must be initialized by reset
-               //(Rule 3.00, Rule 3.20)
-               assume (~itr_cyc_i);
-               assume (~itr_stb_i);
-            end // if (state_reg == STATE_RESET)
+   always @ ($global_clock)
+   begin
+      if (state_reg == STATE_RESET)
+        begin
+           //Bus interface must be initialized by reset
+           //(Rule 3.00, Rule 3.20)
+           assume (~itr_cyc_i);
+           assume (~itr_stb_i);
+        end // if (state_reg == STATE_RESET)
 
-          if (state_reg == STATE_BUSY)
-            begin
-               //CYC_I must be is asserted throughout the bus cycle
-               assume (itr_cyc_i);
-               //Only one termination signal may be asserted at a time
-               //(Rule 3.45)
-               assert (|{~|{itr_ack_o, itr_err_o           }, //onehot0
-                         ~|{itr_ack_o,            itr_rty_o},
-                         ~|{           itr_err_o, itr_rty_o}});
-               //Keep bus signals stable after bus request has been accepted
-               if (~ack)
-                 begin
-                    assume ($stable(itr_we_i));   //write enable
-                    assume ($stable(itr_lock_i)); //uninterruptable bus cycle
-                    assume ($stable(itr_sel_i));  //write data selects
-                    assume ($stable(itr_adr_i));  //address bus
-                    assume ($stable(itr_tga_i));  //address tags
-                    assume ($stable(itr_tgc_i));  //bus cycle tags
-                    if (itr_we_i)
-                      begin
-                         assume ($stable(itr_dat_i)); //write data bus
-                         assume ($stable(itr_tgd_i)); //write data tags
-                      end // if (itr_we_i)
-                 end // if (~ack)
-            end // if (state_reg == STATE_BUSY)
-       end // if (~rst)
+      if (~rst) //disable assertions and constraints in reset
+        begin
+           if (state_reg == STATE_BUSY)
+             begin
+                //CYC_I must be is asserted throughout the bus cycle
+                assume (itr_cyc_i);
+                //Only one termination signal may be asserted at a time
+                //(Rule 3.45)
+                assert (|{~|{itr_ack_o, itr_err_o           }, //onehot0
+                          ~|{itr_ack_o,            itr_rty_o},
+                          ~|{           itr_err_o, itr_rty_o}});
+                //Keep bus signals stable after bus request has been accepted
+                if (~ack)
+                  begin
+                     assume ($stable(itr_we_i));   //write enable
+                     assume ($stable(itr_lock_i)); //uninterruptable bus cycle
+                     assume ($stable(itr_sel_i));  //write data selects
+                     assume ($stable(itr_adr_i));  //address bus
+                     assume ($stable(itr_tga_i));  //address tags
+                     assume ($stable(itr_tgc_i));  //bus cycle tags
+                     if (itr_we_i)
+                       begin
+                          assume ($stable(itr_dat_i)); //write data bus
+                          assume ($stable(itr_tgd_i)); //write data tags
+                       end // if (itr_we_i)
+                  end // if (~ack)
+             end // if (state_reg == STATE_BUSY)
+        end // if (~rst)
+   end // always @ (posedge clk_i)
 
    //Fairness constraints
    //====================

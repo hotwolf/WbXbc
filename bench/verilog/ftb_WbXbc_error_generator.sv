@@ -435,18 +435,11 @@ module ftb_WbXbc_error_generator
 
    //Fairness constraints
    //====================
-   always @(posedge clk_i)
-     begin
-	//A legal request must occur eventually
-	assume property (s_eventually (&{tgt_cyc_o, tgt_stb_o, |itr_tga_tgtsel_i}));	
-     end
+   //A legal request must occur eventually
+   assume property (s_eventually (&{tgt_cyc_o, tgt_stb_o, |itr_tga_tgtsel_i}));	
 
    //Liveness Assertions
    //===================
-   //always @(posedge clk_i)
-   //  begin
-   //
-   //  end
    
    //Cover valid state transitions
    //=============================
@@ -459,6 +452,68 @@ module ftb_WbXbc_error_generator
         cover (($past(state_reg) == STATE_BUSY)  && (state_reg == STATE_ERROR)); //BUSY  -> ERROR
         cover (($past(state_reg) == STATE_ERROR) && (state_reg == STATE_BUSY));  //ERROR -> BUSY
      end // always @ (posedge clk_i)
+
+`ifdef FORMAL_K_INDUCT
+   //Avoid unreachable states in k-induction proofs
+   //==============================================
+   wire tb_fsm_reset = (state_reg === STATE_RESET) ? 1'b1 : 1'b0;
+   wire tb_fsm_idle  = (state_reg === STATE_IDLE)  ? 1'b1 : 1'b0;
+   wire tb_fsm_busy  = (state_reg === STATE_BUSY)  ? 1'b1 : 1'b0;
+   wire tb_fsm_error = (state_reg === STATE_ERROR) ? 1'b1 : 1'b0;
+
+   always @(posedge clk_i)
+     begin
+	assume(&{tb_fsm_reset, wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
+	      ~|{tb_fsm_reset, wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
+ 
+	assume(&{tb_fsm_idle, wb_itr_mon_fsm_idle} |
+	      ~|{tb_fsm_idle, wb_itr_mon_fsm_idle});
+
+	assume(&{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
+	      ~|{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
+
+	if (wb_itr_mon_fsm_idle)
+	assume(wb_tgt_mon_fsm_idle);
+
+	if (tb_fsm_busy)
+	  assume (&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
+	else if (tb_fsm_error)
+	  assume (&{wb_itr_mon_fsm_busy, ~wb_tgt_mon_fsm_busy, ~wb_pass_through_fsm_busy});
+	else
+	  assume (&{~wb_itr_mon_fsm_busy, ~wb_tgt_mon_fsm_busy, ~wb_pass_through_fsm_busy});
+     end // always @ (posedge clk_i)
+
+   //Enforce a reachable state within the k-intervall
+   //================================================
+   parameter tcnt_max   = (`FORMAL_K_INDUCT/2)-1;
+   integer   tcnt       = tcnt_max;
+   wire      reachable_state = 1'b0;  //known set of reachable states
+ 			      
+   always @(posedge clk_i)
+     begin
+	//Decrement step counter
+	if (tcnt > tcnt_max)
+	  tcnt = tcnt_max;
+	if (tcnt <= 0)
+	  tcnt = tcnt_max;
+	
+	  tcnt = tcnt - 1;
+	
+	//Determine known reachable states
+	reachable_state = rst; //reset
+	if (tcnt < tcnt_max)
+	  reachable_state = reachable_state | ($past(req) & ack);//acknowledged request
+	
+	//Stop step counter at first known reachable state
+	if (reachable_state)
+	  tcnt = 0;
+		     
+	//Enforce reachable state
+	if (tcnt == 0)
+	  assume(reachable_state);
+     end // always @ ($global_clock)
+
+`endif //  `ifdef FORMAL_KVAL
 
 `endif //  `ifdef FORMAL
 

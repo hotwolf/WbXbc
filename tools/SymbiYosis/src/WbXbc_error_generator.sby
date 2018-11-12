@@ -1,30 +1,30 @@
 [tasks]
 bmc.default    bmc   default	
-bmc.32bit      bmc   32bit
 prove.default  prove default
-prove.32bit    prove 32bit
 live.default   live  default
-live.32bit     live  32bit
 cover.default  cover default
-cover.32bit
 
 [options]
 bmc:   mode bmc
-bmc:   depth 25
+bmc:   depth 30
 prove: mode prove
+prove: depth 20
 live:  mode live
 cover: mode cover
+cover: depth 20
 multiclock on
 
 [engines]
 bmc:   smtbmc
-prove: abc pdr
-live:  aiger aigbmc -v 100
+prove: smtbmc
+live:  aiger avy
 cover: smtbmc
 
 [script]
-default: read -formal -D CONF_DEFAULT ftb_WbXbc_error_generator.sv
-32bit:   read -formal -D CONF_32BIT ftb_WbXbc_error_generator.sv
+bmc.default: read -formal -D CONF_DEFAULT ftb_WbXbc_error_generator.sv
+prove.default: read -formal -D CONF_DEFAULT -D FORMAL_K_INDUCT=20 ftb_WbXbc_error_generator.sv
+live.default: read -formal -D CONF_DEFAULT ftb_WbXbc_error_generator.sv
+cover.default: read -formal -D CONF_DEFAULT -D FORMAL_K_INDUCT=20 ftb_WbXbc_error_generator.sv
 read -sv     WbXbc_error_generator.v
 read -formal wb_itr_mon.sv
 read -formal wb_tgt_mon.sv

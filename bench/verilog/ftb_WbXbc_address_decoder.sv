@@ -352,14 +352,6 @@ module ftb_WbXbc_address_decoder
 
    //Address region assertions
    //=========================
-   //Only toggle inputs at clock events
-  //always @($global_clock)
-  //  if (!$rose(clk_i))
-  //    begin
-  //	  assume ($stable(region_adr_i));
-  //	  assume ($stable(region_msk_i));
-  //    end
-   
    integer         i, j;
    reg     [1:0]   onehot_sum;
    always @*
