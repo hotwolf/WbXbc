@@ -68,11 +68,6 @@ module ftb_WbXbc_splitter
     input wire                               async_rst_i,      //asynchronous reset
     input wire                               sync_rst_i,       //synchronous reset
                                   		
-    //Target address regions
-    //----------------------
-    input wire [(`TGT_CNT*`ADR_WIDTH)-1:0]   region_adr_i,     //target address
-    input wire [(`TGT_CNT*`ADR_WIDTH)-1:0]   region_msk_i,     //selects relevant address bits
-
     //Initiator interface         		
     //-------------------         		
     input  wire                              itr_cyc_i,        //bus cycle indicator       +-
@@ -235,135 +230,240 @@ module ftb_WbXbc_splitter
      .tb_fsm_idle       (wb_itr_mon_fsm_idle),           //FSM in IDLE state
      .tb_fsm_busy       (wb_itr_mon_fsm_busy));          //FSM in BUSY state
 
-   generate
-   genvar 	tgt;   
-      for (tgt=0; tgt<`TGT_CNT; tgt=tgt+1)
-	begin
-	   localparam SEL_LSB  = `SEL_WIDTH*tgt;
-	   localparam SEL_MSB  = `SEL_WIDTH+SEL_LSB-1;
-	   localparam ADR_LSB  = `ADR_WIDTH*tgt;
-	   localparam ADR_MSB  = `ADR_WIDTH+ADR_LSB-1;
-	   localparam DAT_LSB  = `DAT_WIDTH*tgt;
-	   localparam DAT_MSB  = `DAT_WIDTH+DAT_LSB-1;
-	   localparam TGA_LSB  = `TGA_WIDTH*tgt;
-	   localparam TGA_MSB  = `TGA_WIDTH+TGA_LSB-1;
-	   localparam TGC_LSB  = `TGC_WIDTH*tgt;
-	   localparam TGC_MSB  = `TGC_WIDTH+TGC_LSB-1;
-	   localparam TGWD_LSB = `TGWD_WIDTH*tgt;
-	   localparam TGWD_MSB = `TGWD_WIDTH+TGWD_LSB-1;
-	   localparam TGRD_LSB = `TGRD_WIDTH*tgt;
-	   localparam TGRD_MSB = `TGRD_WIDTH+TGRD_LSB-1;
-	   
-	   //Target interfaces
-	   wb_tgt_mon
-	       #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
-		 .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
-		 .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
-		 .TGA_WIDTH (`TGA_WIDTH),                          //number of propagated address tags
-		 .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
-		 .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
-		 .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
-	   wb_tgt_mon
-	       (//Clock and reset
-		//---------------
-		.clk_i            (clk_i),                         //module clock
-		.async_rst_i      (async_rst_i),                   //asynchronous reset
-		.sync_rst_i       (sync_rst_i),                    //synchronous reset
-		
-		//Target interface
-		//----------------
-		.tgt_cyc_o        (tgt_cyc_o[tgt]),                //bus cycle indicator       +-
-		.tgt_stb_o        (tgt_stb_o[tgt]),                //access request            |
-		.tgt_we_o         (tgt_we_o[tgt]),                 //write enable              |
-		.tgt_lock_o       (tgt_lock_o[tgt]),               //uninterruptable bus cycle |
-		.tgt_sel_o        (tgt_sel_o[SEL_MSB:SEL_LSB]),    //write data selects        | initiator
-		.tgt_adr_o        (tgt_adr_o[ADR_MSB:ADR_LSB]),    //write data selects        | to
-		.tgt_dat_o        (tgt_dat_o[DAT_MSB:DAT_LSB]),    //write data bus            | target
-		.tgt_tga_o        (tgt_tga_o[TGA_MSB:TGA_LSB]),    //address tags              |
-		.tgt_tgc_o        (tgt_tgc_o[TGC_MSB:TGC_LSB]),    //bus cycle tags            |
-		.tgt_tgd_o        (tgt_tgd_o[TGWD_MSB:TGWD_LSB]),  //write data tags           +-
-		.tgt_ack_i        (tgt_ack_i[tgt]),                //bus cycle acknowledge     +-
-		.tgt_err_i        (tgt_err_i[tgt]),                //error indicator           | target
-		.tgt_rty_i        (tgt_rty_i[tgt]),                //retry request             | to
-		.tgt_stall_i      (tgt_stall_i[tgt]),              //access delay              | initiator
-		.tgt_dat_i        (tgt_dat_i[DAT_MSB:DAT_LSB]),    //read data bus             |
-		.tgt_tgd_i        (tgt_tgd_i[TGRD_MSB:TGRD_LSB]),  //read data tags            +-
-		
-		//Testbench status signals
-		//------------------------
-		.tb_fsm_reset      (wb_tgt_mon_fsm_reset[tgt]),    //FSM in RESET state
-		.tb_fsm_idle       (wb_tgt_mon_fsm_idle[tgt]),     //FSM in IDLE state
-		.tb_fsm_busy       (wb_tgt_mon_fsm_busy[tgt]));    //FSM in BUSY state
-	   
+   wb_tgt_mon
+     #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
+       .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
+       .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
+       .TGA_WIDTH (`TGA_WIDTH),                          //number of propagated address tags
+       .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
+       .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
+       .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
+   wb_tgt_mon[`TGT_CNT-1:0]
+     (//Clock and reset
+      //---------------
+      .clk_i            (clk_i),                         //module clock
+      .async_rst_i      (async_rst_i),                   //asynchronous reset
+      .sync_rst_i       (sync_rst_i),                    //synchronous reset
 
-		//Pass-through assertions
-		//=======================
-		wb_pass_through
-		#(.ADR_WIDTH (`ADR_WIDTH),                            //width of the address bus
-		  .DAT_WIDTH (`DAT_WIDTH),                            //width of each data bus
-		  .SEL_WIDTH (`SEL_WIDTH),                            //number of data select lines
-		  .TGA_WIDTH (`TGA_WIDTH),                            //number of propagated address tags
-		  .TGC_WIDTH (`TGC_WIDTH),                            //number of propagated cycle tags
-		  .TGRD_WIDTH(`TGRD_WIDTH),                           //number of propagated read data tags
-		  .TGWD_WIDTH(`TGWD_WIDTH))                           //number of propagated write data tags
-		wb_pass_through
-		(//Assertion control
-		 //-----------------
-		 .pass_through_en (itr_tga_tgtsel_i[tgt]),
-		 
-		 //Clock and reset
-		 //---------------
-		 .clk_i            (clk_i),                           //module clock
-		 .async_rst_i      (async_rst_i),                     //asynchronous reset
-		 .sync_rst_i       (sync_rst_i),                      //synchronous reset
-		 						      
-		 //Initiator interface				      
-		 //-------------------				      
-		 .itr_cyc_i        (itr_cyc_i),                       //bus cycle indicator       +-
-		 .itr_stb_i        (itr_stb_i),                       //access request            |
-		 .itr_we_i         (itr_we_i),                        //write enable              |
-		 .itr_lock_i       (itr_lock_i),                      //uninterruptable bus cycle | initiator
-		 .itr_sel_i        (itr_sel_i),                       //write data selects        | initiator
-		 .itr_adr_i        (itr_adr_i),                       //address bus               | to
-		 .itr_dat_i        (itr_dat_i),                       //write data bus            | target
-		 .itr_tga_i        (itr_tga_i),                       //address tags              |
-		 .itr_tgc_i        (itr_tgc_i),                       //bus cycle tags            |
-		 .itr_tgd_i        (itr_tgd_i),                       //write data tags           +-
-		 .itr_ack_o        (itr_ack_o),                       //bus cycle acknowledge     +-
-		 .itr_err_o        (itr_err_o),                       //error indicator           | target
-		 .itr_rty_o        (itr_rty_o),                       //retry request             | to
-		 .itr_stall_o      (itr_stall_o),                     //access delay              | initiator
-		 .itr_dat_o        (itr_dat_o),                       //read data bus             |
-		 .itr_tgd_o        (itr_tgd_o),                       //read data tags            +-
-		 
-		 //Target interface
-		 //----------------
-		 .tgt_cyc_o        (tgt_cyc_o[tgt]),                  //bus cycle indicator       +-
-		 .tgt_stb_o        (tgt_stb_o[tgt]),                  //access request            |
-		 .tgt_we_o         (tgt_we_o[tgt]),                   //write enable              |
-		 .tgt_lock_o       (tgt_lock_o[tgt]),                 //uninterruptable bus cycle |
-		 .tgt_sel_o        (tgt_sel_o[SEL_MSB:SEL_LSB]),      //write data selects        | initiator
-		 .tgt_adr_o        (tgt_adr_o[ADR_MSB:ADR_LSB]),      //write data selects        | to
-		 .tgt_dat_o        (tgt_dat_o[DAT_MSB:DAT_LSB]),      //write data bus            | target
-		 .tgt_tga_o        (tgt_tga_o[TGA_MSB:TGA_LSB]),      //address tags              |
-		 .tgt_tgc_o        (tgt_tgc_o[TGC_MSB:TGC_LSB]),      //bus cycle tags            |
-		 .tgt_tgd_o        (tgt_tgd_o[TGWD_MSB:TGWD_LSB]),    //write data tags           +-
-		 .tgt_ack_i        (tgt_ack_i[tgt]),                  //bus cycle acknowledge     +-
-		 .tgt_err_i        (tgt_err_i[tgt]),                  //error indicator           | target
-		 .tgt_rty_i        (tgt_rty_i[tgt]),                  //retry request             | to
-		 .tgt_stall_i      (tgt_stall_i[tgt]),                //access delay              | initiator
-		 .tgt_dat_i        (tgt_dat_i[DAT_MSB:DAT_LSB]),      //read data bus             |
-		 .tgt_tgd_i        (tgt_tgd_i[TGRD_MSB:TGRD_LSB]),    //read data tags            +-
-		 						      
-		 //Testbench status signals			      
-		 //------------------------			      
-		 .tb_fsm_reset      (wb_pass_through_fsm_reset[tgt]), //FSM in RESET state
-		 .tb_fsm_idle       (wb_pass_through_fsm_idle[tgt]),  //FSM in IDLE state
-		 .tb_fsm_busy       (wb_pass_through_fsm_busy[tgt])); //FSM in BUSY state
-		
+      //Target interface
+      //----------------
+      .tgt_cyc_o        (tgt_cyc_o),                     //bus cycle indicator       +-
+      .tgt_stb_o        (tgt_stb_o),                     //access request            |
+      .tgt_we_o         (tgt_we_o),                      //write enable              |
+      .tgt_lock_o       (tgt_lock_o),                    //uninterruptable bus cycle |
+      .tgt_sel_o        (tgt_sel_o),                     //write data selects        | initiator
+      .tgt_adr_o        (tgt_adr_o),                     //write data selects        | to
+      .tgt_dat_o        (tgt_dat_o),                     //write data bus            | target
+      .tgt_tga_o        (tgt_tga_o),                     //address tags              |
+      .tgt_tgc_o        (tgt_tgc_o),                     //bus cycle tags            |
+      .tgt_tgd_o        (tgt_tgd_o),                     //write data tags           +-
+      .tgt_ack_i        (tgt_ack_i),                     //bus cycle acknowledge     +-
+      .tgt_err_i        (tgt_err_i),                     //error indicator           | target
+      .tgt_rty_i        (tgt_rty_i),                     //retry request             | to
+      .tgt_stall_i      (tgt_stall_i),                   //access delay              | initiator
+      .tgt_dat_i        (tgt_dat_i),                     //read data bus             |
+      .tgt_tgd_i        (tgt_tgd_i),                     //read data tags            +-
 
-	end // for (tgt=0; tgt<TGT_CNT; tgt=tgt+1)
-      endgenerate
+     //Testbench status signals
+     //------------------------
+     .tb_fsm_reset      (wb_tgt_mon_fsm_reset),          //FSM in RESET state
+     .tb_fsm_idle       (wb_tgt_mon_fsm_idle),           //FSM in IDLE state
+     .tb_fsm_busy       (wb_tgt_mon_fsm_busy));          //FSM in BUSY state
+
+   //Pass-through assertions
+   //=======================
+   wb_pass_through
+     #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
+       .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
+       .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
+       .TGA_WIDTH (`TGA_WIDTH),                          //number of propagated address tags
+       .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
+       .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
+       .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
+   wb_pass_through[`TGT_CNT-1:0]
+     (//Assertion control
+      //-----------------
+      .pass_through_en (|itr_tga_tgtsel_i),
+
+      //Clock and reset
+      //---------------
+      .clk_i            (clk_i),                         //module clock
+      .async_rst_i      (async_rst_i),                   //asynchronous reset
+      .sync_rst_i       (sync_rst_i),                    //synchronous reset
+
+      //Initiator interface
+      //-------------------
+      .itr_cyc_i        ({`TGT_CNT{itr_cyc_i}}),         //bus cycle indicator       +-
+      .itr_stb_i        ({`TGT_CNT{itr_stb_i}}),         //access request            |
+      .itr_we_i         ({`TGT_CNT{itr_we_i}}),          //write enable              |
+      .itr_lock_i       ({`TGT_CNT{itr_lock_i}}),        //uninterruptable bus cycle | initiator
+      .itr_sel_i        ({`TGT_CNT{itr_sel_i}}),         //write data selects        | initiator
+      .itr_adr_i        ({`TGT_CNT{itr_adr_i}}),         //address bus               | to
+      .itr_dat_i        ({`TGT_CNT{itr_dat_i}}),         //write data bus            | target
+      .itr_tga_i        ({`TGT_CNT{itr_tga_i}}),         //address tags              |
+      .itr_tgc_i        ({`TGT_CNT{itr_tgc_i}}),         //bus cycle tags            |
+      .itr_tgd_i        ({`TGT_CNT{itr_tgd_i}}),         //write data tags           +-
+      .itr_ack_o        ({`TGT_CNT{itr_ack_o}}),         //bus cycle acknowledge     +-
+      .itr_err_o        ({`TGT_CNT{itr_err_o}}),         //error indicator           | target
+      .itr_rty_o        ({`TGT_CNT{itr_rty_o}}),         //retry request             | to
+      .itr_stall_o      ({`TGT_CNT{itr_stall_o}}),       //access delay              | initiator
+      .itr_dat_o        ({`TGT_CNT{itr_dat_o}}),         //read data bus             |
+      .itr_tgd_o        ({`TGT_CNT{itr_tgd_o}}),         //read data tags            +-
+
+      //Target interface
+      //----------------
+      .tgt_cyc_o        (tgt_cyc_o),                     //bus cycle indicator       +-
+      .tgt_stb_o        (tgt_stb_o),                     //access request            |
+      .tgt_we_o         (tgt_we_o),                      //write enable              |
+      .tgt_lock_o       (tgt_lock_o),                    //uninterruptable bus cycle |
+      .tgt_sel_o        (tgt_sel_o),                     //write data selects        | initiator
+      .tgt_adr_o        (tgt_adr_o),                     //write data selects        | to
+      .tgt_dat_o        (tgt_dat_o),                     //write data bus            | target
+      .tgt_tga_o        (tgt_tga_o),                     //address tags              |
+      .tgt_tgc_o        (tgt_tgc_o),                     //bus cycle tags            |
+      .tgt_tgd_o        (tgt_tgd_o),                     //write data tags           +-
+      .tgt_ack_i        (tgt_ack_i),                     //bus cycle acknowledge     +-
+      .tgt_err_i        (tgt_err_i),                     //error indicator           | target
+      .tgt_rty_i        (tgt_rty_i),                     //retry request             | to
+      .tgt_stall_i      (tgt_stall_i),                   //access delay              | initiator
+      .tgt_dat_i        (tgt_dat_i),                     //read data bus             |
+      .tgt_tgd_i        (tgt_tgd_i),                     //read data tags            +-
+
+     //Testbench status signals
+     //------------------------
+     .tb_fsm_reset      (wb_pass_through_fsm_reset),     //FSM in RESET state
+     .tb_fsm_idle       (wb_pass_through_fsm_idle),      //FSM in IDLE state
+     .tb_fsm_busy       (wb_pass_through_fsm_busy));     //FSM in BUSY state
+   
+//   generate
+//   genvar 	tgt;   
+//      for (tgt=0; tgt<`TGT_CNT; tgt=tgt+1)
+//	begin
+//	   localparam SEL_LSB  = `SEL_WIDTH*tgt;
+//	   localparam SEL_MSB  = `SEL_WIDTH+SEL_LSB-1;
+//	   localparam ADR_LSB  = `ADR_WIDTH*tgt;
+//	   localparam ADR_MSB  = `ADR_WIDTH+ADR_LSB-1;
+//	   localparam DAT_LSB  = `DAT_WIDTH*tgt;
+//	   localparam DAT_MSB  = `DAT_WIDTH+DAT_LSB-1;
+//	   localparam TGA_LSB  = `TGA_WIDTH*tgt;
+//	   localparam TGA_MSB  = `TGA_WIDTH+TGA_LSB-1;
+//	   localparam TGC_LSB  = `TGC_WIDTH*tgt;
+//	   localparam TGC_MSB  = `TGC_WIDTH+TGC_LSB-1;
+//	   localparam TGWD_LSB = `TGWD_WIDTH*tgt;
+//	   localparam TGWD_MSB = `TGWD_WIDTH+TGWD_LSB-1;
+//	   localparam TGRD_LSB = `TGRD_WIDTH*tgt;
+//	   localparam TGRD_MSB = `TGRD_WIDTH+TGRD_LSB-1;
+//	   
+//	   //Target interfaces
+//	   wb_tgt_mon
+//	       #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
+//		 .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
+//		 .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
+//		 .TGA_WIDTH (`TGA_WIDTH),                          //number of propagated address tags
+//		 .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
+//		 .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
+//		 .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
+//	   wb_tgt_mon
+//	       (//Clock and reset
+//		//---------------
+//		.clk_i            (clk_i),                         //module clock
+//		.async_rst_i      (async_rst_i),                   //asynchronous reset
+//		.sync_rst_i       (sync_rst_i),                    //synchronous reset
+//		
+//		//Target interface
+//		//----------------
+//		.tgt_cyc_o        (tgt_cyc_o[tgt]),                //bus cycle indicator       +-
+//		.tgt_stb_o        (tgt_stb_o[tgt]),                //access request            |
+//		.tgt_we_o         (tgt_we_o[tgt]),                 //write enable              |
+//		.tgt_lock_o       (tgt_lock_o[tgt]),               //uninterruptable bus cycle |
+//		.tgt_sel_o        (tgt_sel_o[SEL_MSB:SEL_LSB]),    //write data selects        | initiator
+//		.tgt_adr_o        (tgt_adr_o[ADR_MSB:ADR_LSB]),    //write data selects        | to
+//		.tgt_dat_o        (tgt_dat_o[DAT_MSB:DAT_LSB]),    //write data bus            | target
+//		.tgt_tga_o        (tgt_tga_o[TGA_MSB:TGA_LSB]),    //address tags              |
+//		.tgt_tgc_o        (tgt_tgc_o[TGC_MSB:TGC_LSB]),    //bus cycle tags            |
+//		.tgt_tgd_o        (tgt_tgd_o[TGWD_MSB:TGWD_LSB]),  //write data tags           +-
+//		.tgt_ack_i        (tgt_ack_i[tgt]),                //bus cycle acknowledge     +-
+//		.tgt_err_i        (tgt_err_i[tgt]),                //error indicator           | target
+//		.tgt_rty_i        (tgt_rty_i[tgt]),                //retry request             | to
+//		.tgt_stall_i      (tgt_stall_i[tgt]),              //access delay              | initiator
+//		.tgt_dat_i        (tgt_dat_i[DAT_MSB:DAT_LSB]),    //read data bus             |
+//		.tgt_tgd_i        (tgt_tgd_i[TGRD_MSB:TGRD_LSB]),  //read data tags            +-
+//		
+//		//Testbench status signals
+//		//------------------------
+//		.tb_fsm_reset      (wb_tgt_mon_fsm_reset[tgt]),    //FSM in RESET state
+//		.tb_fsm_idle       (wb_tgt_mon_fsm_idle[tgt]),     //FSM in IDLE state
+//		.tb_fsm_busy       (wb_tgt_mon_fsm_busy[tgt]));    //FSM in BUSY state
+//	   
+//
+//		//Pass-through assertions
+//		//=======================
+//		wb_pass_through
+//		#(.ADR_WIDTH (`ADR_WIDTH),                            //width of the address bus
+//		  .DAT_WIDTH (`DAT_WIDTH),                            //width of each data bus
+//		  .SEL_WIDTH (`SEL_WIDTH),                            //number of data select lines
+//		  .TGA_WIDTH (`TGA_WIDTH),                            //number of propagated address tags
+//		  .TGC_WIDTH (`TGC_WIDTH),                            //number of propagated cycle tags
+//		  .TGRD_WIDTH(`TGRD_WIDTH),                           //number of propagated read data tags
+//		  .TGWD_WIDTH(`TGWD_WIDTH))                           //number of propagated write data tags
+//		wb_pass_through
+//		(//Assertion control
+//		 //-----------------
+//		 .pass_through_en (itr_tga_tgtsel_i[tgt]),
+//		 
+//		 //Clock and reset
+//		 //---------------
+//		 .clk_i            (clk_i),                           //module clock
+//		 .async_rst_i      (async_rst_i),                     //asynchronous reset
+//		 .sync_rst_i       (sync_rst_i),                      //synchronous reset
+//		 						      
+//		 //Initiator interface				      
+//		 //-------------------				      
+//		 .itr_cyc_i        (itr_cyc_i),                       //bus cycle indicator       +-
+//		 .itr_stb_i        (itr_stb_i),                       //access request            |
+//		 .itr_we_i         (itr_we_i),                        //write enable              |
+//		 .itr_lock_i       (itr_lock_i),                      //uninterruptable bus cycle | initiator
+//		 .itr_sel_i        (itr_sel_i),                       //write data selects        | initiator
+//		 .itr_adr_i        (itr_adr_i),                       //address bus               | to
+//		 .itr_dat_i        (itr_dat_i),                       //write data bus            | target
+//		 .itr_tga_i        (itr_tga_i),                       //address tags              |
+//		 .itr_tgc_i        (itr_tgc_i),                       //bus cycle tags            |
+//		 .itr_tgd_i        (itr_tgd_i),                       //write data tags           +-
+//		 .itr_ack_o        (itr_ack_o),                       //bus cycle acknowledge     +-
+//		 .itr_err_o        (itr_err_o),                       //error indicator           | target
+//		 .itr_rty_o        (itr_rty_o),                       //retry request             | to
+//		 .itr_stall_o      (itr_stall_o),                     //access delay              | initiator
+//		 .itr_dat_o        (itr_dat_o),                       //read data bus             |
+//		 .itr_tgd_o        (itr_tgd_o),                       //read data tags            +-
+//		 
+//		 //Target interface
+//		 //----------------
+//		 .tgt_cyc_o        (tgt_cyc_o[tgt]),                  //bus cycle indicator       +-
+//		 .tgt_stb_o        (tgt_stb_o[tgt]),                  //access request            |
+//		 .tgt_we_o         (tgt_we_o[tgt]),                   //write enable              |
+//		 .tgt_lock_o       (tgt_lock_o[tgt]),                 //uninterruptable bus cycle |
+//		 .tgt_sel_o        (tgt_sel_o[SEL_MSB:SEL_LSB]),      //write data selects        | initiator
+//		 .tgt_adr_o        (tgt_adr_o[ADR_MSB:ADR_LSB]),      //write data selects        | to
+//		 .tgt_dat_o        (tgt_dat_o[DAT_MSB:DAT_LSB]),      //write data bus            | target
+//		 .tgt_tga_o        (tgt_tga_o[TGA_MSB:TGA_LSB]),      //address tags              |
+//		 .tgt_tgc_o        (tgt_tgc_o[TGC_MSB:TGC_LSB]),      //bus cycle tags            |
+//		 .tgt_tgd_o        (tgt_tgd_o[TGWD_MSB:TGWD_LSB]),    //write data tags           +-
+//		 .tgt_ack_i        (tgt_ack_i[tgt]),                  //bus cycle acknowledge     +-
+//		 .tgt_err_i        (tgt_err_i[tgt]),                  //error indicator           | target
+//		 .tgt_rty_i        (tgt_rty_i[tgt]),                  //retry request             | to
+//		 .tgt_stall_i      (tgt_stall_i[tgt]),                //access delay              | initiator
+//		 .tgt_dat_i        (tgt_dat_i[DAT_MSB:DAT_LSB]),      //read data bus             |
+//		 .tgt_tgd_i        (tgt_tgd_i[TGRD_MSB:TGRD_LSB]),    //read data tags            +-
+//		 						      
+//		 //Testbench status signals			      
+//		 //------------------------			      
+//		 .tb_fsm_reset      (wb_pass_through_fsm_reset[tgt]), //FSM in RESET state
+//		 .tb_fsm_idle       (wb_pass_through_fsm_idle[tgt]),  //FSM in IDLE state
+//		 .tb_fsm_busy       (wb_pass_through_fsm_busy[tgt])); //FSM in BUSY state
+//		
+//
+//	end // for (tgt=0; tgt<TGT_CNT; tgt=tgt+1)
+//      endgenerate
   
 `endif //  `ifdef FORMAL
 
