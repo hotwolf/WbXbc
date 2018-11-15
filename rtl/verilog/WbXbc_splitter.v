@@ -98,10 +98,10 @@ module WbXbc_splitter
     input  wire [(TGT_CNT*TGRD_WIDTH)-1:0] tgt_tgd_i);       //read data tags            +-
 
    //Internal signals
-   wire [TGT_CNT-1:0]                      new_tgt = itr_tga_tgtsel_i & {TGT_CNT{itr_stb_i}}; //one-hot coded target bus tracker
+   wire [TGT_CNT-1:0]                    new_tgt = itr_tga_tgtsel_i & {TGT_CNT{itr_cyc_i&itr_stb_i}}; //one-hot coded target bus tracker
 
    //Internal registers
-   reg  [TGT_CNT-1:0]                      cur_tgt_reg;                                       //one-hot coded target bus tracker
+   reg  [TGT_CNT-1:0]                      cur_tgt_reg;                //one-hot coded target bus tracker
 
    //Counters
    integer            i, j;
@@ -119,7 +119,7 @@ module WbXbc_splitter
    assign tgt_we_o  = {TGT_CNT{itr_we_i}};                   //write enables
    assign tgt_sel_o = {TGT_CNT{itr_sel_i}};                  //write data selects
    assign tgt_adr_o = {TGT_CNT{itr_adr_i}};                  //address busses
-   assign tgt_dat_o = {TGT_CNT{itr_adr_i}};                  //write data busses
+   assign tgt_dat_o = {TGT_CNT{itr_dat_i}};                  //write data busses
    assign tgt_tga_o = {TGT_CNT{itr_tga_i}};                  //propagated address tags
    assign tgt_tgc_o = {TGT_CNT{itr_tgc_i}};                  //bus cycle tags
    assign tgt_tgd_o = {TGT_CNT{itr_tgd_i}};                  //write data tags
@@ -134,7 +134,7 @@ module WbXbc_splitter
    assign itr_ack_o   = |{cur_tgt_reg & tgt_ack_i};          //bus cycle acknowledge
    assign itr_err_o   = |{cur_tgt_reg & tgt_err_i};          //error indicator
    assign itr_rty_o   = |{cur_tgt_reg & tgt_rty_i};          //retry request
-   assign itr_stall_o = |{new_tgt & tgt_stall_i};            //access delay
+   assign itr_stall_o = |{itr_tga_tgtsel_i & tgt_stall_i};   //access delay
 
    always @*                                                 //read data bus
    //always @(cur_tgt_reg or tgt_dat_i)                      //read data bus
@@ -142,7 +142,7 @@ module WbXbc_splitter
         itr_dat_o = {DAT_WIDTH{1'b0}};
         for (i=0; i<(DAT_WIDTH*TGT_CNT); i=i+1)
           itr_dat_o[i%DAT_WIDTH] = itr_dat_o[i%DAT_WIDTH] |
-                                   (cur_tgt_reg[i%TGT_CNT] & tgt_dat_i[i]);
+                                   (cur_tgt_reg[i/DAT_WIDTH] & tgt_dat_i[i]);
      end
 
    always @*                                                 //read data tags
@@ -151,7 +151,7 @@ module WbXbc_splitter
         itr_tgd_o = {TGRD_WIDTH{1'b0}};
         for (j=0; j<(TGRD_WIDTH*TGT_CNT); j=j+1)
           itr_tgd_o[j%TGRD_WIDTH] = itr_tgd_o[j%TGRD_WIDTH] |
-                                    (cur_tgt_reg[j%TGT_CNT] & tgt_tgd_i[j]);
+                                    (cur_tgt_reg[j/TGRD_WIDTH] & tgt_tgd_i[j]);
      end
 
 endmodule // WbXbc_splitter

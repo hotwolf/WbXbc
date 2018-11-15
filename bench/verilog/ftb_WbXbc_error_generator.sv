@@ -68,47 +68,47 @@
 module ftb_WbXbc_error_generator
    (//Clock and reset
     //---------------
-    input wire 			  clk_i,                 //module clock
-    input wire 			  async_rst_i,           //asynchronous reset
-    input wire 			  sync_rst_i,            //synchronous reset
+    input wire                    clk_i,                 //module clock
+    input wire                    async_rst_i,           //asynchronous reset
+    input wire                    sync_rst_i,            //synchronous reset
 
     //Initiator interface
     //-------------------
-    input wire 			  itr_cyc_i,             //bus cycle indicator       +-
-    input wire 			  itr_stb_i,             //access request            |
-    input wire 			  itr_we_i,              //write enable              |
-    input wire 			  itr_lock_i,            //uninterruptable bus cycle |
+    input wire                    itr_cyc_i,             //bus cycle indicator       +-
+    input wire                    itr_stb_i,             //access request            |
+    input wire                    itr_we_i,              //write enable              |
+    input wire                    itr_lock_i,            //uninterruptable bus cycle |
     input wire [`SEL_WIDTH-1:0]   itr_sel_i,             //write data selects        | initiator
     input wire [`ADR_WIDTH-1:0]   itr_adr_i,             //address bus               | to
     input wire [`DAT_WIDTH-1:0]   itr_dat_i,             //write data bus            | target
     input wire [`TGA_WIDTH-1:0]   itr_tga_i,             //address tags              |
-    input wire [`TGT_CNT-1:0] 	  itr_tga_tgtsel_i,      //target select tags        |
+    input wire [`TGT_CNT-1:0]     itr_tga_tgtsel_i,      //target select tags        |
     input wire [`TGC_WIDTH-1:0]   itr_tgc_i,             //bus cycle tags            |
     input wire [`TGWD_WIDTH-1:0]  itr_tgd_i,             //write data tags           +-
-    output wire 		  itr_ack_o,             //bus cycle acknowledge     +-
-    output wire 		  itr_err_o,             //error indicator           | target
-    output wire 		  itr_rty_o,             //retry request             | to
-    output wire 		  itr_stall_o,           //access delay              | initiator
+    output wire                   itr_ack_o,             //bus cycle acknowledge     +-
+    output wire                   itr_err_o,             //error indicator           | target
+    output wire                   itr_rty_o,             //retry request             | to
+    output wire                   itr_stall_o,           //access delay              | initiator
     output wire [`DAT_WIDTH-1:0]  itr_dat_o,             //read data bus             |
     output wire [`TGRD_WIDTH-1:0] itr_tgd_o,             //read data tags            +-
 
     //Target interface
     //----------------
-    output wire 		  tgt_cyc_o,             //bus cycle indicator       +-
-    output wire 		  tgt_stb_o,             //access request            |
-    output wire 		  tgt_we_o,              //write enable              |
-    output wire 		  tgt_lock_o,            //uninterruptable bus cycle |
+    output wire                   tgt_cyc_o,             //bus cycle indicator       +-
+    output wire                   tgt_stb_o,             //access request            |
+    output wire                   tgt_we_o,              //write enable              |
+    output wire                   tgt_lock_o,            //uninterruptable bus cycle |
     output wire [`SEL_WIDTH-1:0]  tgt_sel_o,             //write data selects        | initiator
     output wire [`ADR_WIDTH-1:0]  tgt_adr_o,             //write data selects        | to
     output wire [`DAT_WIDTH-1:0]  tgt_dat_o,             //write data bus            | target
     output wire [`TGA_WIDTH-1:0]  tgt_tga_o,             //address tags              |
-    output wire [`TGT_CNT-1:0] 	  tgt_tga_tgtsel_o,      //target select tags        |
+    output wire [`TGT_CNT-1:0]    tgt_tga_tgtsel_o,      //target select tags        |
     output wire [`TGC_WIDTH-1:0]  tgt_tgc_o,             //bus cycle tags            |
     output wire [`TGWD_WIDTH-1:0] tgt_tgd_o,             //write data tags           +-
-    input wire 			  tgt_ack_i,             //bus cycle acknowledge     +-
-    input wire 			  tgt_err_i,             //error indicator           | target
-    input wire 			  tgt_rty_i,             //retry request             | to
-    input wire 			  tgt_stall_i,           //access delay              | initiator
+    input wire                    tgt_ack_i,             //bus cycle acknowledge     +-
+    input wire                    tgt_err_i,             //error indicator           | target
+    input wire                    tgt_rty_i,             //retry request             | to
+    input wire                    tgt_stall_i,           //access delay              | initiator
     input wire [`DAT_WIDTH-1:0]   tgt_dat_i,             //read data bus             |
     input wire [`TGRD_WIDTH-1:0]  tgt_tgd_i);            //read data tags            +-
 
@@ -172,15 +172,15 @@ module ftb_WbXbc_error_generator
 
 `ifdef FORMAL
    //Testbench signals
-   wire 		wb_itr_mon_fsm_reset;            //FSM in RESET
-   wire 		wb_itr_mon_fsm_idle;             //FSM in IDLE 
-   wire 		wb_itr_mon_fsm_busy;             //FSM in BUSY 
-   wire 		wb_tgt_mon_fsm_reset;            //FSM in RESET
-   wire 		wb_tgt_mon_fsm_idle;             //FSM in IDLE 
-   wire 		wb_tgt_mon_fsm_busy;             //FSM in BUSY 
-   wire 		wb_pass_through_fsm_reset;       //FSM in RESET
-   wire 		wb_pass_through_fsm_idle;        //FSM in IDLE 
-   wire 		wb_pass_through_fsm_busy;        //FSM in READ or WRITE
+   wire                 wb_itr_mon_fsm_reset;            //FSM in RESET
+   wire                 wb_itr_mon_fsm_idle;             //FSM in IDLE
+   wire                 wb_itr_mon_fsm_busy;             //FSM in BUSY
+   wire                 wb_tgt_mon_fsm_reset;            //FSM in RESET
+   wire                 wb_tgt_mon_fsm_idle;             //FSM in IDLE
+   wire                 wb_tgt_mon_fsm_busy;             //FSM in BUSY
+   wire                 wb_pass_through_fsm_reset;       //FSM in RESET
+   wire                 wb_pass_through_fsm_idle;        //FSM in IDLE
+   wire                 wb_pass_through_fsm_busy;        //FSM in READ or WRITE
 
    //SYSCON constraints
    //===================
@@ -419,7 +419,7 @@ module ftb_WbXbc_error_generator
 
    //Error response rules
    //====================
-   always @(posedge clk_i)
+   always @*
      begin
         //Get an error reponse one clock cycle after the request
         if (state_reg == STATE_ERROR)
@@ -431,16 +431,50 @@ module ftb_WbXbc_error_generator
           begin
              assert (~&{tgt_cyc_o, tgt_stb_o});
           end // if (inval_req)
-     end // always @ (posedge clk_i)
+     end // always @*
 
    //Fairness constraints
    //====================
    //A legal request must occur eventually
-   assume property (s_eventually (&{tgt_cyc_o, tgt_stb_o, |itr_tga_tgtsel_i}));	
+   assume property (s_eventually (&{tgt_cyc_o, tgt_stb_o, |itr_tga_tgtsel_i}));
 
    //Liveness Assertions
    //===================
-   
+
+   //Monitor state assertions
+   //========================
+   wire tb_fsm_reset = (state_reg === STATE_RESET) ? 1'b1 : 1'b0;
+   wire tb_fsm_idle  = (state_reg === STATE_IDLE)  ? 1'b1 : 1'b0;
+   wire tb_fsm_busy  = (state_reg === STATE_BUSY)  ? 1'b1 : 1'b0;
+   wire tb_fsm_error = (state_reg === STATE_ERROR) ? 1'b1 : 1'b0;
+
+   always @*
+     begin
+        //Reset states must be aligned
+        assert (&{tb_fsm_reset, wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
+               ~|{tb_fsm_reset, wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
+
+        //Initiator side idle states must be aligned
+        assert (&{tb_fsm_idle, wb_itr_mon_fsm_idle} |
+               ~|{tb_fsm_idle, wb_itr_mon_fsm_idle});
+
+        //Initiator side busy states must be aligned
+        assert (&{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
+               ~|{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
+
+        //If initiator bus is idle, target bus must be idle
+        if (wb_itr_mon_fsm_idle)
+        assert (wb_tgt_mon_fsm_idle);
+
+        //Invalid accesses must not be propagated to the target side
+        if (tb_fsm_busy)
+          assert (&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
+        else if (tb_fsm_error)
+          assert (&{wb_itr_mon_fsm_busy, ~wb_tgt_mon_fsm_busy, ~wb_pass_through_fsm_busy});
+        else
+          assert (&{~wb_itr_mon_fsm_busy, ~wb_tgt_mon_fsm_busy, ~wb_pass_through_fsm_busy});
+     end // always @*
+
    //Cover valid state transitions
    //=============================
    always @(posedge clk_i)
@@ -456,61 +490,61 @@ module ftb_WbXbc_error_generator
 `ifdef FORMAL_K_INDUCT
    //Avoid unreachable states in k-induction proofs
    //==============================================
-   wire tb_fsm_reset = (state_reg === STATE_RESET) ? 1'b1 : 1'b0;
-   wire tb_fsm_idle  = (state_reg === STATE_IDLE)  ? 1'b1 : 1'b0;
-   wire tb_fsm_busy  = (state_reg === STATE_BUSY)  ? 1'b1 : 1'b0;
-   wire tb_fsm_error = (state_reg === STATE_ERROR) ? 1'b1 : 1'b0;
-
-   always @(posedge clk_i)
+   always @*
      begin
-	assume(&{tb_fsm_reset, wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
-	      ~|{tb_fsm_reset, wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
- 
-	assume(&{tb_fsm_idle, wb_itr_mon_fsm_idle} |
-	      ~|{tb_fsm_idle, wb_itr_mon_fsm_idle});
+        //Reset states must be aligned
+        assume(&{tb_fsm_reset, wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
+              ~|{tb_fsm_reset, wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
 
-	assume(&{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
-	      ~|{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
+        //Initiator side idle states must be aligned
+        assume(&{tb_fsm_idle, wb_itr_mon_fsm_idle} |
+              ~|{tb_fsm_idle, wb_itr_mon_fsm_idle});
 
-	if (wb_itr_mon_fsm_idle)
-	assume(wb_tgt_mon_fsm_idle);
+        //Initiator side busy states must be aligned
+        assume(&{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
+              ~|{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
 
-	if (tb_fsm_busy)
-	  assume (&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
-	else if (tb_fsm_error)
-	  assume (&{wb_itr_mon_fsm_busy, ~wb_tgt_mon_fsm_busy, ~wb_pass_through_fsm_busy});
-	else
-	  assume (&{~wb_itr_mon_fsm_busy, ~wb_tgt_mon_fsm_busy, ~wb_pass_through_fsm_busy});
-     end // always @ (posedge clk_i)
+        //If initiator bus is idle, target bus must be idle
+        if (wb_itr_mon_fsm_idle)
+        assume(wb_tgt_mon_fsm_idle);
+
+        //Invalid accesses must not be propagated to the target side
+        if (tb_fsm_busy)
+          assume (&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
+        else if (tb_fsm_error)
+          assume (&{wb_itr_mon_fsm_busy, ~wb_tgt_mon_fsm_busy, ~wb_pass_through_fsm_busy});
+        else
+          assume (&{~wb_itr_mon_fsm_busy, ~wb_tgt_mon_fsm_busy, ~wb_pass_through_fsm_busy});
+     end // always @*
 
    //Enforce a reachable state within the k-intervall
    //================================================
    parameter tcnt_max   = (`FORMAL_K_INDUCT/2)-1;
    integer   tcnt       = tcnt_max;
    wire      reachable_state = 1'b0;  //known set of reachable states
- 			      
+
    always @(posedge clk_i)
      begin
-	//Decrement step counter
-	if (tcnt > tcnt_max)
-	  tcnt = tcnt_max;
-	if (tcnt <= 0)
-	  tcnt = tcnt_max;
-	
-	  tcnt = tcnt - 1;
-	
-	//Determine known reachable states
-	reachable_state = rst; //reset
-	if (tcnt < tcnt_max)
-	  reachable_state = reachable_state | ($past(req) & ack);//acknowledged request
-	
-	//Stop step counter at first known reachable state
-	if (reachable_state)
-	  tcnt = 0;
-		     
-	//Enforce reachable state
-	if (tcnt == 0)
-	  assume(reachable_state);
+        //Decrement step counter
+        if (tcnt > tcnt_max)
+          tcnt = tcnt_max;
+        if (tcnt <= 0)
+          tcnt = tcnt_max;
+
+          tcnt = tcnt - 1;
+
+        //Determine known reachable states
+        reachable_state = rst; //reset
+        if (tcnt < tcnt_max)
+          reachable_state = reachable_state | ($past(req) & ack);//acknowledged request
+
+        //Stop step counter at first known reachable state
+        if (reachable_state)
+          tcnt = 0;
+
+        //Enforce reachable state
+        if (tcnt == 0)
+          assume(reachable_state);
      end // always @ ($global_clock)
 
 `endif //  `ifdef FORMAL_KVAL

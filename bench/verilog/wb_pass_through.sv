@@ -95,12 +95,12 @@ module wb_pass_through
     output wire                 tb_fsm_busy);                //FSM in READ or WRITE state
 
    //Abbreviations
-   wire                                    rst  = |{async_rst_i, sync_rst_i};           //reset
-   wire                                    req  = &{~itr_stall_o, itr_cyc_i, itr_stb_i, //request
-                                                     pass_through_en};                  //monitor enable
-   wire                                    wreq = &{itr_we_i, req};                     //write request
-   wire                                    rreq = &{itr_we_i, req};                     //read request
-   wire                                    ack  = |{itr_ack_o, itr_err_o, itr_rty_o};   //acknowledge
+   wire                         rst  = |{async_rst_i, sync_rst_i};           //reset
+   wire                         req  = &{~itr_stall_o, itr_cyc_i, itr_stb_i, //request
+                                          pass_through_en};                  //monitor enable
+   wire                         wreq = &{ itr_we_i, req};                    //write request
+   wire                         rreq = &{~itr_we_i, req};                    //read request
+   wire                         ack  = |{itr_ack_o, itr_err_o, itr_rty_o};   //acknowledge
 
    //State Machine
    //=============
@@ -181,9 +181,10 @@ module wb_pass_through
             begin
                if (pass_through_en)
                  begin
-                    assert (tgt_cyc_o   == itr_cyc_i);   //bus cycle indicator
-                    assert (tgt_stb_o   == itr_stb_i);   //access request
-                    assert (itr_stall_o == tgt_stall_i); //access delay
+                    assert (&{tgt_cyc_o, tgt_stb_o} ==   //bus cycle request 
+                            &{itr_cyc_i, itr_stb_i}); 
+                    //assert (tgt_cyc_o   == itr_cyc_i); //bus cycle indicator
+                    //assert (tgt_stb_o   == itr_stb_i); //access request
                  end // if (pass_through_en)
                if (req)
                  begin
@@ -193,6 +194,7 @@ module wb_pass_through
                     assert (tgt_adr_o  == itr_adr_i);    //address bus
                     assert (tgt_tga_o  == itr_tga_i);    //address tags
                     assert (tgt_tgc_o  == itr_tgc_i);    //bus cycle tags
+                    assert (itr_stall_o == tgt_stall_i); //access delay
                  end // if (req)
                if (wreq)
                  begin

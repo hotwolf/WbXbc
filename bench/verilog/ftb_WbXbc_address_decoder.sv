@@ -71,14 +71,14 @@ module ftb_WbXbc_address_decoder
     input wire                    clk_i,                 //module clock
     input wire                    async_rst_i,           //asynchronous reset
     input wire                    sync_rst_i,            //synchronous reset
-                                  		
+
     //Target address regions
     //----------------------
     input wire [(`TGT_CNT*`ADR_WIDTH)-1:0] region_adr_i, //target address
     input wire [(`TGT_CNT*`ADR_WIDTH)-1:0] region_msk_i, //selects relevant address bits
 
-    //Initiator interface         		
-    //-------------------         		
+    //Initiator interface
+    //-------------------
     input  wire                   itr_cyc_i,             //bus cycle indicator       +-
     input  wire                   itr_stb_i,             //access request            |
     input  wire                   itr_we_i,              //write enable              |
@@ -115,10 +115,10 @@ module ftb_WbXbc_address_decoder
     input  wire                   tgt_stall_i,           //access delay              | initiator
     input  wire [`DAT_WIDTH-1:0]  tgt_dat_i,             //read data bus             |
     input  wire [`TGRD_WIDTH-1:0] tgt_tgd_i);            //read data tags            +-
-						
-   //DUT					
-   //===					
-   WbXbc_address_decoder			
+
+   //DUT
+   //===
+   WbXbc_address_decoder
      #(.TGT_CNT   (`TGT_CNT),                            //number of target addresses
        .ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
@@ -132,9 +132,9 @@ module ftb_WbXbc_address_decoder
       //----------------------
       .region_adr_i     (region_adr_i),                  //target address
       .region_msk_i     (region_msk_i),                  //selects relevant address bits
-      
-      //Initiator interface		
-      //-------------------		
+
+      //Initiator interface
+      //-------------------
       .itr_cyc_i        (itr_cyc_i),                     //bus cycle indicator       +-
       .itr_stb_i        (itr_stb_i),                     //access request            |
       .itr_we_i         (itr_we_i),                      //write enable              |
@@ -172,17 +172,17 @@ module ftb_WbXbc_address_decoder
       .tgt_dat_i        (tgt_dat_i),                     //read data bus             |
       .tgt_tgd_i        (tgt_tgd_i));                    //read data tags            +-
 
-`ifdef FORMAL 
+`ifdef FORMAL
    //Testbench signals
-   wire 		wb_itr_mon_fsm_reset;            //FSM in RESET
-   wire 		wb_itr_mon_fsm_idle;             //FSM in IDLE 
-   wire 		wb_itr_mon_fsm_busy;             //FSM in BUSY 
-   wire 		wb_tgt_mon_fsm_reset;            //FSM in RESET
-   wire 		wb_tgt_mon_fsm_idle;             //FSM in IDLE 
-   wire 		wb_tgt_mon_fsm_busy;             //FSM in BUSY 
-   wire 		wb_pass_through_fsm_reset;       //FSM in RESET
-   wire 		wb_pass_through_fsm_idle;        //FSM in IDLE 
-   wire 		wb_pass_through_fsm_busy;        //FSM in READ or WRITE
+   wire                 wb_itr_mon_fsm_reset;            //FSM in RESET
+   wire                 wb_itr_mon_fsm_idle;             //FSM in IDLE
+   wire                 wb_itr_mon_fsm_busy;             //FSM in BUSY
+   wire                 wb_tgt_mon_fsm_reset;            //FSM in RESET
+   wire                 wb_tgt_mon_fsm_idle;             //FSM in IDLE
+   wire                 wb_tgt_mon_fsm_busy;             //FSM in BUSY
+   wire                 wb_pass_through_fsm_reset;       //FSM in RESET
+   wire                 wb_pass_through_fsm_idle;        //FSM in IDLE
+   wire                 wb_pass_through_fsm_busy;        //FSM in READ or WRITE
 
    //SYSCON constraints
    //===================
@@ -198,13 +198,13 @@ module ftb_WbXbc_address_decoder
    //Protocol assertions
    //===================
    wb_itr_mon
-     #(.ADR_WIDTH (`ADR_WIDTH),			         //width of the address bus
-       .DAT_WIDTH (`DAT_WIDTH),			         //width of each data bus
-       .SEL_WIDTH (`SEL_WIDTH),			         //number of data select lines
-       .TGA_WIDTH (`TGA_WIDTH+(2*`TGT_CNT*`ADR_WIDTH)),	 //number of propagated address tags
-       .TGC_WIDTH (`TGC_WIDTH),			         //number of propagated cycle tags
-       .TGRD_WIDTH(`TGRD_WIDTH),		         //number of propagated read data tags
-       .TGWD_WIDTH(`TGWD_WIDTH))		         //number of propagated write data tags
+     #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
+       .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
+       .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
+       .TGA_WIDTH (`TGA_WIDTH+(2*`TGT_CNT*`ADR_WIDTH)),  //number of propagated address tags
+       .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
+       .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
+       .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
    wb_itr_mon
      (//Clock and reset
       //---------------
@@ -222,8 +222,8 @@ module ftb_WbXbc_address_decoder
       .itr_adr_i        (itr_adr_i),                     //address bus               | to
       .itr_dat_i        (itr_dat_i),                     //write data bus            | target
       .itr_tga_i        ({region_adr_i,                  //region descriptors must   |
-			  region_msk_i,                  // have TGA_I timing        |
-			  itr_tga_i}),                   //address tags              |
+                          region_msk_i,                  // have TGA_I timing        |
+                          itr_tga_i}),                   //address tags              |
       .itr_tgc_i        (itr_tgc_i),                     //bus cycle tags            |
       .itr_tgd_i        (itr_tgd_i),                     //write data tags           +-
       .itr_ack_o        (itr_ack_o),                     //bus cycle acknowledge     +-
@@ -238,15 +238,15 @@ module ftb_WbXbc_address_decoder
      .tb_fsm_reset      (wb_itr_mon_fsm_reset),          //FSM in RESET state
      .tb_fsm_idle       (wb_itr_mon_fsm_idle),           //FSM in IDLE state
      .tb_fsm_busy       (wb_itr_mon_fsm_busy));          //FSM in BUSY state
-   
+
    wb_tgt_mon
-     #(.ADR_WIDTH (`ADR_WIDTH),     			 //width of the address bus
-       .DAT_WIDTH (`DAT_WIDTH),     			 //width of each data bus
-       .SEL_WIDTH (`SEL_WIDTH),     			 //number of data select lines
-       .TGA_WIDTH (`TGA_WIDTH + `TGT_CNT),           	 //number of propagated address tags
-       .TGC_WIDTH (`TGC_WIDTH),     			 //number of propagated cycle tags
-       .TGRD_WIDTH(`TGRD_WIDTH),            		 //number of propagated read data tags
-       .TGWD_WIDTH(`TGWD_WIDTH))			 //number of propagated write data tags
+     #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
+       .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
+       .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
+       .TGA_WIDTH (`TGA_WIDTH + `TGT_CNT),               //number of propagated address tags
+       .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
+       .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
+       .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
    wb_tgt_mon
      (//Clock and reset
       //---------------
@@ -282,13 +282,13 @@ module ftb_WbXbc_address_decoder
    //Pass-through assertions
    //=======================
    wb_pass_through
-     #(.ADR_WIDTH (`ADR_WIDTH),     			 //width of the address bus
-       .DAT_WIDTH (`DAT_WIDTH),     			 //width of each data bus
-       .SEL_WIDTH (`SEL_WIDTH),     			 //number of data select lines
-       .TGA_WIDTH (`TGA_WIDTH),             	         //number of propagated address tags
-       .TGC_WIDTH (`TGC_WIDTH),     			 //number of propagated cycle tags
-       .TGRD_WIDTH(`TGRD_WIDTH),            		 //number of propagated read data tags
-       .TGWD_WIDTH(`TGWD_WIDTH))			 //number of propagated write data tags
+     #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
+       .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
+       .SEL_WIDTH (`SEL_WIDTH),                          //number of data select lines
+       .TGA_WIDTH (`TGA_WIDTH),                          //number of propagated address tags
+       .TGC_WIDTH (`TGC_WIDTH),                          //number of propagated cycle tags
+       .TGRD_WIDTH(`TGRD_WIDTH),                         //number of propagated read data tags
+       .TGWD_WIDTH(`TGWD_WIDTH))                         //number of propagated write data tags
    wb_pass_through
      (//Assertion control
       //-----------------
@@ -352,58 +352,75 @@ module ftb_WbXbc_address_decoder
 
    //Address region assertions
    //=========================
-   integer         i, j;
+   integer         i, j, k, l;
    reg     [1:0]   onehot_sum;
    always @*
      begin
-	//Address regions must not overlap
-	for (i=1; i<`TGT_CNT; i=i+1)
-	  for (j=0; j<i; j=j+1)
-	    begin
-	       assume (|((region_adr_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH] ^
-		      	  region_adr_i[((j+1)*`ADR_WIDTH)-1:j*`ADR_WIDTH]) &
-		         (region_msk_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH]  &
-		     	  region_msk_i[((j+1)*`ADR_WIDTH)-1:j*`ADR_WIDTH])));
-	    end // if (i != j)
+        //Address regions must not overlap
+        for (i=1; i<`TGT_CNT; i=i+1)
+        for (j=0; j<i; j=j+1)
+          begin
+             assume (|((region_adr_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH] ^
+                        region_adr_i[((j+1)*`ADR_WIDTH)-1:j*`ADR_WIDTH]) &
+                       (region_msk_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH]  &
+                        region_msk_i[((j+1)*`ADR_WIDTH)-1:j*`ADR_WIDTH])));
+          end // if (i != j)
 
-	//Region select outputs must be "onehot0" encoded
-	//assert ($onehot0(tgt_tga_tgtsel_o))
-	onehot_sum = 2'b00;
-	for (k=0; k<`TGT_CNT; k=k+1)
-	  begin
-	     onehot_sum[1] <= onehot_sum[1] | (onehot_sum[0] & tgt_tga_tgtsel_o[k]);
-	     onehot_sum[0] <= onehot_sum[0] | tgt_tga_tgtsel_o[k];
-	  end
-	assert (~onehot_sum[1]);
-	
+        //Region select outputs must be "onehot0" encoded
+        for (k=0; k<`TGT_CNT; k=k+1)
+        for (l=0; l<`TGT_CNT; l=l+1)
+        if (k != l)
+          begin
+             if (tgt_tga_tgtsel_o[k]) assert (~tgt_tga_tgtsel_o[l]);
+          end
      end // always @ *
-   
+
+   //Monitor state assertions
+   //========================
+   always @*
+     begin
+        //Reset states must be aligned
+        assert(&{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
+              ~|{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
+
+        //Idle states must be aligned
+        assert(&{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
+              ~|{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
+
+        //Busy states must be aligned
+       assert(&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy} |
+              ~|{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
+     end // always @ *
+
    //Cover all target selects
    //========================
-   integer   k;
-   always @(posedge clk_i)
+   integer   m;
+   always @*
      begin
-	for (k=0; k<`TGT_CNT; k=k+1)
-	  cover (req & tgt_tga_tgtsel_o[k]); //cover each target selection	
-	cover (req & ~|tgt_tga_tgtsel_o);    //cover empty target selection
-     end // always @ (posedge clk_i)
+        for (m=0; m<`TGT_CNT; m=m+1)
+          cover (req & tgt_tga_tgtsel_o[m]); //cover each target selection
+        cover (req & ~|tgt_tga_tgtsel_o);    //cover empty target selection
+     end // always @*
 
 `ifdef FORMAL_K_INDUCT
    //Avoid unreachable states in k-induction proofs
    //==============================================
-   always @(posedge clk_i)
+   always @*
      begin
-	assume(&{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
-	      ~|{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
- 
-	assume(&{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
-	      ~|{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
+        //Reset states must be aligned
+        assume(&{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
+              ~|{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
 
-	assume(&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy} |
-	      ~|{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
-     end // always @ (posedge clk_i)
+        //Idle states must be aligned
+        assume(&{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
+              ~|{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
+
+        //Busy states must be aligned
+       assume(&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy} |
+              ~|{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
+     end // always @*
 `endif //  `ifdef FORMAL_KVAL
- 
+
 `endif //  `ifdef FORMAL
-   
+
 endmodule // ftb_WbXbc_address_decoder

@@ -163,7 +163,7 @@ VERIFY_MODCONFS := $(MODCONFS:%=verify.%)
 VERIFY_MODS     := $(MODS:%=verify.%)
 VERIFY_CONFS    := $(CONFS:%=verify.%)
 
-$(VERIFY_MODCONFS): $$(subst verify.,prove.,$$@) $$(subst verify.,cover.,$$@) #$$(subst verify.,live.,$$@)
+$(VERIFY_MODCONFS): $$(subst verify.,bmc.,$$@) $$(subst verify.,prove.,$$@) $$(subst verify.,cover.,$$@) #$$(subst verify.,live.,$$@)
 
 $(VERIFY_MODS): $$(filter $$@.%,$(VERIFY_MODCONFS))
 

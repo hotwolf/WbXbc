@@ -209,6 +209,10 @@ sub parse_stems {
 			                                        $file_name,
 		       	                                        $first_line,
 			                                        $last_line);
+    #printf("++ module %s file %s lines %d - %d\n", $name,
+    #	                                           $file_name,
+    #	                                           $first_line,
+    #	                                           $last_line);
 
     #Write signal definitions
     foreach my $net_ref ($parent_mod_ref->nets_sorted()) {
