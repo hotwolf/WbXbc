@@ -184,6 +184,9 @@ module ftb_WbXbc_address_decoder
    wire                 wb_pass_through_fsm_idle;        //FSM in IDLE
    wire                 wb_pass_through_fsm_busy;        //FSM in READ or WRITE
 
+   //Abbreviations
+   wire                                    req = &{~itr_stall_o, itr_cyc_i, itr_stb_i}; //request
+
    //SYSCON constraints
    //===================
    wb_syscon wb_syscon
@@ -197,6 +200,7 @@ module ftb_WbXbc_address_decoder
 
    //Protocol assertions
    //===================
+   //Initiator interface
    wb_itr_mon
      #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
@@ -239,6 +243,7 @@ module ftb_WbXbc_address_decoder
      .tb_fsm_idle       (wb_itr_mon_fsm_idle),           //FSM in IDLE state
      .tb_fsm_busy       (wb_itr_mon_fsm_busy));          //FSM in BUSY state
 
+   //Target interface
    wb_tgt_mon
      #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
@@ -344,16 +349,9 @@ module ftb_WbXbc_address_decoder
      .tb_fsm_idle       (wb_pass_through_fsm_idle),      //FSM in IDLE state
      .tb_fsm_busy       (wb_pass_through_fsm_busy));     //FSM in BUSY state
 
-   //Additional assertions
-   //=====================
-
-   //Abbreviations
-   wire                                    req = &{~itr_stall_o, itr_cyc_i, itr_stb_i}; //request
-
    //Address region assertions
    //=========================
    integer         i, j, k, l;
-   reg     [1:0]   onehot_sum;
    always @*
      begin
         //Address regions must not overlap
@@ -364,7 +362,7 @@ module ftb_WbXbc_address_decoder
                         region_adr_i[((j+1)*`ADR_WIDTH)-1:j*`ADR_WIDTH]) &
                        (region_msk_i[((i+1)*`ADR_WIDTH)-1:i*`ADR_WIDTH]  &
                         region_msk_i[((j+1)*`ADR_WIDTH)-1:j*`ADR_WIDTH])));
-          end // if (i != j)
+          end // for (j=0; j<i; j=j+1)
 
         //Region select outputs must be "onehot0" encoded
         for (k=0; k<`TGT_CNT; k=k+1)
@@ -402,24 +400,24 @@ module ftb_WbXbc_address_decoder
         cover (req & ~|tgt_tga_tgtsel_o);    //cover empty target selection
      end // always @*
 
-`ifdef FORMAL_K_INDUCT
-   //Avoid unreachable states in k-induction proofs
-   //==============================================
-   always @*
-     begin
-        //Reset states must be aligned
-        assume(&{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
-              ~|{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
-
-        //Idle states must be aligned
-        assume(&{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
-              ~|{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
-
-        //Busy states must be aligned
-       assume(&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy} |
-              ~|{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
-     end // always @*
-`endif //  `ifdef FORMAL_KVAL
+//`ifdef FORMAL_K_INDUCT
+//   //Avoid unreachable states in k-induction proofs
+//   //==============================================
+//   always @*
+//     begin
+//        //Reset states must be aligned
+//        assume(&{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
+//              ~|{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
+//
+//        //Idle states must be aligned
+//        assume(&{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
+//              ~|{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
+//
+//        //Busy states must be aligned
+//       assume(&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy} |
+//              ~|{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
+//     end // always @*
+//`endif //  `ifdef FORMAL_KVAL
 
 `endif //  `ifdef FORMAL
 

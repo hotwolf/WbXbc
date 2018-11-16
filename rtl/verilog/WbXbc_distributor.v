@@ -230,11 +230,11 @@ module WbXbc_distributor
                            .TGC_WIDTH  (TGC_WIDTH),             //number of propagated cycle tags
                            .TGRD_WIDTH (TGRD_WIDTH),            //number of propagated read data tags
                            .TGWD_WIDTH( TGWD_WIDTH))            //number of propagated write data tags
-   errgen 
+   errgen
            (//Clock and reset
             //---------------
             .clk_i               (clk_i),                       //module clock
-            .async_rst_i         (clk_i),                       //asynchronous reset
+            .async_rst_i         (async_rst_i),                 //asynchronous reset
             .sync_rst_i          (sync_rst_i),                  //synchronous reset
 
             //Initiator interface
@@ -291,7 +291,7 @@ module WbXbc_distributor
            (//Clock and reset
             //---------------
             .clk_i               (clk_i),                       //module clock
-            .async_rst_i         (clk_i),                       //asynchronous reset
+            .async_rst_i         (async_rst_i),                 //asynchronous reset
             .sync_rst_i          (sync_rst_i),                  //synchronous reset
 
             //Initiator interface

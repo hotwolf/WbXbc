@@ -184,6 +184,7 @@ module ftb_WbXbc_error_generator
 
    //SYSCON constraints
    //===================
+   //Initiator interface
    wb_syscon wb_syscon
      (//Clock and reset
       //---------------
@@ -235,6 +236,7 @@ module ftb_WbXbc_error_generator
      .tb_fsm_idle       (wb_itr_mon_fsm_idle),           //FSM in IDLE state
      .tb_fsm_busy       (wb_itr_mon_fsm_busy));          //FSM in BUSY state
 
+   //Target interface
    wb_tgt_mon
      #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
@@ -488,63 +490,23 @@ module ftb_WbXbc_error_generator
      end // always @ (posedge clk_i)
 
 `ifdef FORMAL_K_INDUCT
-   //Avoid unreachable states in k-induction proofs
-   //==============================================
-   always @*
-     begin
-        //Reset states must be aligned
-        assume(&{tb_fsm_reset, wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
-              ~|{tb_fsm_reset, wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
-
-        //Initiator side idle states must be aligned
-        assume(&{tb_fsm_idle, wb_itr_mon_fsm_idle} |
-              ~|{tb_fsm_idle, wb_itr_mon_fsm_idle});
-
-        //Initiator side busy states must be aligned
-        assume(&{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
-              ~|{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
-
-        //If initiator bus is idle, target bus must be idle
-        if (wb_itr_mon_fsm_idle)
-        assume(wb_tgt_mon_fsm_idle);
-
-        //Invalid accesses must not be propagated to the target side
-        if (tb_fsm_busy)
-          assume (&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
-        else if (tb_fsm_error)
-          assume (&{wb_itr_mon_fsm_busy, ~wb_tgt_mon_fsm_busy, ~wb_pass_through_fsm_busy});
-        else
-          assume (&{~wb_itr_mon_fsm_busy, ~wb_tgt_mon_fsm_busy, ~wb_pass_through_fsm_busy});
-     end // always @*
-
    //Enforce a reachable state within the k-intervall
    //================================================
    parameter tcnt_max   = (`FORMAL_K_INDUCT/2)-1;
    integer   tcnt       = tcnt_max;
-   wire      reachable_state = 1'b0;  //known set of reachable states
 
    always @(posedge clk_i)
      begin
         //Decrement step counter
-        if (tcnt > tcnt_max)
-          tcnt = tcnt_max;
-        if (tcnt <= 0)
+        if ((tcnt > tcnt_max) || (tcnt <= 0))
           tcnt = tcnt_max;
 
-          tcnt = tcnt - 1;
-
-        //Determine known reachable states
-        reachable_state = rst; //reset
-        if (tcnt < tcnt_max)
-          reachable_state = reachable_state | ($past(req) & ack);//acknowledged request
-
-        //Stop step counter at first known reachable state
-        if (reachable_state)
-          tcnt = 0;
+        tcnt = tcnt - 1;
 
         //Enforce reachable state
         if (tcnt == 0)
-          assume(reachable_state);
+          assume( rst              |   //reset or
+                 ($past(req) & ack));  //acknowledged request
      end // always @ ($global_clock)
 
 `endif //  `ifdef FORMAL_KVAL

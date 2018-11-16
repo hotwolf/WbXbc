@@ -8,10 +8,10 @@ cover.default  cover default
 bmc:   mode bmc
 bmc:   depth 30
 prove: mode prove
-prove: depth 10
+prove: depth 20
 live:  mode live
 cover: mode cover
-cover: depth 10
+cover: depth 20
 multiclock on
 
 [engines]
@@ -21,17 +21,26 @@ live:  aiger avy
 cover: smtbmc
 
 [script]
-read -formal -D CONF_DEFAULT ftb_WbXbc_address_decoder.sv
+bmc.default: read -formal -D CONF_DEFAULT ftb_WbXbc_distributor.sv
+prove.default: read -formal -D CONF_DEFAULT -D FORMAL_K_INDUCT=20 ftb_WbXbc_distributor.sv
+live.default: read -formal -D CONF_DEFAULT ftb_WbXbc_distributor.sv
+cover.default: read -formal -D CONF_DEFAULT -D FORMAL_K_INDUCT=20 ftb_WbXbc_distributor.sv
+read -sv     WbXbc_distributor.v
 read -sv     WbXbc_address_decoder.v
+read -sv     WbXbc_error_generator.v
+read -sv     WbXbc_splitter.v
 read -formal wb_itr_mon.sv
 read -formal wb_tgt_mon.sv
 read -formal wb_pass_through.sv
 read -formal wb_syscon.sv
-prep -top ftb_WbXbc_address_decoder
+prep -top ftb_WbXbc_distributor
 
 [files]
-bench/verilog/ftb_WbXbc_address_decoder.sv
+bench/verilog/ftb_WbXbc_distributor.sv
+rtl/verilog/WbXbc_distributor.v
 rtl/verilog/WbXbc_address_decoder.v
+rtl/verilog/WbXbc_error_generator.v
+rtl/verilog/WbXbc_splitter.v
 bench/verilog/wb_itr_mon.sv
 bench/verilog/wb_tgt_mon.sv
 bench/verilog/wb_pass_through.sv

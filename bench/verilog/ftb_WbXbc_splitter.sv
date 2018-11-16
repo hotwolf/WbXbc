@@ -176,6 +176,11 @@ module ftb_WbXbc_splitter
    wire [`TGT_CNT-1:0]  wb_pass_through_fsm_idle;        //FSM in IDLE
    wire [`TGT_CNT-1:0]  wb_pass_through_fsm_busy;        //FSM in READ or WRITE
 
+   //Abbreviations
+   wire                  rst       = |{async_rst_i, sync_rst_i};            //reset
+   wire                  req       = &{~itr_stall_o, itr_cyc_i, itr_stb_i}; //request
+   wire                  ack       = |{itr_ack_o, itr_err_o, itr_rty_o};    //acknowledge
+
    //SYSCON constraints
    //===================
    wb_syscon wb_syscon
@@ -230,6 +235,7 @@ module ftb_WbXbc_splitter
      .tb_fsm_idle       (wb_itr_mon_fsm_idle),           //FSM in IDLE state
      .tb_fsm_busy       (wb_itr_mon_fsm_busy));          //FSM in BUSY state
 
+   //Target interfaces
    wb_tgt_mon
      #(.ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
@@ -350,7 +356,7 @@ module ftb_WbXbc_splitter
         assume (|itr_tga_tgtsel_i);
      end // always @*
 
-   //Only one target access is allowed at a time 
+   //Only one target access is allowed at a time
    integer         k, l;
    always @*
      begin
@@ -358,9 +364,9 @@ module ftb_WbXbc_splitter
         for (l=0; l<`TGT_CNT; l=l+1)
         if (k != l)
           begin
-	     //Only one target request
+             //Only one target request
              if (&{tgt_cyc_o[k], tgt_stb_o[k]}) assert (~&{tgt_cyc_o[l], tgt_stb_o[l]});
-	     //Only one ongoing target access
+             //Only one ongoing target access
              if (wb_tgt_mon_fsm_busy[k]) assert (~wb_tgt_mon_fsm_busy[l]);
           end
      end // always @*
@@ -369,46 +375,52 @@ module ftb_WbXbc_splitter
    //========================
    always @*
      begin
-	//Reset states of monitors must be aligned
-	assert(&{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
+        //Reset states of monitors must be aligned
+        assert(&{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
               ~|{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
-	
-	//If initiator is idle, all targets must be idle
-	if (wb_itr_mon_fsm_idle) assert (&wb_tgt_mon_fsm_idle);
-	
-	//If initiator is busy, one target must be busy
-	if (wb_itr_mon_fsm_busy) assert (|wb_tgt_mon_fsm_busy);
-	
-	//State of pass-through and target monitor must be aligned
-	assert(~^{wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
-	assert(~^{wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
+
+        //If initiator is idle, all targets must be idle
+        if (wb_itr_mon_fsm_idle) assert (&wb_tgt_mon_fsm_idle);
+
+        //If initiator is busy, one target must be busy
+        if (wb_itr_mon_fsm_busy) assert (|wb_tgt_mon_fsm_busy);
+
+        //State of pass-through and target monitor must be aligned
+        assert(~|(wb_tgt_mon_fsm_idle ^ wb_pass_through_fsm_idle));
+        assert(~|(wb_tgt_mon_fsm_busy ^ wb_pass_through_fsm_busy));
      end // always @ *
-   	
+
    //Cover all target accesses
    //=========================
    integer   m;
-   always @*
-     begin
-        for (m=0; m<`TGT_CNT; m=m+1)
-          cover (&{tgt_cyc_o[m],   //read access
-		   tgt_stb_o[m],
-		  ~tgt_stall_i[m],
-                  ~tgt_we_i[m]});
-          cover (&{tgt_cyc_o[m],   //write access
-		   tgt_stb_o[m],
-		  ~tgt_stall_i[m],
-                   tgt_we_i[m]});
-     end // always @*
+   always @(posedge clk_i)
+     for (m=0; m<`TGT_CNT; m=m+1)
+       begin
+          cover (wb_tgt_mon_fsm_busy[m] & $past(wb_tgt_mon_fsm_idle[m]));
+          cover (wb_tgt_mon_fsm_busy[m] & $past(wb_tgt_mon_fsm_busy[m]));
+          cover (wb_tgt_mon_fsm_idle[m] & $past(wb_tgt_mon_fsm_busy[m]));
+       end // for (m=0; m<`TGT_CNT; m=m+1)
 
 `ifdef FORMAL_K_INDUCT
-   //Avoid unreachable states in k-induction proofs
-   //==============================================
-   always @*
+   //Enforce a reachable state within the k-intervall
+   //================================================
+   parameter tcnt_max   = (`FORMAL_K_INDUCT/2)-1;
+   integer   tcnt       = tcnt_max;
+
+   always @(posedge clk_i)
      begin
+        //Decrement step counter
+        if ((tcnt > tcnt_max) || (tcnt <= 0))
+          tcnt = tcnt_max;
 
+        tcnt = tcnt - 1;
 
-	
-     end // always @*
+        //Enforce reachable state
+        if (tcnt == 0)
+          assume( rst              |   //reset or
+                 ($past(req) & ack));  //acknowledged request
+     end // always @ ($global_clock)
+
 `endif //  `ifdef FORMAL_KVAL
 
 `endif //  `ifdef FORMAL

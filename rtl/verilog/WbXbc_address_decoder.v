@@ -101,13 +101,12 @@ module WbXbc_address_decoder
 
    //Address decoding
    always @*                                                 //target select tags
-   //always @(itr_adr_i or region_adr_i or region_msk_i)     //target select tags
-     begin
-        tgt_tga_tgtsel_o = {TGT_CNT{1'b1}};
-        for (i=0; i<(TGT_CNT*ADR_WIDTH); i=i+1)
-          tgt_tga_tgtsel_o[i/ADR_WIDTH] = tgt_tga_tgtsel_o[i/ADR_WIDTH] &
-                                          ~((region_adr_i[i] ^ itr_adr_i[i%ADR_WIDTH]) & region_msk_i[i]);
-     end
+     for (i=0; i<`TGT_CNT; i=i+1)
+       begin
+          tgt_tga_tgtsel_o[i] = ~|((region_adr_i[((i+1)*ADR_WIDTH)-1:i*ADR_WIDTH] ^
+                                    itr_adr_i[ADR_WIDTH-1:0])                     &
+                                   region_msk_i[((i+1)*ADR_WIDTH)-1:i*ADR_WIDTH]);
+       end // for (i=0; i<TGT_CNT; i=i+1)
 
    //Plain signal propagation to the target bus
    assign tgt_cyc_o   = itr_cyc_i;  //bus cycle indicator
