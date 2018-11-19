@@ -385,7 +385,7 @@ module ftb_WbXbc_splitter
         //If initiator is busy, one target must be busy
         if (wb_itr_mon_fsm_busy) assert (|wb_tgt_mon_fsm_busy);
 
-        //State of pass-through and target monitor must be aligned
+        //State of pass-through and target monitors must be aligned
         assert(~|(wb_tgt_mon_fsm_idle ^ wb_pass_through_fsm_idle));
         assert(~|(wb_tgt_mon_fsm_busy ^ wb_pass_through_fsm_busy));
      end // always @ *

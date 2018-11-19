@@ -82,7 +82,7 @@ module WbXbc_arbiter
 
     //Target interfaces
     //-----------------
-    output wire                            tgt_cyc_o,        //bus cycle indicator       +-
+    output reg                             tgt_cyc_o,        //bus cycle indicator       +-
     output reg                             tgt_stb_o,        //access request            |
     output wire                            tgt_we_o,         //write enable              |
     output wire                            tgt_lock_o,       //uninterruptable bus cycle | initiator
@@ -149,7 +149,6 @@ module WbXbc_arbiter
    assign itr_rty_o = {ITR_CNT{tgt_rty_i}} & cur_itr_reg; //retry request
 
    //Multiplexed signal propagation to the target bus
-   assign tgt_cyc_o   = |(cyc_sel & itr_cyc_i);           //bus cycle indicator
    assign tgt_we_o    = |(cyc_sel & itr_we_i);            //write enable
    assign tgt_lock_o  = |(cyc_sel & itr_lock_i);          //write enable
 
@@ -190,7 +189,7 @@ module WbXbc_arbiter
         tgt_dat_o = {DAT_WIDTH{1'b0}};
         for (o=0; o<(ITR_CNT*DAT_WIDTH); o=o+1)
           tgt_dat_o[o%DAT_WIDTH] = tgt_dat_o[o%DAT_WIDTH] |
-                                    (cur_itr_reg[o/DAT_WIDTH] & itr_dat_i[o]);
+                                    (cyc_sel[o/DAT_WIDTH] & itr_dat_i[o]);
      end
 
    always @*                                              //write data tags
@@ -198,7 +197,7 @@ module WbXbc_arbiter
         tgt_tgd_o = {TGWD_WIDTH{1'b0}};
         for (p=0; p<(ITR_CNT*TGWD_WIDTH); p=p+1)
           tgt_tgd_o[p%TGWD_WIDTH] = tgt_tgd_o[p%TGWD_WIDTH] |
-                                    (cur_itr_reg[p/TGWD_WIDTH] & itr_tgd_i[p]);
+                                    (cyc_sel[p/TGWD_WIDTH] & itr_tgd_i[p]);
      end
 
    //Finite state machine
@@ -208,6 +207,7 @@ module WbXbc_arbiter
      begin
         //Default outputs
         state_next  = state_reg;                                      //remain in current state
+        tgt_cyc_o   = 1'b0;                                           //target bus idle
         tgt_stb_o   = 1'b0;                                           //no target bus request
         itr_stall_o = {ITR_CNT{tgt_stall_i}};                         //propagate stall from target
         cyc_sel     = arb_req;                                        //propagate signals of arbitrated initiator
@@ -215,54 +215,54 @@ module WbXbc_arbiter
         case (state_reg)
           STATE_IDLE:
             begin
+               if (any_req)                                           //new bus request
+                 begin
+                    tgt_cyc_o   = 1'b1;                               //signal bus activity
+                    tgt_stb_o   = 1'b1;                               //propagate new bus request
+                 end
+               if (any_req & ~tgt_stall_i)                            //new bus request, no stall
+                 begin
+                    state_next  = STATE_BUSY;                         //wait for acknowledge
+                 end
                if (any_req & ~tgt_stall_i & ~locked)                  //new bus request, no stall, not locked
                  begin
-                    state_next  = STATE_BUSY;                         //wait for acknowledge
-                    tgt_stb_o   = 1'b1;                               //request target bus
                     itr_stall_o = ~arb_req;                           //stall all other initiators
-                    cyc_sel     =  arb_req;                           //propagate signals of arbitrated initiator
                     capture_req = 1'b1;                               //capture arbitrated request
                  end
-               else
-               if (any_req & ~tgt_stall_i &  locked)                  //new bus request, no stall, locked
+               if (any_req & ~tgt_stall_i & locked)                   //new bus request, no stall, locked
                  begin
-                    state_next  = STATE_BUSY;                         //wait for acknowledge
-                    tgt_stb_o   = 1'b1;                               //request target bus
                     itr_stall_o = ~cur_itr_reg;                       //stall all other initiators
                     cyc_sel     =  cur_itr_reg;                       //propagate signals of arbitrated initiator
                  end
             end // case: STATE_IDLE
           STATE_BUSY:
             begin
-               if (tgt_ack_i)                                         //request acknowleged
-                 if ( any_req & ~tgt_stall_i & ~locked)               //new bus request, no stall, not locked
-                   begin
-                      tgt_stb_o   = 1'b1;                             //request target bus
-                      itr_stall_o = ~cyc_sel;                         //stall all other initiators
-                      cyc_sel     =  arb_req;                         //propagate signals of arbitrated initiator
-                      capture_req = 1'b1;                             //capture arbitrated request
-                   end
-                 else
-                 if ( any_req & ~tgt_stall_i &  locked)               //new bus request, no stall, locked
-                   begin
-                      tgt_stb_o   = 1'b1;                             //request target bus
-                      itr_stall_o = ~cur_itr_reg;                     //stall all other initiators
-                      cyc_sel     =  cur_itr_reg;                     //propagate signals of arbitrated initiator
-                   end
-                 else
-                   begin
-                      state_next  = STATE_IDLE;                      //remain in current state
-                   end // else: !if( any_req & ~tgt_stall_i)
-               else
+               tgt_cyc_o   = 1'b1;                                    //signal bus activity
+               if (any_ack & any_req & ~tgt_stall_i)                  //request acknowleged, new bus request, no stall
                  begin
-                    itr_stall_o = ~cyc_sel;                           //stall all other initiators
+                    tgt_stb_o   = 1'b1;                               //request target bus
+                 end
+               if (any_ack & any_req & ~tgt_stall_i & ~locked)       //request acknowleged, new bus request, no stall, not locked
+                 begin
+                    itr_stall_o = ~cyc_sel;                          //stall all other initiators
+                    cyc_sel     =  arb_req;                          //propagate signals of arbitrated initiator
+                    capture_req = 1'b1;                              //capture arbitrated request
+                 end
+               if (any_ack & any_req & ~tgt_stall_i & locked)       //request acknowleged, new bus request, no stall, locked
+                 begin
+                    itr_stall_o = ~cur_itr_reg;                     //stall all other initiators
+                    cyc_sel     =  cur_itr_reg;                     //propagate signals of arbitrated initiator
+                 end
+               if (any_ack & (~any_req | tgt_stall_i))              //request acknowleged, no bus request or stall
+                 begin
+                    state_next  = STATE_IDLE;                       //go to idle state
+                 end
+               if (~any_ack)                                          //no acknowlege
+                 begin
+                    itr_stall_o = ~cur_itr_reg;                       //stall all other initiators
                     cyc_sel     =  cur_itr_reg;                       //propagate signals of captured initiator
-                 end // else: !if( any_req & ~tgt_stall_i)
+                 end
             end // case: STATE_BUSY
-          //default:
-          //  begin
-          //     state_next = STATE_IDLE;                            //catch runawy state machine
-          //  end
         endcase // case (state_reg)
      end // always @ (state            or...
 

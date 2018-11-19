@@ -129,6 +129,15 @@ help:
 	$(info doc:                             Build the user manual)
 	@echo "" > /dev/null
 
+######################################
+# Rerun completed verification tasks #
+######################################
+all:	verify.WbXbc_address_decoder \
+	verify.WbXbc_error_generator \
+	verify.WbXbc_splitter \
+	verify.WbXbc_distributor \
+	verify.WbXbc_arbiter
+
 ###########
 # Linting #
 ###########

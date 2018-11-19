@@ -96,11 +96,11 @@ module wb_pass_through
 
    //Abbreviations
    wire                         rst  = |{async_rst_i, sync_rst_i};           //reset
-   wire                         req  = &{~itr_stall_o, itr_cyc_i, itr_stb_i, //request
+   wire                         req  = &{~tgt_stall_i, itr_cyc_i, itr_stb_i, //request
                                           pass_through_en};                  //monitor enable
    wire                         wreq = &{ itr_we_i, req};                    //write request
    wire                         rreq = &{~itr_we_i, req};                    //read request
-   wire                         ack  = |{itr_ack_o, itr_err_o, itr_rty_o};   //acknowledge
+   wire                         ack  = |{tgt_ack_i, tgt_err_i, tgt_rty_i};   //acknowledge
 
    //State Machine
    //=============
@@ -175,17 +175,23 @@ module wb_pass_through
      if (~rst) //disable assertions and constraints in reset
        begin
           //Pass through bus request
-          if ((state_reg == STATE_IDLE)  ||
-              (state_reg == STATE_WRITE) ||
-              (state_reg == STATE_READ))
-            begin
+          if  (state_reg == STATE_IDLE)
                if (pass_through_en)
                  begin
                     assert (&{tgt_cyc_o, tgt_stb_o} ==   //bus cycle request 
                             &{itr_cyc_i, itr_stb_i}); 
-                    //assert (tgt_cyc_o   == itr_cyc_i); //bus cycle indicator
-                    //assert (tgt_stb_o   == itr_stb_i); //access request
                  end // if (pass_through_en)
+          if ((state_reg == STATE_WRITE) ||
+              (state_reg == STATE_READ))
+               if (pass_through_en & ack)
+                 begin
+                    assert (&{tgt_cyc_o, tgt_stb_o} ==   //bus cycle request 
+                            &{itr_cyc_i, itr_stb_i}); 
+                 end // if (pass_through_en & ack)
+          if ((state_reg == STATE_IDLE)  ||
+              (state_reg == STATE_WRITE) ||
+              (state_reg == STATE_READ))
+            begin
                if (req)
                  begin
                     assert (tgt_we_o   == itr_we_i);     //write enable

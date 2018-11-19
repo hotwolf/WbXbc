@@ -25,9 +25,6 @@
 //# Version History:                                                            #
 //#   October 16, 2018                                                          #
 //#      - Initial release                                                      #
-//#   November 9, 2018                                                          #
-//#      - Added define "FORMAL_K_INDUCT" to constraint reachable states for    #
-//#        k-induction proofs                                                   #
 //###############################################################################
 `default_nettype none
 
@@ -399,25 +396,6 @@ module ftb_WbXbc_address_decoder
           cover (req & tgt_tga_tgtsel_o[m]); //cover each target selection
         cover (req & ~|tgt_tga_tgtsel_o);    //cover empty target selection
      end // always @*
-
-//`ifdef FORMAL_K_INDUCT
-//   //Avoid unreachable states in k-induction proofs
-//   //==============================================
-//   always @*
-//     begin
-//        //Reset states must be aligned
-//        assume(&{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
-//              ~|{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
-//
-//        //Idle states must be aligned
-//        assume(&{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle} |
-//              ~|{wb_itr_mon_fsm_idle, wb_tgt_mon_fsm_idle, wb_pass_through_fsm_idle});
-//
-//        //Busy states must be aligned
-//       assume(&{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy} |
-//              ~|{wb_itr_mon_fsm_busy, wb_tgt_mon_fsm_busy, wb_pass_through_fsm_busy});
-//     end // always @*
-//`endif //  `ifdef FORMAL_KVAL
 
 `endif //  `ifdef FORMAL
 

@@ -67,9 +67,9 @@ module ftb_WbXbc_arbiter
     input wire                               clk_i,            //module clock
     input wire                               async_rst_i,      //asynchronous reset
     input wire                               sync_rst_i,       //synchronous reset
-                                  		
-    //Initiator interface         		
-    //-------------------         		
+
+    //Initiator interface
+    //-------------------
     input  wire [`ITR_CNT-1:0]               itr_cyc_i,        //bus cycle indicator       +-
     input  wire [`ITR_CNT-1:0]               itr_stb_i,        //access request            |
     input  wire [`ITR_CNT-1:0]               itr_we_i,         //write enable              |
@@ -106,10 +106,10 @@ module ftb_WbXbc_arbiter
     input  wire                              tgt_stall_i,      //access delay              | initiator
     input  wire [`DAT_WIDTH-1:0]             tgt_dat_i,        //read data bus             |
     input  wire [`TGRD_WIDTH-1:0]            tgt_tgd_i);       //read data tags            +-
-						
-   //DUT					
-   //===					
-   WbXbc_arbiter			
+
+   //DUT
+   //===
+   WbXbc_arbiter
      #(.ITR_CNT   (`ITR_CNT),                            //number of initiator addresses
        .ADR_WIDTH (`ADR_WIDTH),                          //width of the address bus
        .DAT_WIDTH (`DAT_WIDTH),                          //width of each data bus
@@ -124,9 +124,9 @@ module ftb_WbXbc_arbiter
       .clk_i            (clk_i),                         //module clock
       .async_rst_i      (async_rst_i),                   //asynchronous reset
       .sync_rst_i       (sync_rst_i),                    //synchronous reset
-      
-      //Initiator interface		
-      //-------------------		
+
+      //Initiator interface
+      //-------------------
       .itr_cyc_i        (itr_cyc_i),                     //bus cycle indicator       +-
       .itr_stb_i        (itr_stb_i),                     //access request            |
       .itr_we_i         (itr_we_i),                      //write enable              |
@@ -177,32 +177,36 @@ module ftb_WbXbc_arbiter
    wire [`ITR_CNT-1:0]  wb_pass_through_fsm_busy;        //FSM in READ or WRITE
 
    //Initiator address tags
-   integer 		i; 
+   integer              i;
    reg [((`TGA_WIDTH+1)*`ITR_CNT)-1:0] itr_tga;
    always @*
-     for (i=0; i<ITR_CNT; i=i+1)
-       itr_tga[((i+1)*(`TGA_WIDTH+1))-1:i*(`TGA_WIDTH+1)] =
-	    {itr_tga_prio_i[i],
-             itr_tga_i[((i+1)*`TGA_WIDTH)-1:i*`TGA_WIDTH]};
+     begin
+        for (i=0; i<`ITR_CNT; i=i+1)
+          itr_tga[((i+1)*(`TGA_WIDTH+1))-1:i*(`TGA_WIDTH+1)] =
+               {itr_tga_prio_i[i],
+                itr_tga_i[((i+1)*`TGA_WIDTH)-1:i*`TGA_WIDTH]};
+     end
 
    //Initiator selection
-   integer 		j; 
+   integer              j;
    reg [`ITR_CNT-1:0] itr_sel;
    always @*
      begin
-	itr_sel = {`ITR_CNT{1'b0}};	
-	for (j=(`ITR_CNT-1); j>=0, j=j-1) //low prio requests
-	  if (req[i] & ~itr_tga_prio[i])
-	    itr_sel = 1 << i;	
-	for (j=(`ITR_CNT-1); j>=0, j=j-1) //high prio requests
-	  if (req[i] & itr_tga_prio[i])
-	    itr_sel = 1 << i;	
+        itr_sel = {`ITR_CNT{1'b0}};
+        for (j=(`ITR_CNT-1); j>=0; j=j-1) //low prio requests
+          if (req[j] & ~itr_tga_prio_i[j])
+            itr_sel = 1 << j;
+        for (j=(`ITR_CNT-1); j>=0; j=j-1) //high prio requests
+          if (req[j] & itr_tga_prio_i[j])
+            itr_sel = 1 << j;
      end
 
    //Abbreviations
-   wire                  rst = |{async_rst_i, sync_rst_i};            //reset
-   wire [`ITR_CNT-1:0]   req = ~itr_stall_o & itr_cyc_i & itr_stb_i;  //request
-   wire [`ITR_CNT-1:0]   ack =  itr_ack_o | itr_err_o | itr_rty_o;    //acknowledge
+   wire                  rst     = |{async_rst_i, sync_rst_i};           //reset
+   wire [`ITR_CNT-1:0]   req     = ~itr_stall_o & itr_cyc_i & itr_stb_i; //request
+   wire [`ITR_CNT-1:0]   ack     =  itr_ack_o | itr_err_o | itr_rty_o;   //acknowledge
+   wire                  tgt_req = ~tgt_stall_i & tgt_cyc_o & tgt_stb_o; //request
+   wire                  tgt_ack =  tgt_ack_i | tgt_err_i | tgt_rty_i;   //acknowledge
 
    //SYSCON constraints
    //===================
@@ -364,9 +368,75 @@ module ftb_WbXbc_arbiter
      .tb_fsm_idle       (wb_pass_through_fsm_idle),      //FSM in IDLE state
      .tb_fsm_busy       (wb_pass_through_fsm_busy));     //FSM in BUSY state
 
+   //Initiator select assertions
+   //===========================
+   //Only one initiator access is allowed at a time
+   integer         k, l;
+   always @(posedge clk_i)
+     begin
+        for (k=0; k<`ITR_CNT; k=k+1)
+        for (l=0; l<`ITR_CNT; l=l+1)
+        if (k != l)
+          begin
+             //Only one initiator request
+             if (req[k]) assert (~req[l]);
+             //Only one ongoing target access
+             if (wb_itr_mon_fsm_busy[k]) assert (~wb_itr_mon_fsm_busy[l]);
+          end
+     end // always @*
 
+   //Monitor state assertions
+   //========================
+   always @*
+     begin
+        //Reset states of monitors must be aligned
+        assert(&{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset} |
+              ~|{wb_itr_mon_fsm_reset, wb_tgt_mon_fsm_reset, wb_pass_through_fsm_reset});
 
+        //If target is idle, all initiators must be idle
+        if (wb_tgt_mon_fsm_idle) assert (&wb_itr_mon_fsm_idle);
 
+        //If target is busy, one initiator must be busy
+        if (wb_tgt_mon_fsm_busy) assert (|wb_itr_mon_fsm_busy);
+
+        //State of pass-through and initiator monitors must be aligned
+        assert(~|(wb_itr_mon_fsm_idle ^ wb_pass_through_fsm_idle));
+        assert(~|(wb_itr_mon_fsm_busy ^ wb_pass_through_fsm_busy));
+     end // always @ *
+
+   //Cover all target accesses
+   //=========================
+   integer   m;
+   always @(posedge clk_i)
+     for (m=0; m<`ITR_CNT; m=m+1)
+       begin
+          cover (wb_itr_mon_fsm_busy[m] & $past(wb_itr_mon_fsm_idle[m]));
+          cover (wb_itr_mon_fsm_busy[m] & $past(wb_itr_mon_fsm_busy[m]));
+          cover (wb_itr_mon_fsm_idle[m] & $past(wb_itr_mon_fsm_busy[m]));
+       end // for (m=0; m<`ITR_CNT; m=m+1)
+
+`ifdef FORMAL_K_INDUCT
+   //Enforce a reachable state within the k-intervall
+   //================================================
+   parameter tcnt_max   = (`FORMAL_K_INDUCT/2)-1;
+   integer   tcnt       = tcnt_max;
+
+   always @(posedge clk_i)
+     begin
+        //Decrement step counter
+        if ((tcnt > tcnt_max) || (tcnt <= 0))
+          tcnt = tcnt_max;
+
+        tcnt = tcnt - 1;
+
+        //Enforce reachable state
+        if (tcnt == 0)
+          //assume(rst);   //reset
+          assume( rst                                     |   //reset or
+                (wb_tgt_mon_fsm_idle & |req & ~|itr_lock_i)); //request
+     end // always @ ($global_clock)
+
+`endif //  `ifdef FORMAL_KVAL
 
 `endif //  `ifdef FORMAL
 
