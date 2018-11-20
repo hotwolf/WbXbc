@@ -35,7 +35,7 @@
 //=================
 //Default configuration
 //---------------------
-`ifndef CONF_DEFAULT
+`ifdef CONF_DEFAULT
 `endif
 
 //Fall back

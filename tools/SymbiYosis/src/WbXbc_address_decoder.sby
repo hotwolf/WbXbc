@@ -12,6 +12,7 @@ prove: depth 10
 live:  mode live
 cover: mode cover
 cover: depth 10
+cover: append 8
 multiclock on
 
 [engines]

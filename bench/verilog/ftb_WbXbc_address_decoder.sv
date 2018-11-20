@@ -32,7 +32,7 @@
 //=================
 //Default configuration
 //---------------------
-`ifndef CONF_DEFAULT
+`ifdef CONF_DEFAULT
 `endif
 
 //Fall back
@@ -182,7 +182,9 @@ module ftb_WbXbc_address_decoder
    wire                 wb_pass_through_fsm_busy;        //FSM in READ or WRITE
 
    //Abbreviations
+   wire                                    rst = |{async_rst_i, sync_rst_i};            //reset
    wire                                    req = &{~itr_stall_o, itr_cyc_i, itr_stb_i}; //request
+   wire                                    ack = |{itr_ack_o, itr_err_o, itr_rty_o};    //acknowledge
 
    //SYSCON constraints
    //===================
@@ -389,13 +391,26 @@ module ftb_WbXbc_address_decoder
 
    //Cover all target selects
    //========================
-   integer   m;
-   always @*
-     begin
-        for (m=0; m<`TGT_CNT; m=m+1)
-          cover (req & tgt_tga_tgtsel_o[m]); //cover each target selection
-        cover (req & ~|tgt_tga_tgtsel_o);    //cover empty target selection
-     end // always @*
+//   integer   m;
+//   always @*
+//     begin
+//        for (m=0; m<`TGT_CNT; m=m+1)
+//          cover (req & tgt_tga_tgtsel_o[m]); //cover each target selection
+//        cover (req & ~|tgt_tga_tgtsel_o);    //cover empty target selection
+//     end // always @*
+
+   //Cover state transitions in monitor
+   //==================================
+   always @(posedge clk_i)
+       begin
+//        cover (wb_itr_mon_fsm_busy & $past(wb_itr_mon_fsm_idle));
+//        cover (wb_itr_mon_fsm_idle & $past(wb_itr_mon_fsm_idle));
+          cover (wb_itr_mon_fsm_busy & $past(wb_itr_mon_fsm_busy));
+//        cover (wb_itr_mon_fsm_idle & $past(wb_itr_mon_fsm_busy));
+          
+          //Enforce witness       
+	  cover (wb_itr_mon_fsm_busy & ~rst & req & ack);
+       end // always @ (posedge clk_i)
 
 `endif //  `ifdef FORMAL
 

@@ -1,8 +1,12 @@
 [tasks]
-bmc.default    bmc   default	
-prove.default  prove default
-live.default   live  default
-cover.default  cover default
+bmc.default          bmc   default	
+prove.default        prove default
+live.default         live  default
+cover.default        cover default
+bmc.little_endian    bmc   little_endian	
+prove.little_endian  prove little_endian
+live.little_endian   live  little_endian
+cover.little_endian  cover little_endian
 
 [options]
 bmc:   mode bmc
@@ -21,7 +25,8 @@ live:  aiger avy
 cover: smtbmc
 
 [script]
-read -formal -D CONF_DEFAULT ftb_WbXbc_expander.sv
+default:       read -formal -D CONF_DEFAULT ftb_WbXbc_expander.sv
+little_endian: read -formal -D CONF_LITTLE_ENDIAN ftb_WbXbc_expander.sv
 read -sv     WbXbc_expander.v
 read -formal wb_itr_mon.sv
 read -formal wb_tgt_mon.sv
