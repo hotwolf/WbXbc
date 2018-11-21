@@ -233,31 +233,32 @@ See \secref{sig} for a detailed description of all interface signals.
     \rowcolor{gray!20}
     \multicolumn{4}{|c|}{\scriptsize{\rule{0pt}{2.5ex} Target Interface}} \global\rownum=1\relax \\  
     \hline                                                                                      
-    \texttt{tgt\_cyc\_o}         & \texttt{TGT\_CNT-1:0}               & output & concatinated bus cycle indicators   \\
-    \texttt{tgt\_stb\_o}         & \texttt{TGT\_CNT-1:0}               & output & concatinated access requests	      \\
-    \texttt{tgt\_we\_o}          & \texttt{TGT\_CNT-1:0}               & output & concatinated write enables	      \\
-    \texttt{tgt\_lock\_o}        & \texttt{TGT\_CNT-1:0}               & output & concatinated bus cycle locks	      \\
-    \texttt{tgt\_sel\_o}         & \texttt{(TGT\_CNT*SEL\_WIDTH)-1:0}  & output & concatinated write data selects     \\
-    \texttt{tgt\_adr\_o}         & \texttt{(TGT\_CNT*ADR\_WIDTH)-1:0}  & output & concatinated write data selects     \\
-    \texttt{tgt\_dat\_o}         & \texttt{(TGT\_CNT*DAT\_WIDTH)-1:0}  & output & concatinated write data busses      \\
-    \texttt{tgt\_tga\_o}         & \texttt{(TGT\_CNT*TGA\_WIDTH))-1:0} & output & concatinated address tags	      \\
-    \texttt{tgt\_tgc\_o}         & \texttt{(TGT\_CNT*TGC\_WIDTH)-1:0}  & output & concatinated bus cycle tags	      \\
-    \texttt{tgt\_tgd\_o}         & \texttt{(TGT\_CNT*TGWD\_WIDT)-1:0}  & output & concatinated write data tags	      \\
-    \texttt{tgt\_ack\_i}         & \texttt{TGT\_CNT-1:0}               & input  & concatinated bus cycle acknowledges \\
-    \texttt{tgt\_err\_i}         & \texttt{TGT\_CNT-1:0}               & input  & concatinated error indicators	      \\
-    \texttt{tgt\_rty\_i}         & \texttt{TGT\_CNT-1:0}               & input  & concatinated retry requests	      \\
-    \texttt{tgt\_stall\_i}       & \texttt{TGT\_CNT-1:0}               & input  & concatinated access delays	      \\
-    \texttt{tgt\_dat\_i}         & \texttt{(TGT\_CNT*DAT\_WIDTH-1):0}  & input  & concatinated read data busses	      \\
-    \texttt{tgt\_tgd\_i}         & \texttt{(TGT\_CNT*TGRD\_WIDTH-1):0} & input  & concatinated read data tags         \\   
+    \texttt{tgt\_cyc\_o}         & \texttt{TGT\_CNT-1:0}               & output & concat. bus cycle indicators   \\
+    \texttt{tgt\_stb\_o}         & \texttt{TGT\_CNT-1:0}               & output & concat. access requests	 \\
+    \texttt{tgt\_we\_o}          & \texttt{TGT\_CNT-1:0}               & output & concat. write enables	         \\
+    \texttt{tgt\_lock\_o}        & \texttt{TGT\_CNT-1:0}               & output & concat. bus cycle locks	 \\
+    \texttt{tgt\_sel\_o}         & \texttt{(TGT\_CNT*SEL\_WIDTH)-1:0}  & output & concat. write data selects     \\
+    \texttt{tgt\_adr\_o}         & \texttt{(TGT\_CNT*ADR\_WIDTH)-1:0}  & output & concat. write data selects     \\
+    \texttt{tgt\_dat\_o}         & \texttt{(TGT\_CNT*DAT\_WIDTH)-1:0}  & output & concat. write data busses      \\
+    \texttt{tgt\_tga\_o}         & \texttt{(TGT\_CNT*TGA\_WIDTH))-1:0} & output & concat. address tags	         \\
+    \texttt{tgt\_tgc\_o}         & \texttt{(TGT\_CNT*TGC\_WIDTH)-1:0}  & output & concat. bus cycle tags	 \\
+    \texttt{tgt\_tgd\_o}         & \texttt{(TGT\_CNT*TGWD\_WIDT)-1:0}  & output & concat. write data tags	 \\
+    \texttt{tgt\_ack\_i}         & \texttt{TGT\_CNT-1:0}               & input  & concat. bus cycle acks         \\
+    \texttt{tgt\_err\_i}         & \texttt{TGT\_CNT-1:0}               & input  & concat. error indicators	 \\
+    \texttt{tgt\_rty\_i}         & \texttt{TGT\_CNT-1:0}               & input  & concat. retry requests	 \\
+    \texttt{tgt\_stall\_i}       & \texttt{TGT\_CNT-1:0}               & input  & concat. access delays	         \\
+    \texttt{tgt\_dat\_i}         & \texttt{(TGT\_CNT*DAT\_WIDTH-1):0}  & input  & concat. read data busses	 \\
+    \texttt{tgt\_tgd\_i}         & \texttt{(TGT\_CNT*TGRD\_WIDTH-1):0} & input  & concat. read data tags         \\   
   \end{longtable}
 \end{center}  
 \endgroup
+
+\pagebreak
 
 \subsubsection{Verification Status}
 \label{dist:verif}
 
 \tabref[Table]{dist:verif:tab} provides an overview of the verification status of the \nameref*{dist}.
-Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and the Yosys synthesis tool~\cite{yosys}.
 
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
@@ -301,9 +302,12 @@ Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and
                  \texttt{1}           \\
                  \texttt{1}           \\
                  \texttt{1}}             &     
-    \makecell[c]{iVerilog~\cite{iverilog} \\                    
+    \makecell[c]{Verilator~\cite{verilator} \\                    
+                 iVerilog~\cite{iverilog} \\                    
                  Yosis~\cite{yosys}}     &
-    & & \\
+    &
+    \makecell[c]{SymbiYosys~\cite{sby} \\                    
+                 (SMTBMC flow\footnotemark)} \footnotetext{see \secref{verification}}& \\
   \end{longtable}
 \end{center}
   

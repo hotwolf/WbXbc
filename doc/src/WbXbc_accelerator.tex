@@ -111,6 +111,8 @@ See \secref{param} for a detailed description of all integration parameters.
   \end{longtable}
 \end{center}
 
+\pagebreak
+
 \subsubsection{Interface Signals}
 \label{accel:sig}
 
@@ -197,11 +199,12 @@ See \secref{sig} for a detailed description of all interface signals.
 \end{center}  
 \endgroup
 
+\pagebreak
+
 \subsubsection{Verification Status}
 \label{accel:verif}
 
 \tabref[Table]{accel:verif:tab} provides an overview of the verification status of the \nameref*{accel}.
-Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and the Yosys synthesis tool~\cite{yosys}.
 
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
@@ -245,7 +248,8 @@ Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and
                  \texttt{1}                 \\
                  \texttt{1}                 \\
                  \texttt{0}}             &      
-    \makecell[c]{iVerilog~\cite{iverilog}   \\                    
+    \makecell[c]{Verilator~\cite{verilator} \\                    
+                 iVerilog~\cite{iverilog}   \\                    
                  Yosis~\cite{yosys}}     &
     & & \\
     \hline
@@ -267,7 +271,8 @@ Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and
                  \texttt{1}                 \\
                  \texttt{1}                 \\
                  \texttt{1}}             &      
-    \makecell[c]{iVerilog~\cite{iverilog}   \\                    
+    \makecell[c]{Verilator~\cite{verilator} \\                    
+                 iVerilog~\cite{iverilog}   \\                    
                  Yosis~\cite{yosys}}     &
     & & \\
   \end{longtable}

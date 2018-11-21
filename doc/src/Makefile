@@ -57,4 +57,7 @@ $(BUILD_DIR)/$(DOC_NAME).pdf: $(SRC_DIR)/*.tex $(SRC_DIR)/*.bib
 	latexmk -f -pdf -outdir=$(BUILD_DIR) -auxdir=$(BUILD_DIR) $(SRC_DIR)/$(DOC_NAME).tex
 
 #Phony goals
-.PHONY:	publish build preview clean
+.PHONY:	preview clean
+
+#Forced goals
+FORCE:

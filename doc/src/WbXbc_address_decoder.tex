@@ -120,6 +120,8 @@ See \secref{param} for a detailed description of all integration parameters.
   \end{longtable}
 \end{center}
 
+\pagebreak
+
 \subsubsection{Interface Signals}
 \label{adec:sig}
 
@@ -206,11 +208,12 @@ See \secref{sig} for a detailed description of all interface signals.
 \end{center}  
 \endgroup
 
+\pagebreak
+
 \subsubsection{Verification Status}
 \label{adec:verif}
 
 \tabref[Table]{adec:verif:tab} provides an overview of the verification status of the \nameref*{adec}.
-Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and the Yosys synthesis tool~\cite{yosys}.
 
 \begin{center}
   \rowcolors{1}{gray!12}{white}                                         %set alternating row color
@@ -252,9 +255,12 @@ Lint checks have been done with the Icarus Verilog simulator~\cite{iverilog} and
                  \texttt{1}           \\
                  \texttt{1}           \\
                  \texttt{1}}             &     
-    \makecell[c]{iVerilog~\cite{iverilog} \\                    
+    \makecell[c]{Verilator~\cite{verilator} \\                    
+                 iVerilog~\cite{iverilog}   \\                    
                  Yosis~\cite{yosys}}     &
-    & & \\
+    &
+    \makecell[c]{SymbiYosys~\cite{sby} \\                    
+                 (SMTBMC flow\footnotemark)} \footnotetext{see \secref{verification}}& \\
   \end{longtable}
 \end{center}
   

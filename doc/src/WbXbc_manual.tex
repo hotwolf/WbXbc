@@ -25,6 +25,7 @@
 \documentclass[a4paper,
                titlepage]{article}
 
+\usepackage[margin=4cm]{geometry}
 \usepackage{float}
 \usepackage{fancyhdr}
 \usepackage{nameref}
@@ -100,15 +101,19 @@
 \maketitle
 
 %--------------------
-% Table of Contents
-%--------------------
-\setcounter{tocdepth}{3}
-\tableofcontents
-
-%--------------------
 % Revision history
 %--------------------
 \include{WbXbc_history}
+
+%--------------------
+% Table of Contents
+%--------------------
+\setcounter{tocdepth}{2}
+\tableofcontents
+\pagebreak
+\listoffigures
+\pagebreak
+\listoftables
 
 %--------------------
 % Overview
@@ -144,9 +149,14 @@
 \include{WbXbc_xbar}
 
 %--------------------
-% Wishbone pipelined bus interface
+% Pipelined Wishbone bus 
 %--------------------
-%\include{WbXbc_wishbone}
+\include{WbXbc_wishbone}
+
+%--------------------
+% Verification 
+%--------------------
+\include{WbXbc_verification}
 
 %--------------------
 % Tool summary
